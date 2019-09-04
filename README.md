@@ -53,3 +53,50 @@ in case of nominal sensors, the range contain items and for numeric sensors, the
 
 ![](http://yuml.me/diagram/scruffy/class/[Preprocessing]->[Dispacher],[Dispacher]->[Segmentation],[Segmentation]->[FeatureExtraction],[FeatureExtraction]->[Classifier],[Classifier]->[Combiner],[Combiner]->[Evaluation])
 
+#### Approaches
+\begin{Example}[Different Segmentation approaches]
+\end{Example}
+    \begin{lstlisting}[mathescape=true]
+function Fixed time window(S,X,r,l) {//S=SegmentHistory, X=Events, 
+         //r=Shift, l=windowLength
+    p=begin(S[last])
+    return X.eventsIn([p + r : p + r + l]); 
+}
+function Fixed siding window(S,X,r,l) {
+    prev_w=S[last]; p=begin(S[last])
+    be=first({e \in X| p + r $\leq$ time(e)}
+    return X.eventsIn([be : be + l]); 
+}
+function Significant events(S,X,m) {//m=significant events per segments
+    se=significantEvents(X) $\subseteq$ X
+    begin=time(se[1]);//next significant event 
+    end=time(se[1 + m]);
+    return X.eventsIn([begin:end]); 
+}
+//Probabilistic Approach
+given:(By analyzing training set) 
+    $ws(A_m)$ is average window size of activity $A_m$
+    $w_1 = min \{ws(A_1), ws(A_2), ..., ws(A_M)\}$
+    $w_L = median\{ws(A_1), ws(A_2), ..., ws(A_M)\}$
+    $w_l=(w_L-w_1)\times l/L+w_1$
+    $window\_sizes= \{w_1, w_2, . . . , w_L\}$
+    $P(w_l /A_m)$//probability of windows length $w_l$ for an activity Am
+    $P(A_m /s_i)$//probability of Activity $A_i$ associated with the sensor $s_i$.
+function Probabilistic Approach(S,X) {
+    x=nextEvent(X)
+    $w^{\star} =\underset{w_l}{max}  \{P(w_l /x)\}=\underset{w_l}{max}[P(w_l /A_m)\times P(A_m /x)] $
+    end=time(x);//Next event
+    return X.eventsIn(end-$w^\star$,end]); 
+}
+function Metric base Approach(S,X) {//S=SegmentHistory, X=Events    
+    indx=len(S[last])+1 //first event not in old segment
+    $m_i=metric(\{X[indx],...,X[i]\})$
+    find first i which $H(\{m_{0}....m_i\})$ is true// 
+    return X.eventsIn([time(X[indx]):time(X[i])]); 
+}
+function SWAB Approach(S,X,bs) {//bs=Buffer size    
+    indx=len(S[last])+1 //first event not in old segment
+    $m=BottomUp(\{X[indx],...,X[indx+bs]\})$
+    return m[0]; 
+}
+\end{lstlisting}
