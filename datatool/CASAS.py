@@ -1,14 +1,27 @@
 from datatool.dataset_abstract import Dataset
+import os
+import wget
+import pandas as pd
+from intervaltree.intervaltree import IntervalTree
+import json
+from general.utils import Data
+import numpy as np
 
 
 class AbstractCASAS(Dataset):
     def load(self):
         pass
 
-    def loadCASASDataset(self, data_url):
-        os.mkdir('datasetfiles')
-        datafile = "datasetfiles/data.txt"
-        os.remove(datafile)
+    def loadCASASDataset(self, data_url,name):
+        
+        rootfolder='datasetfiles/CASAS/'+name+'/'
+        if not os.path.exists(rootfolder):
+            os.makedirs(rootfolder)
+        datafile = rootfolder+"/data.txt"
+        
+        if(os.path.exists(datafile)):
+            os.remove(datafile)
+
         print('Beginning downloading files')
 
         wget.download(data_url, datafile)
@@ -50,7 +63,10 @@ class AbstractCASAS(Dataset):
 
         activity_events_tree = IntervalTree()
         for i, act in activity_events.iterrows():
-            activity_events_tree[act.StartTime.value:act.EndTime.value] = act
+            if(act.StartTime.value==act.EndTime.value):
+                activity_events_tree[act.StartTime.value] = act    
+            else:
+                activity_events_tree[act.StartTime.value:act.EndTime.value] = act
 
         # 3
         # sensor_events=sensor_events.drop(columns=['activity_hint'])
@@ -93,7 +109,7 @@ class AbstractCASAS(Dataset):
         sensor_id_map = {v: k for v, k in enumerate(sensor_desc.index)}
         sensor_id_map_inverse = {k: v for v, k in enumerate(sensor_desc.index)}
 
-        dataset = Data('dataset'+'CASAS')
+        dataset = Data('dataset'+'CASAS-'+name)
         dataset.activity_events = activity_events
         dataset.sensor_events = sensor_events
         dataset.activities = activities
@@ -111,16 +127,17 @@ class AbstractCASAS(Dataset):
 class KaryoAdlNormal(AbstractCASAS):
     def load(self):
         self.dataset = self.loadCASASDataset(
-            'https://drive.google.com/uc?id=1WY26Tmv9kBvdto4gy_YKnvc8KeknKB_i&authuser=0&export=download')
-
+            'https://drive.google.com/uc?id=1WY26Tmv9kBvdto4gy_YKnvc8KeknKB_i&authuser=0&export=download','KaryoAdlNormal')
+        return self.dataset
 
 class Home1(AbstractCASAS):
     def load(self):
         self.dataset = self.loadCASASDataset(
-            'https://drive.google.com/uc?id=1RqhKY_kVKTCc1L5iXfQl2yKQVWgoXwok&authuser=0&export=download')
-
+            'https://drive.google.com/uc?id=1RqhKY_kVKTCc1L5iXfQl2yKQVWgoXwok&authuser=0&export=download','Home1')
+        return self.dataset
 
 class Home2(AbstractCASAS):
     def load(self):
         self.dataset = self.loadCASASDataset(
-            'https://drive.google.com/uc?id=1mBXdg9-jdOmGVMdP0SVmGu0gWfBSSd41&authuser=0&export=download')
+            'https://drive.google.com/uc?id=1mBXdg9-jdOmGVMdP0SVmGu0gWfBSSd41&authuser=0&export=download','Home2')
+        return self.dataset

@@ -1,6 +1,7 @@
 #get_ipython().run_line_magic('load_ext', 'autoreload')
 #get_ipython().run_line_magic('autoreload', '2')
- 
+from IPython import get_ipython
+from general.libinstall import *
 from tqdm import tqdm
 from sklearn import svm
 import sklearn.metrics 
@@ -9,7 +10,7 @@ import numpy as np
 import pandas as pd
 import os
 import wget
-get_ipython().run_line_magic('matplotlib', 'inline')
+#get_ipython().run_line_magic('matplotlib', 'inline')
 import matplotlib.pyplot as plt
 import seaborn as sns;
 

@@ -1,6 +1,11 @@
 from general.utils import Data
 from general.libimport import *
 from datatool import *
+from preprocessing import *
+from evaluation import *
+from classifier import *
+from segmentation import *
+from metric import *
 
 
 methods = Data('methods')
@@ -24,7 +29,9 @@ methods.segmentation = [{'method': lambda: FixedEventWindow(), 'params': [
 ]
 
 
-methods.preprocessing = []
+methods.preprocessing = [
+    {'method': lambda: SimplePreprocessing(), 'params': [], 'findopt':False},
+    ]
 methods.classifier = [
     #     {'method': lambda:SVMClassifier(), 'params':[],
     #  'findopt':False},
@@ -35,7 +42,10 @@ methods.classifier = [
 
 methods.activity_fetcher = []
 methods.combiner = []
-methods.evalution = []
+methods.evaluation = [
+    {'method': lambda: Simple(), 'params': [], 'findopt':False},
+    {'method': lambda: KFold(), 'params': [{'var': 'fold', 'init': 5}], 'findopt': False},
+]
 
 
 methods.feature_extraction = [

@@ -1,18 +1,31 @@
 from datatool.dataset_abstract import Dataset
-
+import os
+import wget
+import pandas as pd
+from intervaltree.intervaltree import IntervalTree
+import json
+from general.utils import Data
 
 class A4H(Dataset):
     def load(self):
         self.dataset = self.loadA4HDataSet()
 
     def loadA4HDataSet(self):
-        os.mkdir('dataset')
-        actfile = "dataset/activities.csv"
-        sensfile = "dataset/sensor_events.csv"
-        descfile = "dataset/sensor_description.csv"
-        # if not os.path.isfile(actfile) and os.path.isfile(sensfile):
-        os.remove(actfile, sensfile, descfile)
+        
+        rootfolder='datasetfiles/A4H/'
+        if not os.path.exists(rootfolder):
+            os.mkdir(rootfolder)
+        actfile = rootfolder+'activities.csv'
+        sensfile = rootfolder+'sensor_events.csv'
+        descfile = rootfolder+'sensor_description.csv'
 
+        if(os.path.exists(actfile)):
+            os.remove(actfile)
+        if(os.path.exists(sensfile)):
+            os.remove(sensfile)
+        if(os.path.exists(descfile)):
+            os.remove(descfile)
+        
         print('Beginning downloading files')
 
         activity_url = 'https://drive.google.com/uc?authuser=0&id=1cd_AQbHpK4LBHRyuAWQRP2nG4ilsfNMr&export=download'

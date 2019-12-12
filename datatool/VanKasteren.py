@@ -1,16 +1,27 @@
 from datatool.dataset_abstract import Dataset
+import os
+import wget
+import pandas as pd
+from intervaltree.intervaltree import IntervalTree
+import json
+from general.utils import Data
 
 
 class VanKasteren(Dataset):
     def load(self):
         self.dataset = self.loadVanKasterenDataset()
+        return self.dataset
 
     def loadVanKasterenDataset(self):
-        os.mkdir('dataset')
-        sensefile = "dataset/mysensedata.txt"
-        actfile = "dataset/myactdata.txt"
-        os.remove(sensefile)
-        os.remove(actfile)
+        rootfolder='datasetfiles/VanKasteren/'
+        if not os.path.exists(rootfolder):
+            os.mkdir(rootfolder)
+        sensefile = rootfolder+"sensedata.txt"
+        actfile = rootfolder+"actdata.txt"
+        if(os.path.exists(sensefile)):
+            os.remove(sensefile)
+        if(os.path.exists(actfile)):
+            os.remove(actfile)
         print('Beginning downloading files')
         sense_url = 'https://drive.google.com/uc?id=1sESUFhqWKe7T74ETkBobI3im6P2hhZY_&authuser=0&export=download'
         act_url = 'https://drive.google.com/uc?id=13yULlF6uQVUvFHFS4og69VmmSQ4u613y&authuser=0&export=download'
@@ -101,7 +112,7 @@ class VanKasteren(Dataset):
         sensor_id_map = {v: k for v, k in enumerate(sensor_desc.index)}
         sensor_id_map_inverse = {k: v for v, k in enumerate(sensor_desc.index)}
 
-        dataset = Data('dataset'+'VanKasteren')
+        dataset = Data('datasetfiles'+'VanKasteren')
         dataset.activity_events = activity_events
         dataset.sensor_events = sensor_events
         dataset.activities = activities
