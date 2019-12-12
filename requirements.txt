@@ -1,0 +1,11 @@
+
+numpy
+pandas
+wget
+intervaltree
+tensorflow>=2.0.0
+tensorflow-plot
+scikit-optimize
+matplotlib
+seaborn
+plotly>=4.3.0
