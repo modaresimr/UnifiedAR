@@ -18,7 +18,7 @@ class AbstractClassifierMetric(MyTask):
         pass
 
 
-class AbstractEventMetric:
+class AbstractEventMetric(MyTask):
     def evaluate_dataset(self, dataset, plabel, pprob):
         pa_events = convertAndMergeToEvent(dataset.set_window, plabel)
         a_events = convertAndMergeToEvent(dataset.set_window, dataset.label)
