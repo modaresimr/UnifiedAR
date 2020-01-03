@@ -15,16 +15,13 @@ class AbstractCASAS(Dataset):
     def loadCASASDataset(self, data_url,name):
         
         rootfolder='datasetfiles/CASAS/'+name+'/'
-        if not os.path.exists(rootfolder):
-            os.makedirs(rootfolder)
         datafile = rootfolder+"/data.txt"
-        
-        if(os.path.exists(datafile)):
-            os.remove(datafile)
-
-        print('Beginning downloading files')
-
-        wget.download(data_url, datafile)
+        # if not os.path.exists(rootfolder):
+        #     os.makedirs(rootfolder)       
+        # if(os.path.exists(datafile)):
+        #     os.remove(datafile)
+        # print('Beginning downloading files')
+        # wget.download(data_url, datafile)
 
         all = pd.read_csv(datafile, r"\s+", None, header=None,
                           names=["date", "time", "SID", "value", "activity", "hint"])
@@ -33,7 +30,8 @@ class AbstractCASAS(Dataset):
         all = all.drop(columns=['date'])
 
         sensor_events = all
-
+        sensor_events=sensor_events.sort_values(['time'])
+        
         print('finish downloading files')
 
         activity_events = pd.DataFrame(
@@ -53,6 +51,8 @@ class AbstractCASAS(Dataset):
                     actevent, ignore_index=True)
                 start[e.activity] = None
 
+        activity_events = activity_events.sort_values(['StartTime', 'EndTime'])
+        
         activities = activity_events['Activity'].unique()
         activities.sort()
         activities = np.insert(activities, 0, 'None')
@@ -109,6 +109,7 @@ class AbstractCASAS(Dataset):
         sensor_id_map = {v: k for v, k in enumerate(sensor_desc.index)}
         sensor_id_map_inverse = {k: v for v, k in enumerate(sensor_desc.index)}
 
+        
         dataset = Data('dataset'+'CASAS-'+name)
         dataset.activity_events = activity_events
         dataset.sensor_events = sensor_events

@@ -1,9 +1,8 @@
 from segmentation.segmentation_abstract import Segmentation
+import pandas as pd
 
 class FixedEventWindow(Segmentation):
-    def precompute(self,s_events,a_events,acts):
-        pass
-        
+  
     def segment(self,w_history,buffer):
         params=self.params
         shift=params['shift']

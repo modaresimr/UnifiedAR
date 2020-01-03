@@ -10,7 +10,7 @@ def install_libs():
     installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 
     packages=[
-        'numpy',
+        'numpy<1.17',
         'pandas',
         'wget',
         'intervaltree',
@@ -21,11 +21,13 @@ def install_libs():
         'seaborn',
         'plotly',
 		'import-ipynb',
-        'memory_profiler'
+        'memory_profiler',
+        'ward-metrics'
     ]
     pbar = tqdm(packages)
     for pack in pbar:
         pbar.set_description("Installing %s" % pack)
+        packname=pack.split('<')[0]
         if not(pack in installed_packages):
             os.system('pip install -q '+pack)
     pbar.set_description("Everything Installed")
@@ -50,3 +52,4 @@ status=subprocess.check_output(['jupyter', 'labextension', 'check', 'plotlywidge
 #     print('Skip! labextensions are installed');
 # else:
 #     pass#install_lab_libs();
+

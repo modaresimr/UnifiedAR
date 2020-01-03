@@ -13,29 +13,30 @@ class A4H(Dataset):
     def loadA4HDataSet(self):
         
         rootfolder='datasetfiles/A4H/'
-        if not os.path.exists(rootfolder):
-            os.mkdir(rootfolder)
+
         actfile = rootfolder+'activities.csv'
         sensfile = rootfolder+'sensor_events.csv'
         descfile = rootfolder+'sensor_description.csv'
-
-        if(os.path.exists(actfile)):
-            os.remove(actfile)
-        if(os.path.exists(sensfile)):
-            os.remove(sensfile)
-        if(os.path.exists(descfile)):
-            os.remove(descfile)
         
-        print('Beginning downloading files')
+        # if not os.path.exists(rootfolder):
+        #     os.mkdir(rootfolder)
+        # if(os.path.exists(actfile)):
+        #     os.remove(actfile)
+        # if(os.path.exists(sensfile)):
+        #     os.remove(sensfile)
+        # if(os.path.exists(descfile)):
+        #     os.remove(descfile)
+        
+        # print('Beginning downloading files')
 
-        activity_url = 'https://drive.google.com/uc?authuser=0&id=1cd_AQbHpK4LBHRyuAWQRP2nG4ilsfNMr&export=download'
-        wget.download(activity_url, actfile)
+        # activity_url = 'https://drive.google.com/uc?authuser=0&id=1cd_AQbHpK4LBHRyuAWQRP2nG4ilsfNMr&export=download'
+        # wget.download(activity_url, actfile)
 
-        sensor_events_url = 'https://drive.google.com/uc?authuser=0&id=1n_ARZ90Ebo0VgS40RU-ycd_4tUhDdZs9&export=download'
-        wget.download(sensor_events_url, sensfile)
+        # sensor_events_url = 'https://drive.google.com/uc?authuser=0&id=1n_ARZ90Ebo0VgS40RU-ycd_4tUhDdZs9&export=download'
+        # wget.download(sensor_events_url, sensfile)
 
-        sensor_description_url = 'https://drive.google.com/uc?authuser=0&id=1QL7bdl8lRbyWdE5uSlMIS9LottgSvDja&export=download'
-        wget.download(sensor_description_url, descfile)
+        # sensor_description_url = 'https://drive.google.com/uc?authuser=0&id=1QL7bdl8lRbyWdE5uSlMIS9LottgSvDja&export=download'
+        # wget.download(sensor_description_url, descfile)
 
         sensor_events = pd.read_csv(sensfile,)
         t = pd.to_datetime(sensor_events['time'], format='%Y-%m-%d %H:%M:%S')

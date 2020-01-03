@@ -1,14 +1,20 @@
-from evaluation.evaluation_abstract import *
+import pandas as pd
 
+from evaluation.evaluation_abstract import Evaluation
+from general.utils import Data
+from general.utils import saveState
+from general.utils import saveFunctions
 
-class Simple(Evaluation):
-    def precompute(self):
-        pass
-
-    def evaluate(self, dataset, func):
+class SimpleEval(Evaluation):
+    
+    def evaluate(self, dataset, strategy):
         Train, Test = self.makeTrainTest(
             dataset.sensor_events, dataset.activity_events)
-        return func(dataset, Train, Test)
+        acts=[a for a in dataset.activities_map]
+        strategy.train(dataset, Train, acts)
+        testres = strategy.test(Test)
+        
+        return testres
 
     def makeTrainTest(self, sensor_events, activity_events):
         dataset_split = min(activity_events.StartTime) + \
@@ -22,4 +28,4 @@ class Simple(Evaluation):
         Test.s_events = sensor_events[sensor_events.time >= dataset_split]
         Test.a_events = activity_events[activity_events.EndTime >= dataset_split]
 
-        return [Train], [Test]
+        return Train, Test

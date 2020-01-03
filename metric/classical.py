@@ -1,6 +1,5 @@
-
-class test:
-    pass
+from metric.metric_abstract import AbstractClassifierMetric
+import numpy as np
 # class MyEvaluator(AbstractEvaluation):
 #     def evaluate_dataset(self,dataset,plabel,pprob):
 #         pa_events = convertAndMergeToEvent(dataset.set_window,plabel)
@@ -35,97 +34,97 @@ class test:
 
 
 
-# class ClassicalEvaluator(AbstractEvaluation):
-#     # def evaluate_dataset(self,dataset,plabel,pprob):
-#     #     return self.evaluate(dataset.set,dataset.label,plabel,pprob,dataset.acts)
-#     # def confusion_matrix_dataset(self, dataset,plabel,pprob):
-#     #     return self.confusion_matrix(dataset.set,dataset.label,plabel,pprob,dataset.acts)
+class ClassicalMetric(AbstractClassifierMetric):
+    # def evaluate_dataset(self,dataset,plabel,pprob):
+    #     return self.evaluate(dataset.set,dataset.label,plabel,pprob,dataset.acts)
+    # def confusion_matrix_dataset(self, dataset,plabel,pprob):
+    #     return self.confusion_matrix(dataset.set,dataset.label,plabel,pprob,dataset.acts)
         
-#     # def evaluate(self, rset, rlabel,plabel,pprob,labels):
-#     #     ;
+    # def evaluate(self, rset, rlabel,plabel,pprob,labels):
+    #     ;
     
-#     # def confusion_matrix(self, rset, rlabel,plabel,pprob,labels):
-#     #     cm=confusion_matrix(rlabel,plabel,labels)
-#     #     return cm   
+    # def confusion_matrix(self, rset, rlabel,plabel,pprob,labels):
+    #     cm=confusion_matrix(rlabel,plabel,labels)
+    #     return cm   
 
-#     def get_tp_fp_fn_tn(self,cm):
-#         cm=np.array(cm)
-#         np.seterr(divide='ignore', invalid='ignore')
-#         TP = np.diag(cm)
-#         FP = np.sum(cm, axis=0) - TP
-#         FN = np.sum(cm, axis=1).T - TP
-#         num_classes = len(cm)
-#         TN = []
-#         for i in range(num_classes):
-#             temp = np.delete(cm, i, 0)    # delete ith row
-#             temp = np.delete(temp, i, 1)  # delete ith column
-#             TN.append(temp.sum())
-#         return TP,FP,FN,TN
-#     def eval_cm(self,cm,average=None):
-#         pass
+    def get_tp_fp_fn_tn(self,cm):
+        cm=np.array(cm)
+        np.seterr(divide='ignore', invalid='ignore')
+        TP = np.diag(cm)
+        FP = np.sum(cm, axis=0) - TP
+        FN = np.sum(cm, axis=1).T - TP
+        num_classes = len(cm)
+        TN = []
+        for i in range(num_classes):
+            temp = np.delete(cm, i, 0)    # delete ith row
+            temp = np.delete(temp, i, 1)  # delete ith column
+            TN.append(temp.sum())
+        return TP,FP,FN,TN
+    def eval_cm(self,cm,average=None):
+        pass
 
-#     # def event_cofusion_matrix(self, p_activity,r_activity):
-#     #     ;
-
-
+    # def event_cofusion_matrix(self, p_activity,r_activity):
+    #     ;
 
 
-# class Accuracy(ClassicalEvaluator):
-#     def evaluate(self, rset, rlabel,plabel,pprob,labels):
-#         return sklearn.metrics.accuracy_score(rlabel,plabel)
+
+
+class Accuracy(ClassicalMetric):
+    def evaluate(self, rset, rlabel,plabel,pprob,labels):
+        return sklearn.metrics.accuracy_score(rlabel,plabel)
     
-#     def eval_cm(self,cm,average=None):
-#         TP,FP,FN,TN = self.get_tp_fp_fn_tn(cm)
-#         a = TP.sum()/cm.sum()
-#         if(average is None):
-#             return None
-#         return a
+    def eval_cm(self,cm,average=None):
+        TP,FP,FN,TN = self.get_tp_fp_fn_tn(cm)
+        a = TP.sum()/cm.sum()
+        if(average is None):
+            return None
+        return a
 
 
 
 
-# class Precision(ClassicalEvaluator):
+class Precision(ClassicalMetric):
     
-#     def evaluate(self, rset, rlabel,plabel,pprob,labels):
-#         p,r,f,s=sklearn.metrics.precision_recall_fscore_support(rlabel,plabel,1,labels ,average='macro')
-#         return p
-#     def eval_cm(self,cm,average=None):
-#         TP,FP,FN,TN = self.get_tp_fp_fn_tn(cm)
-#         p = TP/(TP+FP)
-#         if(average is None):
-#             return p
-#         return np.average(p[~np.isnan(p)])
+    def evaluate(self, rset, rlabel,plabel,pprob,labels):
+        p,r,f,s=sklearn.metrics.precision_recall_fscore_support(rlabel,plabel,1,labels ,average='macro')
+        return p
+    def eval_cm(self,cm,average=None):
+        TP,FP,FN,TN = self.get_tp_fp_fn_tn(cm)
+        p = TP/(TP+FP)
+        if(average is None):
+            return p
+        return np.average(p[~np.isnan(p)])
     
 
 
 
-# class Recall(ClassicalEvaluator):
-#     def evaluate(self, rset, rlabel,plabel,pprob,labels):
-#         p,r,f,s=sklearn.metrics.precision_recall_fscore_support(rlabel,plabel,1,labels ,average='macro')
-#         return r
-#     def eval_cm(self,cm,average=None):
-#         TP,FP,FN,TN = self.get_tp_fp_fn_tn(cm)    
-#         r = TP/(TP+FN)
-#         if(average is None):
-#             return r
-#         return np.average(r[~np.isnan(r)])
+class Recall(ClassicalMetric):
+    def evaluate(self, rset, rlabel,plabel,pprob,labels):
+        p,r,f,s=sklearn.metrics.precision_recall_fscore_support(rlabel,plabel,1,labels ,average='macro')
+        return r
+    def eval_cm(self,cm,average=None):
+        TP,FP,FN,TN = self.get_tp_fp_fn_tn(cm)    
+        r = TP/(TP+FN)
+        if(average is None):
+            return r
+        return np.average(r[~np.isnan(r)])
 
 
-# class F1Evaluator(ClassicalEvaluator):
-#      def evaluate(self, rset, rlabel,plabel,pprob,labels):
-#         p,r,f,s=sklearn.metrics.precision_recall_fscore_support(rlabel,plabel,1,labels ,average='macro')
-#         return f
+class F1Evaluator(ClassicalMetric):
+     def evaluate(self, rset, rlabel,plabel,pprob,labels):
+        p,r,f,s=sklearn.metrics.precision_recall_fscore_support(rlabel,plabel,1,labels ,average='macro')
+        return f
 
-#      def eval_cm(self,cm,average=None):
-#         TP,FP,FN,TN = self.get_tp_fp_fn_tn(np.array(cm))
-#         #print(np.array(TP).shape,np.array(FP).shape,np.array(FN).shape,np.array(TN).shape)
-#         #print(TP,FP,FN,TN)
-#         p = TP/(TP+FP)
-#         r = TP/(TP+FN)
-#         f=2*r*p/(r+p)
-#         if(average is None):
-#             return f
-#         return np.average(f[~np.isnan(f)])
+     def eval_cm(self,cm,average=None):
+        TP,FP,FN,TN = self.get_tp_fp_fn_tn(np.array(cm))
+        #print(np.array(TP).shape,np.array(FP).shape,np.array(FN).shape,np.array(TN).shape)
+        #print(TP,FP,FN,TN)
+        p = TP/(TP+FP)
+        r = TP/(TP+FN)
+        f=2*r*p/(r+p)
+        if(average is None):
+            return f
+        return np.average(f[~np.isnan(f)])
 
 
 

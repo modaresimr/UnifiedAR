@@ -28,4 +28,6 @@ class SimplePreprocessing(Preprocessing):
         d = Data(dataset.name)
         d.s_events = dataset.s_events.drop(removekeys)
         d.a_events = dataset.a_events
+        d.acts = dataset.acts
+        d.act_map = dataset.act_map
         return d

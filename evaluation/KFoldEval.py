@@ -1,14 +1,17 @@
 from evaluation.evaluation_abstract import *
+from general.utils import Data
+from sklearn.model_selection import KFold
 
 
-class KFold(Evaluation):
+class KFoldEval(Evaluation):
+    def __init__(self, fold):
+        self.fold=fold
     def precompute(self, dataset):
         pass
 
     def evaluate(self, dataset, func):
-
         ttmaker = self.makeFoldTrainTest(
-            dataset.sensor_events, dataset.activity_events, self.params['fold'])
+            dataset.sensor_events, dataset.activity_events, self.fold)
         models = {}
         for f, (Train, Test) in enumerate(ttmaker):
             print('=========Fold ', f, ' ===========')

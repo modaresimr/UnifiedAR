@@ -1,7 +1,5 @@
 from segmentation.segmentation_abstract import Segmentation
 class FixedTimeWindow(Segmentation):
-    def precompute(self,s_events,a_events,acts):
-        pass
         
     def segment(self,w_history,buffer):
         params=self.params

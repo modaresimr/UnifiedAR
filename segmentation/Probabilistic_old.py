@@ -3,7 +3,7 @@ from segmentation.segmentation_abstract import Segmentation
 
 
 class Probabilistic_old(Segmentation):
-    def precompute(self,s_events,a_events,acts):
+    def precompute(self,datasetdscr,s_events,a_events,acts):
         ws= a_events.groupby('Activity')['Duration'].mean(numeric_only=False)
         
        

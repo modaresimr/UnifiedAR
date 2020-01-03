@@ -1,50 +1,71 @@
-from general.utils import Data
-from general.libimport import *
-from datatool import *
-from preprocessing import *
-from evaluation import *
+no_memory_limit=True
+from activity_fetcher import *
 from classifier import *
-from segmentation import *
+from combiner import *
+from datatool import *
+from evaluation import *
+from feature_extraction import *
+from general.libimport import *
+from general.utils import Data
 from metric import *
+from ml_strategy import *
+from preprocessing import *
+from segmentation import *
 
 
 methods = Data('methods')
 
-methods.segmentation = [{'method': lambda: FixedEventWindow(), 'params': [
-    {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 20},
-    {'var': 'shift', 'min': 1, 'max': 20, 'type': 'int', 'init': 1}
-], 'findopt': False},
+methods.segmentation = [
+    {'method': lambda: Probabilistic(), 'params': [], 'findopt':False},
+    {'method': lambda: FixedEventWindow(), 'params': [
+        {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 20},
+        {'var': 'shift', 'min': 1, 'max': 20, 'type': 'int', 'init': 1}
+           ], 'findopt': False},
     {'method': lambda: FixedSlidingWindow(), 'params': [
         {'var': 'size', 'min': pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(
             30, unit='m').total_seconds(), 'type': 'float', 'init': pd.Timedelta(15, unit='s').total_seconds()},
         {'var': 'shift', 'min': pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(
             30, unit='m').total_seconds(), 'type': 'float', 'init': pd.Timedelta(1, unit='s').total_seconds()}
-    ], 'findopt': False},
+    ], 'findopt': False}
     #   {'method': lambda:FixedTimeWindow(), 'params':[
     #                  {'var':'size','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(15, unit='s').total_seconds()},
     #                  {'var':'shift','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(1, unit='s').total_seconds()}
     #              ],
     #   'findopt':False},
-    {'method': lambda: Probabilistic(), 'params': [], 'findopt':False}
+    
 ]
 
 
 methods.preprocessing = [
-    {'method': lambda: SimplePreprocessing(), 'params': [], 'findopt':False},
+    {'method': lambda: SimplePreprocessing()},
     ]
 methods.classifier = [
     #     {'method': lambda:SVMClassifier(), 'params':[],
     #  'findopt':False},
-    {'method': lambda: LSTMTest(), 'params': [
-        {'var': 'epochs', 'min': 10, 'max': 20, 'type': tf.int8, 'init': 3}
-    ], 'findopt': False},
+    {'method': lambda: SimpleKeras(), 'params': [
+        {'var': 'epochs', 'init': 3}
+    ]},
+    # {'method': lambda: LSTMTest(), 'params': [
+    #     {'var': 'epochs', 'min': 10, 'max': 20, 'type': tf.int8, 'init': 3}
+    # ], 'findopt': False},
 ]
 
-methods.activity_fetcher = []
-methods.combiner = []
+
+methods.classifier_metric = [
+    {'method': lambda: classical.Accuracy()},
+    #{'method': lambda: Accuracy()},
+]
+
+methods.event_metric = [
+    {'method': lambda: Accuracy()},
+    #{'method': lambda: Accuracy()},
+]
+
+methods.activity_fetcher = [{'method': lambda: CookActivityFetcher()}]
+methods.combiner = [{'method':lambda: SimpleCombiner()}]
 methods.evaluation = [
-    {'method': lambda: Simple(), 'params': [], 'findopt':False},
-    {'method': lambda: KFold(), 'params': [{'var': 'fold', 'init': 5}], 'findopt': False},
+    {'method': lambda: SimpleEval()},
+    {'method': lambda: KFoldEval(5)},
 ]
 
 
@@ -62,9 +83,15 @@ methods.feature_extraction = [
 
 
 methods.dataset = [
-    {'method': lambda: CASAS.KaryoAdlNormal(), 'params': [], 'findopt':False},
-    {'method': lambda: CASAS.Home1(), 'params': [], 'findopt':False},
-    {'method': lambda: CASAS.Home2(), 'params': [], 'findopt':False},
-    {'method': lambda: A4H(), 'params': [], 'findopt':False},
-    {'method': lambda: VanKasteren(), 'params': [], 'findopt':False},
+    {'method': lambda: CASAS.KaryoAdlNormal()},
+    {'method': lambda: CASAS.Home1()},
+    {'method': lambda: CASAS.Home2()},
+    {'method': lambda: A4H()},
+    {'method': lambda: VanKasteren()},
+]
+
+methods.mlstrategy = [
+    {'method': lambda: SimpleStrategy()},
+    {'method': lambda: SeperateGroupStrategy()},
+    
 ]

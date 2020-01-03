@@ -18,15 +18,15 @@ class VanKasteren(Dataset):
             os.mkdir(rootfolder)
         sensefile = rootfolder+"sensedata.txt"
         actfile = rootfolder+"actdata.txt"
-        if(os.path.exists(sensefile)):
-            os.remove(sensefile)
-        if(os.path.exists(actfile)):
-            os.remove(actfile)
-        print('Beginning downloading files')
-        sense_url = 'https://drive.google.com/uc?id=1sESUFhqWKe7T74ETkBobI3im6P2hhZY_&authuser=0&export=download'
-        act_url = 'https://drive.google.com/uc?id=13yULlF6uQVUvFHFS4og69VmmSQ4u613y&authuser=0&export=download'
-        wget.download(sense_url, sensefile)
-        wget.download(act_url, actfile)
+        # if(os.path.exists(sensefile)):
+        #     os.remove(sensefile)
+        # if(os.path.exists(actfile)):
+        #     os.remove(actfile)
+        # print('Beginning downloading files')
+        # sense_url = 'https://drive.google.com/uc?id=1sESUFhqWKe7T74ETkBobI3im6P2hhZY_&authuser=0&export=download'
+        # act_url = 'https://drive.google.com/uc?id=13yULlF6uQVUvFHFS4og69VmmSQ4u613y&authuser=0&export=download'
+        # wget.download(sense_url, sensefile)
+        # wget.download(act_url, actfile)
 
         all = pd.read_csv(sensefile, '\t', None, header=0, names=[
             "StartTime", "EndTime", "SID", "value"])
@@ -51,6 +51,9 @@ class VanKasteren(Dataset):
 
         activity_events['Duration'] = activity_events.EndTime - \
             activity_events.StartTime
+        
+        sensor_events=sensor_events.sort_values(['time'])
+        activity_events = activity_events.sort_values(['StartTime', 'EndTime'])
         print('finish downloading files')
         acts = {
             0: 'None',

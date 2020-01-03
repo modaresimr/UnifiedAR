@@ -1,4 +1,5 @@
 from classifier.classifier_abstract import *
+import tensorflow as tf
 class KerasClassifier(Classifier):
     def applyParams(self,params):
         self.epochs=params['epochs']
@@ -17,7 +18,8 @@ class KerasClassifier(Classifier):
     def train(self,trainset,trainlabel):
        # trainset  =   np.reshape(trainset, (trainset.shape[0], 1, trainset.shape[1]))
         #self.model.fit(trainset, trainlabel, epochs=self.epochs)
-        self.model.fit(trainset, trainlabel, epochs=self.epochs)
+        return self.model.fit(trainset, trainlabel, epochs=self.epochs)
+        
 
     def evaluate(self,testset,testlabel):
         
@@ -31,10 +33,12 @@ class KerasClassifier(Classifier):
         #testset  =   np.reshape(testset, (testset.shape[0], 1, testset.shape[1]))
         return self.model.predict_classes(testset)    
 
-    def save(self,desc):
-        print('saving ',desc)
-        tf.contrib.saved_model.save_keras_model(model, "./saved_models/"+desc+"/")
+    def save(self,file):
+        print('saving model to',file)
+        self.model.save(file+'.h5')
 
-    def loadmodel(self,desc): 
-        print('loading ',desc)
-        self.model=tf.contrib.saved_model.load_keras_model("./saved_models/"+desc+"/")
+    def load(self,file): 
+        print('loading model from',file)
+        if not('.h5' in file):
+            file=file+'.h5'
+        self.model=tf.keras.models.load_model(file)

@@ -1,21 +1,23 @@
 from general.utils import MyTask
+import numpy as np
 
-def featureExtraction(windows,feat,train):
+def featureExtraction(feat,datasetdscr,windows,istrain):
     method=feat
     
-    if(train):
-        method.precompute(windows)
-    result=[];
+    if(istrain):
+        method.precompute(datasetdscr,windows)
+    result=[]
     
     for w in windows:
-        result.append(method.featureExtract(w));
+        result.append(method.featureExtract(w))
 
     result  =   np.array(result)
     
     return result
 
 class FeatureExtraction(MyTask):
-    def precompute(self,windows):
+    def precompute(self,datasetdscr,windows):
+        self.datasetdscr=datasetdscr
         pass
     def featureExtract(self,window):
         pass

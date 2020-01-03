@@ -1,8 +1,12 @@
+from general.utils import Buffer
 from segmentation.segmentation_abstract import Segmentation
+from general.utils import argmaxdic
+
+
 class Probabilistic(Segmentation):
-    def precompute(self,s_events,a_events,acts):
+    def precompute(self,datasetdscr,s_events,a_events,acts):
         ws= a_events.groupby('Activity')['Duration'].mean(numeric_only=False)
-        
+        sensor_desc=datasetdscr.sensor_desc
        
         L=10
         w={}
@@ -18,6 +22,9 @@ class Probabilistic(Segmentation):
         for i,a in a_events.iterrows():
             ##print(i)
             six=buffer.searchTime(a.StartTime,-1)
+            if(six==None):
+                six=buffer.searchTime(a.StartTime,-1)
+                pass
             eix=buffer.searchTime(a.EndTime,+1)
             #window=buffer.data.SID.iloc[six:eix+1];
             for si in range(six,eix+1):
@@ -37,8 +44,8 @@ class Probabilistic(Segmentation):
             for sid in a_s:
                 Pa_s[sid][a]=0 if a_s[sid][-1]==0 else a_s[sid][a]/a_s[sid][-1]
             
-        Pw_s={sid:{i:0 for i in range(L+1)} for sid,desc in sensor_desc.iterrows()}
-        w_s={sid:{i:0 for i in range(L+1)} for sid,desc in sensor_desc.iterrows()}
+        Pw_s={sid:{i:0 for i in range(L+1)} for sid,desc in datasetdscr.sensor_desc.iterrows()}
+        w_s={sid:{i:0 for i in range(L+1)} for sid,desc in datasetdscr.sensor_desc.iterrows()}
         for sid,desc in sensor_desc.iterrows():
             for l in range(L+1):
                 a=argmaxdic(Pa_s[sid])
@@ -78,5 +85,3 @@ class Probabilistic(Segmentation):
         #buffer.removeTop(sindex)
         window.iat[0,1].value
         return {'window':window,'start':stime, 'end':etime}
-            
-    

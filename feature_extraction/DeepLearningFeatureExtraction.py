@@ -1,8 +1,10 @@
 from feature_extraction.feature_abstract import *
+import tensorflow as tf
 
 class DeepLearningFeatureExtraction(FeatureExtraction):
-    def precompute(self,windows):
-        self.simpleFE=SimpleFeatureExtraction();
+    def precompute(self,datasetdscr,windows):
+        super().precompute(datasetdscr,windows)
+        self.simpleFE=SimpleFeatureExtraction()
         wins=np.array([self.simpleFE.featureExtract(w,None) for w in windows])
         win=wins[0]
         dimention=self.params['size']
