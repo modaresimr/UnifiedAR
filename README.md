@@ -100,3 +100,7 @@ function SWAB Approach(S,X,bs) {//bs=Buffer size
     return m[0]; 
 }
 \end{lstlisting}
+
+
+#Similar Works
+https://github.com/TinghuiWang/pyActLearn/tree/master/pyActLearn
