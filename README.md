@@ -102,5 +102,5 @@ function SWAB Approach(S,X,bs) {//bs=Buffer size
 \end{lstlisting}
 
 
-#Similar Works
-https://github.com/TinghuiWang/pyActLearn/tree/master/pyActLearn
+# Similar Works
+[pyActLearn](https://github.com/TinghuiWang/pyActLearn/) -> [documents](https://pyactlearn.readthedocs.io/en/latest/)
