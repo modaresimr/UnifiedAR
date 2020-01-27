@@ -139,7 +139,7 @@ def plotMyMetric(dataset,real_events,pred_events):
 
     for i in range(len(res)):
         metrics=res[i]
-        plotJoinAct(dataset,real_events.loc[real_events.Activity==i],pred_events.loc[pred_events.Activity==i])
+        plotJoinAct(dataset,real_events,pred_events,onlyAct=i)
         df=pd.DataFrame(metrics)
         print(dataset.activities_map[i],"========")
         print(df)
@@ -156,10 +156,14 @@ def visualize(dataset):
 #dataset,real_events,pred_events=loadState('r1')
 #my_result_analyse(dataset,real_events,pred_events)
 
-def plotJoinAct(dataset, real_acts, pred_acts,label=None):
+def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None):
   from pandas.plotting import register_matplotlib_converters
   register_matplotlib_converters()
   size=0.45
+  if(onlyAct):
+      real_acts=real_acts.loc[real_acts.Activity==onlyAct]
+      pred_acts=pred_acts.loc[pred_acts.Activity==onlyAct]
+
   if(len(real_acts)==0):
     return
   ft=real_acts.StartTime.iloc[0]
@@ -174,7 +178,10 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None):
   pact = (pred_acts.Activity-(size/2)).tolist()
   pstart = pred_acts.StartTime.tolist()
   pend = pred_acts.EndTime.tolist()
-  fig, ax = plt.subplots()
+  if(onlyAct):
+      fig, ax = plt.subplots(figsize=(10, 2))
+  else:
+      fig, ax = plt.subplots()
   ax.set_title(label)
   _plotActs(ax,ract, rstart, rend,
                       linewidth=1,edgecolor='k',facecolor='g', size=size, alpha=.6)
@@ -192,7 +199,10 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None):
   ax.yaxis.grid(True)
 
   ax.set_yticklabels([l for l in dataset.activities_map_inverse])
-  ax.set_ylim(-1+size,len(dataset.activities)-size)
+  if(onlyAct):
+    ax.set_ylim(onlyAct-size,onlyAct+size)
+  else:
+    ax.set_ylim(-1+size,len(dataset.activities)-size)
   plt.margins(0.1)
   plt.show()
 

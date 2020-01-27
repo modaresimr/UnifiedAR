@@ -13,6 +13,8 @@ import matplotlib.dates as mdates
 
 
 def displaycontent(dataset):
+    if not(hasattr(dataset,'sensor_events')):
+          return
     print('sensor events:');
     print(dataset.sensor_events.iloc[20:25])
     print('activity_events:');
@@ -32,6 +34,8 @@ def displaycontent(dataset):
 
 
 def view(dataset, i):
+  if not(hasattr(dataset,'sensor_events')):
+          return
   tmp_act_evants = dataset.activity_events.loc[dataset.activity_events['Activity'] == i]
   print(dataset.activities_map[i])
   print(tmp_act_evants['Duration'].describe())
