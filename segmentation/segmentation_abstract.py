@@ -42,7 +42,7 @@ def prepare_segment(func,dtype,datasetdscr):
     i = 0
     for x in procdata.generator:
         if i % 10000 == 0:
-            print(segmentor.shortname, i)
+            print(segmentor.shortname(), i)
         i += 1
         procdata.set_window.append(x)
         procdata.label.append(

@@ -24,12 +24,12 @@ def method_param_selector(callback):
         func.classifier_metric = createFunction(methods.classifier_metric[0])
         func.event_metric = createFunction(methods.classifier_metric[0])
 
-        func.shortname = ''
+        func.shortrunname = ''
         for k in func.__dict__:
             obj = func.__dict__[k]
             if isinstance(obj, MyTask):
                 obj.func = func
-                func.shortname += obj.shortname()+'_'
+                func.shortrunname += obj.shortname()+'_'
 
         optl = OptLearn(func, callback)
         allpool.append(optl)

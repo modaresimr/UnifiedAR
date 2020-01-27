@@ -36,15 +36,14 @@ class SimpleCombiner(Combiner):
             ptree[a].merge_overlaps(data_reducer=datamerger)
             tree |= ptree[a]
 
-        tree.split_overlaps()
+        #tree.split_overlaps()
 
         def data_reducer(x, y):
-            res = x
             if(x['EndTime'] > y['EndTime']):
-                res = y
-            return res
+                return y
+            return x
 
-        tree.merge_equals(data_reducer=data_reducer)
+        #tree.merge_equals(data_reducer=data_reducer)
         for inv in tree:
             events.append(
                 {'Activity': inv.data['Activity'], 'StartTime': inv.begin, 'EndTime': inv.end})

@@ -56,13 +56,10 @@ class SimpleStrategy(MLStrategy):
         result.predictedclasses=func.classifier.predict_classes(Sdata.set)    
 
         pred_events=self.functions.combiner.combine(Sdata.set_window,result.predicted)
-        cm=confusion_matrix(Sdata.label,result.predictedclasses,self.acts)
-        event_cm=event_confusion_matrix(Sdata.a_events,pred_events,self.acts)
-        result.cm=cm
-        result.event_cm=event_cm
+        
         result.pred_events=pred_events
-        result.eventeval=EventBasedMetric(Sdata.a_events,pred_events,Sdata.acts)
-
+        result.real_events=data.a_events
+        
         return result
 
     

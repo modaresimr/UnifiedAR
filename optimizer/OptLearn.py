@@ -7,16 +7,16 @@ import skopt
 class OptLearn(MyTask):
     no_memory_limit=False
     def __init__(self,functions,callback):
-        self.shortname=functions.shortname
+        self.shortrunname=functions.shortrunname
         self.functions=functions
         self.callback=callback
     
     @profile
     def run(self):
-        shortname=self.shortname
+        shortrunname=self.shortrunname
         func  =self.functions
         
-        print(shortname,'start')
+        print(shortrunname,'start')
         
         
         func.segmentor.reset()
@@ -37,7 +37,7 @@ class OptLearn(MyTask):
             if not func.classifier.applyParams(claparams):
                 return -100000
             print(func.segmentor.params)
-            print(func.shortname,'segparam:',segparams,'feaparam:',feaparams,'claparm:',claparams)
+            print(shortrunname,'segparam:',segparams,'feaparam:',feaparams,'claparm:',claparams)
             q=self.callback(func)
             # if no_memory_limit:
             #     result['last']=result['history'][str(param)]={'q':q}
@@ -48,7 +48,7 @@ class OptLearn(MyTask):
             optq=skopt.forest_minimize(qfunc,bounds)
         else:
             optq={'x':x0, 'q':qfunc(x0)};
-        print(func.shortname,optq)
+        print(shortrunname,optq)
         
         result['optq']=optq
         result['segparams']=params.getParams(optq['x'],0)

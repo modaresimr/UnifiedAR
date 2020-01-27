@@ -13,6 +13,7 @@ def install_libs():
         'numpy<1.17',
         'pandas',
         'wget',
+        'ipympl'
         'intervaltree',
         'tensorflow',
         'tensorflow-plot',
@@ -42,6 +43,9 @@ def install_lab_libs():
     os.system('jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build')
     os.system('jupyter labextension install jupyterlab-plotly --no-build')
     os.system('jupyter labextension install plotlywidget --no-build')
+    os.system('jupyter labextension install jupyter-matplotlib --no-build')
+    
+
     os.system('jupyter lab build')
     os.system('unset NODE_OPTIONS')
     

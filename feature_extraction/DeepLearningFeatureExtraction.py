@@ -31,7 +31,7 @@ class DeepLearningFeatureExtraction(FeatureExtraction):
                                                  input,
                                                  model.layers[0],
                                                  model.layers[1]
-                                                ],name=self.shortname+"-deep-encoder")
+                                                ],name=self.shortname()+"-deep-encoder")
         
         # model=autoencoder;
         # self.encoder=encoder;
