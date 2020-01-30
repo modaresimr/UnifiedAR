@@ -5,7 +5,7 @@ import os
 
 def install_libs():
     
-    reqs =subprocess.check_output('pip install -q tqdm') #for progressbars
+    reqs =subprocess.check_output(['pip', 'install', '-q','tqdm']) #for progressbars
     from tqdm import tqdm
     installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 

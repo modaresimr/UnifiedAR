@@ -176,8 +176,8 @@ def _Positional(rcalc,pcalc,alpha):
 def _Cardinality(event_scores):
     m={'tp':0,'fp':0,'fn':0}        
     m['tp']=2*event_scores['C']
-    m['fp']=event_scores['M']+event_scores["M'"]+(event_scores["FM'"]+event_scores["FM"])/2
-    m['fn']=event_scores['F']+event_scores["F'"]+(event_scores["FM'"]+event_scores["FM"])/2
+    m['fp']=event_scores["I'"]+event_scores['M']+event_scores["M'"]+(event_scores["FM'"]+event_scores["FM"])/2
+    m['fn']=event_scores['D']+event_scores['F']+event_scores["F'"]+(event_scores["FM'"]+event_scores["FM"])/2
     return m
 
 def testMyMetric(real,pred):

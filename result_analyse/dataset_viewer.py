@@ -2,12 +2,12 @@ from matplotlib.pylab import plt
 import pandas as pd
 import numpy as np
 import seaborn as sns
-import plotly.plotly as py
+
 import matplotlib.patches as patches
 
-from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
-# import plotly.fiogure_factory as ff
-from plotly.tools import FigureFactory as FF
+import plotly.figure_factory as ff
+
+
 import matplotlib._color_data as mcd
 import matplotlib.dates as mdates
 
@@ -84,7 +84,7 @@ def plotAct(dataset, acts):
   # configure_plotly_browser_state()
   # init_notebook_mode(connected=False)
   # fig=ff.create_gantt(df2, index_col='Color', group_tasks=True)
-  import plotly.figure_factory as ff
+  
 
   fig = ff.create_gantt(df2, group_tasks=True)
   fig['layout'].update(margin=dict(l=150))
@@ -127,6 +127,6 @@ def plotAct(dataset, acts):
             visible=True,
             range=[firstacts['StartTime'], lastact['EndTime']],
         )))
-  iplot(fig)
+  fig.show()
 
 
