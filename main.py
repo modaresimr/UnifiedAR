@@ -21,7 +21,8 @@ if __name__ == '__main__':
     #parser.add_argument('--h5py', help='HDF5 dataset folder')
     args = parser.parse_args()
     utils.configurelogger(logging, args.output)
-    datasetdscr = methods.dataset[1]['method']().load()
+
+    datasetdscr = methods.dataset[0]['method']().load()
     strategy = methods.mlstrategy[0]['method']()
     evalres = methods.evaluation[0]['method']().evaluate(datasetdscr, strategy)
     # cm=confusion_matrix(Sdata.label,result.predictedclasses,self.acts)

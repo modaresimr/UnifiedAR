@@ -13,7 +13,7 @@ def install_libs():
         'numpy<1.17',
         'pandas',
         'wget',
-        'ipympl'
+        'ipympl',
         'intervaltree',
         'tensorflow',
         'tensorflow-plot',
@@ -34,7 +34,7 @@ def install_libs():
     pbar.set_description("Everything Installed")
     pbar.update(len(packages))
 
-#install_libs()
+# install_libs()
 
 
 
@@ -50,8 +50,7 @@ def install_lab_libs():
     os.system('unset NODE_OPTIONS')
     
 
-status=subprocess.check_output(['jupyter', 'labextension', 'check', 'plotlywidget'])
-
+# status=subprocess.check_output(['jupyter', 'labextension', 'check', 'plotlywidget'])
 # if("enabled" in status):
 #     print('Skip! labextensions are installed');
 # else:
