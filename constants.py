@@ -1,8 +1,10 @@
-no_memory_limit=True
+
 from activity_fetcher import *
 from classifier import *
 from combiner import *
-from datatool import *
+import datatool.CASAS
+import datatool.A4H
+import datatool.VanKasteren
 from evaluation import *
 from feature_extraction import *
 from general.libimport import *
@@ -12,6 +14,8 @@ from ml_strategy import *
 from preprocessing import *
 from segmentation import *
 import pandas as pd
+
+no_memory_limit=True
 
 methods = Data('methods')
 
@@ -83,11 +87,11 @@ methods.feature_extraction = [
 
 
 methods.dataset = [
-    {'method': lambda: CASAS.KaryoAdlNormal()},
-    {'method': lambda: CASAS.Home1()},
-    {'method': lambda: CASAS.Home2()},
-    {'method': lambda: A4H()},
-    {'method': lambda: VanKasteren()},
+    {'method': lambda: datatool.CASAS.CASAS('datasetfiles/CASAS/KaryoAdlNormal/','KaryoAdlNormal')},
+    {'method': lambda: datatool.CASAS.CASAS('datasetfiles/CASAS/Home1/','Home1')},
+    {'method': lambda: datatool.CASAS.CASAS('datasetfiles/CASAS/Home2/','Home2')},
+    {'method': lambda: datatool.A4H.A4H('datasetfiles/A4H/','A4H')},
+    {'method': lambda: datatool.VanKasteren.VanKasteren('datasetfiles/VanKasteren/','VanKasteren')},
 ]
 
 methods.mlstrategy = [

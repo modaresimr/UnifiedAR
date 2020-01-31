@@ -8,25 +8,13 @@ from general.utils import Data
 
 
 class VanKasteren(Dataset):
-    def load(self):
-        self.dataset = self.loadVanKasterenDataset()
-        return self.dataset
-
-    def loadVanKasterenDataset(self):
-        rootfolder='datasetfiles/VanKasteren/'
-        if not os.path.exists(rootfolder):
-            os.mkdir(rootfolder)
+    def __init__(self,data_path,data_dscr):
+        super.__init__(data_path,data_dscr);
+        
+    def _load(self):
+        rootfolder = self.data_path
         sensefile = rootfolder+"sensedata.txt"
         actfile = rootfolder+"actdata.txt"
-        # if(os.path.exists(sensefile)):
-        #     os.remove(sensefile)
-        # if(os.path.exists(actfile)):
-        #     os.remove(actfile)
-        # print('Beginning downloading files')
-        # sense_url = 'https://drive.google.com/uc?id=1sESUFhqWKe7T74ETkBobI3im6P2hhZY_&authuser=0&export=download'
-        # act_url = 'https://drive.google.com/uc?id=13yULlF6uQVUvFHFS4og69VmmSQ4u613y&authuser=0&export=download'
-        # wget.download(sense_url, sensefile)
-        # wget.download(act_url, actfile)
 
         all = pd.read_csv(sensefile, '\t', None, header=0, names=[
             "StartTime", "EndTime", "SID", "value"])
@@ -49,10 +37,7 @@ class VanKasteren(Dataset):
         activity_events.EndTime = pd.to_datetime(
             activity_events.EndTime, format='%d-%b-%Y %H:%M:%S')
 
-        activity_events['Duration'] = activity_events.EndTime - \
-            activity_events.StartTime
-        
-        sensor_events=sensor_events.sort_values(['time'])
+        sensor_events = sensor_events.sort_values(['time'])
         activity_events = activity_events.sort_values(['StartTime', 'EndTime'])
         print('finish downloading files')
         acts = {
@@ -82,15 +67,6 @@ class VanKasteren(Dataset):
             24:	'Hall-Bedroom door'}
 
         activities = [k for v, k in enumerate(acts)]
-        activities_map_inverse = {k: v for v, k in enumerate(acts)}
-        activities_map = {v: k for v, k in enumerate(acts)}
-
-        activity_events_tree = IntervalTree()
-        for i, act in activity_events.iterrows():
-            activity_events_tree[act.StartTime.value:act.EndTime.value] = act
-
-        # 3
-        # sensor_events=sensor_events.drop(columns=['activity_hint'])
 
         sensor_desc = pd.DataFrame(columns=['ItemId', 'ItemName', 'Cumulative',
                                             'Nominal', 'OnChange', 'ItemRange', 'Location', 'Object', 'SensorName'])
@@ -100,32 +76,5 @@ class VanKasteren(Dataset):
                 'range': ['0', '1']}, 'Location': 'None', 'Object': 'None', 'SensorName': 'None'}
             sensor_desc = sensor_desc.append(item, ignore_index=True)
 
-        sensor_desc = sensor_desc.sort_values(by=['ItemName'])
-        sensor_desc = sensor_desc.set_index('ItemId')
-
-        sensor_desc_map_inverse = {}
-        sensor_desc_map = {}
-        #sensor_desc.ItemRange=sensor_desc.ItemRange.apply(lambda x: json.loads(x))
-        for i, sd in sensor_desc[sensor_desc.Nominal == 1].iterrows():
-            sensor_desc_map_inverse[i] = {k: v for v,
-                                          k in enumerate(sd.ItemRange['range'])}
-            sensor_desc_map[i] = {v: k for v,
-                                  k in enumerate(sd.ItemRange['range'])}
-    #    sensor_events.value=sensor_events.apply(lambda x:float(x.value) if not(x.SID in sensor_desc_map_inverse) else sensor_desc_map_inverse[x.SID][str(int(x.value))] if type(x.value) is float else sensor_desc_map_inverse[x.SID][x.value],axis=1)
-        sensor_id_map = {v: k for v, k in enumerate(sensor_desc.index)}
-        sensor_id_map_inverse = {k: v for v, k in enumerate(sensor_desc.index)}
-
-        dataset = Data('datasetfiles'+'VanKasteren')
-        dataset.activity_events = activity_events
-        dataset.sensor_events = sensor_events
-        dataset.activities = activities
-        dataset.activities_map_inverse = activities_map_inverse
-        dataset.activities_map = activities_map
-        dataset.activity_events_tree = activity_events_tree
-        dataset.sensor_desc = sensor_desc
-        dataset.sensor_desc_map = sensor_desc_map
-        dataset.sensor_desc_map_inverse = sensor_desc_map_inverse
-        dataset.sensor_id_map = sensor_id_map
-        dataset.sensor_id_map_inverse = sensor_id_map_inverse
-        return dataset
+        return activity_events, activities, sensor_events, sensor_desc
     # loadVanKasterenDataset()

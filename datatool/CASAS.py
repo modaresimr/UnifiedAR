@@ -8,20 +8,14 @@ from general.utils import Data
 import numpy as np
 
 
-class AbstractCASAS(Dataset):
-    def load(self):
-        pass
+class CASAS(Dataset):
+    def __init__(self,data_path,data_dscr):
+        super.__init__(data_path,data_dscr);
 
-    def loadCASASDataset(self, data_url,name):
-        
-        rootfolder='datasetfiles/CASAS/'+name+'/'
+    def _load(self):
+        rootfolder= self.data_path
+        #rootfolder='datasetfiles/CASAS/'+name+'/'
         datafile = rootfolder+"/data.txt"
-        # if not os.path.exists(rootfolder):
-        #     os.makedirs(rootfolder)       
-        # if(os.path.exists(datafile)):
-        #     os.remove(datafile)
-        # print('Beginning downloading files')
-        # wget.download(data_url, datafile)
 
         all = pd.read_csv(datafile, r"\s+", None, header=None,
                           names=["date", "time", "SID", "value", "activity", "hint"])
@@ -54,20 +48,7 @@ class AbstractCASAS(Dataset):
         activity_events = activity_events.sort_values(['StartTime', 'EndTime'])
         
         activities = activity_events['Activity'].unique()
-        activities.sort()
-        activities = np.insert(activities, 0, 'None')
-        activities_map_inverse = {k: v for v, k in enumerate(activities)}
-        activities_map = {v: k for v, k in enumerate(activities)}
-        activity_events.Activity = activity_events.Activity.apply(
-            lambda x: activities_map_inverse[x])
-
-        activity_events_tree = IntervalTree()
-        for i, act in activity_events.iterrows():
-            if(act.StartTime.value==act.EndTime.value):
-                activity_events_tree[act.StartTime.value] = act    
-            else:
-                activity_events_tree[act.StartTime.value:act.EndTime.value] = act
-
+        
         # 3
         # sensor_events=sensor_events.drop(columns=['activity_hint'])
 
@@ -93,52 +74,9 @@ class AbstractCASAS(Dataset):
                 item['ItemRange'] = {"max": 3.0, "min": 0.0}
             sensor_desc = sensor_desc.append(item, ignore_index=True)
 
-        sensor_desc = sensor_desc.sort_values(by=['ItemName'])
-        sensor_desc = sensor_desc.set_index('ItemId')
-
-        sensor_desc_map_inverse = {}
-        sensor_desc_map = {}
-        #sensor_desc.ItemRange=sensor_desc.ItemRange.apply(lambda x: json.loads(x))
-        for i, sd in sensor_desc[sensor_desc.Nominal == 1].iterrows():
-            sensor_desc_map_inverse[i] = {k: v for v,
-                                          k in enumerate(sd.ItemRange['range'])}
-            sensor_desc_map[i] = {v: k for v,
-                                  k in enumerate(sd.ItemRange['range'])}
-        sensor_events.value = sensor_events.apply(lambda x: float(x.value) if not(x.SID in sensor_desc_map_inverse) else sensor_desc_map_inverse[x.SID][str(
-            int(x.value))] if type(x.value) is float else sensor_desc_map_inverse[x.SID][x.value], axis=1)
-        sensor_id_map = {v: k for v, k in enumerate(sensor_desc.index)}
-        sensor_id_map_inverse = {k: v for v, k in enumerate(sensor_desc.index)}
-
         
-        dataset = Data('dataset'+'CASAS-'+name)
-        dataset.activity_events = activity_events
-        dataset.sensor_events = sensor_events
-        dataset.activities = activities
-        dataset.activities_map_inverse = activities_map_inverse
-        dataset.activities_map = activities_map
-        dataset.activity_events_tree = activity_events_tree
-        dataset.sensor_desc = sensor_desc
-        dataset.sensor_desc_map = sensor_desc_map
-        dataset.sensor_desc_map_inverse = sensor_desc_map_inverse
-        dataset.sensor_id_map = sensor_id_map
-        dataset.sensor_id_map_inverse = sensor_id_map_inverse
-        return dataset
+        #sensor_desc.ItemRange=sensor_desc.ItemRange.apply(lambda x: json.loads(x))
+        
+        return activity_events,activities,sensor_events,sensor_desc
+        
 
-
-class KaryoAdlNormal(AbstractCASAS):
-    def load(self):
-        self.dataset = self.loadCASASDataset(
-            'https://drive.google.com/uc?id=1WY26Tmv9kBvdto4gy_YKnvc8KeknKB_i&authuser=0&export=download','KaryoAdlNormal')
-        return self.dataset
-
-class Home1(AbstractCASAS):
-    def load(self):
-        self.dataset = self.loadCASASDataset(
-            'https://drive.google.com/uc?id=1RqhKY_kVKTCc1L5iXfQl2yKQVWgoXwok&authuser=0&export=download','Home1')
-        return self.dataset
-
-class Home2(AbstractCASAS):
-    def load(self):
-        self.dataset = self.loadCASASDataset(
-            'https://drive.google.com/uc?id=1mBXdg9-jdOmGVMdP0SVmGu0gWfBSSd41&authuser=0&export=download','Home2')
-        return self.dataset

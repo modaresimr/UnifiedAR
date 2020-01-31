@@ -1,17 +1,18 @@
 from general.utils import MyTask
 
+
 class Classifier(MyTask):
-    def createmodel(self,inputsize,outputsize):
-        pass
-    def train(self,trainset,trainlabel):
-        pass
-    def evaluate(self,testset,testlabel):
-        pass
-    def predict(self,testset):
-        pass
-    def predict_classes(self,testset):
-        pass
-    def save(self,desc):
-        pass
-    def load(self,desc):
-        pass
+    def createmodel(self, inputsize, outputsize):
+        raise NotImplementedError
+
+    def train(self, trainset, trainlabel):
+        raise NotImplementedError
+
+    def evaluate(self, testset, testlabel):
+        raise NotImplementedError
+
+    def predict(self, testset):
+        raise NotImplementedError
+
+    def predict_classes(self, testset):
+        raise NotImplementedError

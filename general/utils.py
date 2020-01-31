@@ -3,6 +3,7 @@ from os.path import exists
 
 from intervaltree import intervaltree
 
+
 # Define a Data Object
 
 
@@ -39,17 +40,18 @@ class MyTask:
     def shortname(self):
         return self.__class__.__name__
 
-        
-    def save(self,file):
+    def save(self, file):
         import pickle
-        file=file+'.pkl'
-        with open(file, 'wb') as f: 
+        file = file+'.pkl'
+        with open(file, 'wb') as f:
             pickle.dump([self], f)
-    
-    def load(self,file):
+
+    def load(self, file):
         pass
 
 # Defining Interval Tree from Activities.
+
+
 def makeIntervalTree(acts):
     tree = IntervalTree()
 
@@ -130,59 +132,91 @@ def instantiate(method):
     m.applyParams(method['params'])
 
 
+def saveState(vars, file):
+    import pickle
 
+    file = 'save_data/'+file+'/'
+    if not (os.path.exists(file)):
+        os.makedirs(file)
+    with open(file+'data.pkl', 'wb') as f:
+        pickle.dump(vars, f)
 
-def saveState(vars,file):
-  import pickle
-  
-  file='save_data/'+file+'/'
-  if not (os.path.exists(file)):
-    os.makedirs(file)
-  with open(file+'data.pkl', 'wb') as f: 
-      pickle.dump(vars, f)
 
 def loadState(file):
-  import pickle
-  file='save_data/'+file+'/'
-  with open(file+'data.pkl','rb') as f:  
-    return pickle.load(f)
+    import pickle
+    file = 'save_data/'+file+'/'
+    with open(file+'data.pkl', 'rb') as f:
+        return pickle.load(f)
 
-def saveFunctions(func,file):
-    file='save_data/'+file+'/'
+
+def saveFunctions(func, file):
+    file = 'save_data/'+file+'/'
     if not (os.path.exists(file)):
         os.makedirs(file)
     for k in func.__dict__:
         obj = func.__dict__[k]
-        
+
         if isinstance(obj, MyTask):
-            tmpfunc=obj.func
-            obj.func=''
+            tmpfunc = obj.func
+            obj.func = ''
             obj.save(file+'_'+k+'_'+type(obj).__module__+'_')
-            obj.func=tmpfunc
+            obj.func = tmpfunc
 
 
 def loadall(file):
     import pickle
-    data=loadState(file)
-    file='save_data/'+file+'/'
-    func=Data('Saved Functions')
+    data = loadState(file)
+    file = 'save_data/'+file+'/'
+    func = Data('Saved Functions')
     from os import listdir
     from os.path import isfile, join
     onlyfiles = [f for f in listdir(file) if isfile(join(file, f))]
     for f in onlyfiles:
-        x=f.split('_')
+        x = f.split('_')
         if('data.pkl'in f):
             continue
 
         if('.pkl' in f):
-            with open(file+f,'rb') as fl:  
-                func.__dict__[x[1]]=pickle.load(fl)
+            with open(file+f, 'rb') as fl:
+                func.__dict__[x[1]] = pickle.load(fl)
+        elif('pyact.h5' in f):
+            from classifier.PyActLearnClassifier import PAL_NN
+            classifier = PAL_NN()
+            classifier.load(file+f)
+            func.__dict__[x[1]] = classifier
         elif('.h5' in f):
             from classifier.KerasClassifier import KerasClassifier
-            classifier=KerasClassifier()
+            classifier = KerasClassifier()
             classifier.load(file+f)
-            func.__dict__[x[1]]=classifier
+            func.__dict__[x[1]] = classifier
         else:
             print('unsupported'+f)
 
-    return [data,func]
+    return [data, func]
+
+
+def configurelogger(logging, dir):
+    from datetime import datetime
+    # Default parameters
+    log_filename = os.path.basename(__file__).split('.')[0] + \
+        '-%s.log' % datetime.now().strftime('%y%m%d_%H-%M-%S')
+    # Setup output directory
+    output_dir = dir
+    if output_dir is not None:
+        output_dir = os.path.abspath(os.path.expanduser(output_dir))
+        if os.path.exists(output_dir):
+            # Found output_dir, check if it is a directory
+            if not os.path.isdir(output_dir):
+                exit(
+                    'Output directory %s is found, but not a directory. Abort.' % output_dir)
+        else:
+            # Create directory
+            os.makedirs(output_dir)
+    else:
+        output_dir = '.'
+    log_filename = os.path.join(output_dir, log_filename)
+    # Setup Logging as early as possible
+    logging.basicConfig(level=logging.DEBUG,
+                        format='[%(asctime)s] %(name)s:%(levelname)s:%(message)s',
+                        handlers=[logging.FileHandler(log_filename),
+                                  logging.StreamHandler()])
