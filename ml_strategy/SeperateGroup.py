@@ -1,6 +1,6 @@
-from ml_strategy.ml_strategy_abstract import *
+import ml_strategy.abstract
 
-class SeperateGroupStrategy(MLStrategy):
+class SeperateGroupStrategy(ml_strategy.abstract.MLStrategy):
     def groupize(self,datasetdscr):
         gacts=[[a] for a in datasetdscr.activities_map]
         gacts.append([a for a in datasetdscr.activities_map])

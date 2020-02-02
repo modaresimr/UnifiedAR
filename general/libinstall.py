@@ -5,12 +5,12 @@ import os
 
 def install_libs():
     
-    reqs =subprocess.check_output(['pip', 'install', '-q','tqdm']) #for progressbars
+    reqs =subprocess.check_output(['pip', 'install','--upgrade', '-q','tqdm']) #for progressbars
     from tqdm import tqdm
     installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 
     packages=[
-        'numpy<1.17',
+        'numpy',
         'pandas',
         'wget',
         'ipympl',
@@ -30,7 +30,7 @@ def install_libs():
         pbar.set_description("Installing %s" % pack)
         packname=pack.split('<')[0]
         if not(pack in installed_packages):
-            os.system('pip install -q '+pack)
+            os.system('pip install --upgrade -q '+pack)
     pbar.set_description("Everything Installed")
     pbar.update(len(packages))
 

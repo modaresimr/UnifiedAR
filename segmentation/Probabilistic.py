@@ -85,3 +85,26 @@ class Probabilistic(Segmentation):
         #buffer.removeTop(sindex)
         window.iat[0,1].value
         return {'window':window,'start':stime, 'end':etime}
+
+    def segment2(self,w_history,buffer):   
+        
+        eindex=self.lastindex+1
+        self.lastindex=eindex
+        if(eindex >=len(buffer.data)):
+            return None
+        sensor=buffer.data.iloc[eindex]
+        etime=buffer.times[eindex]
+        
+        #eindex=buffer.searchTime(etime,-1)
+        
+        size=self.w[self.w_s[sensor.SID]]
+        stime=etime-size
+        sindex=buffer.searchTime(stime,+1)
+        if(sindex is None):
+            sindex=eindex
+        #etime=buffer.times[eindex]
+        
+        window=range(sindex,eindex+1);
+        #buffer.removeTop(sindex)
+        
+        return {'windowindx':window,'start':stime, 'end':etime}

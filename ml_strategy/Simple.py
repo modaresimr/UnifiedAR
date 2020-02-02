@@ -1,4 +1,6 @@
 
+import logging
+
 from sklearn.metrics import confusion_matrix
 
 from feature_extraction.feature_abstract import featureExtraction
@@ -6,13 +8,13 @@ from general.utils import Data, MyTask
 from metric.CMbasedMetric import CMbasedMetric
 from metric.event_confusion_matrix import event_confusion_matrix
 from metric.EventBasedMetric import EventBasedMetric
-from ml_strategy import MLStrategy
+import ml_strategy.abstract
 from optimizer.BruteForce import method_param_selector
 from optimizer.OptLearn import OptLearn, ParamMaker
-from segmentation.segmentation_abstract import prepare_segment
+from segmentation.segmentation_abstract import prepare_segment,prepare_segment2
+logger = logging.getLogger(__file__)
 
-
-class SimpleStrategy(MLStrategy):
+class SimpleStrategy(ml_strategy.abstract.MLStrategy):
     def train(self, datasetdscr, data, acts):
         self.datasetdscr=datasetdscr
         self.acts=acts
@@ -23,24 +25,30 @@ class SimpleStrategy(MLStrategy):
 
 
 
-
+    
     def learning(self,func):
         func.acts=self.acts
+        logger.debug('Starting learning .... %s' % (func.shortrunname))
         Tdata=func.preprocessor.process(self.datasetdscr, self.traindata)
-        Sdata=prepare_segment(func,Tdata,self.datasetdscr)
+        logger.debug('Preprocessing Finished %s' % (func.preprocessor.shortname()))
+        Sdata=prepare_segment2(func,Tdata,self.datasetdscr)
+        logger.debug('Segmentation Finished %d segment created %s' % (len(Sdata.set_window), func.segmentor.shortname()))
         Sdata.set=featureExtraction(func.featureExtractor,self.datasetdscr,Sdata.set_window,True)
-        # import pickle
-        # with open('objs1.pkl', 'wb') as f: 
-        #     pickle.dump([Sdata.set,Sdata.label, func], f)
-        
+        logger.debug('FeatureExtraction Finished shape %s , %s' % (str(Sdata.set.shape), func.featureExtractor.shortname()))
+
         func.classifier.createmodel(Sdata.set[0].shape,len(self.acts))
+        logger.debug('Classifier model created  %s' % (func.classifier.shortname()))
         func.classifier.train(Sdata.set, Sdata.label) 
-        
+        logger.debug('Classifier model trained  %s' % (func.classifier.shortname()))
+
+        logger.info("Evaluating....")
         predicted=func.classifier.predict(Sdata.set)
         pred_events=func.combiner.combine(Sdata.set_window,predicted)
+        logger.debug('events merged  %s' % (func.combiner.shortname()))
         #eventeval=EventBasedMetric(Sdata.a_events,pred_events,self.acts)
         event_cm=event_confusion_matrix(Sdata.a_events,pred_events,self.acts)
         quality=CMbasedMetric(event_cm,'macro')
+        logger.debug('Evalution quality is f1=%.2f acc=%.2f precision=%.2f recall=%.2f' % (quality.f1,quality.accuracy,quality.precision,quality.recall))
         return quality.f1
         
         
@@ -63,5 +71,3 @@ class SimpleStrategy(MLStrategy):
         result.real_events=data.a_events
         
         return result
-
-    

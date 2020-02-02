@@ -28,10 +28,10 @@ class CASAS(Dataset):
         
         print('finish downloading files')
 
-        activity_events = pd.DataFrame(
-            columns=["StartTime", "EndTime", "Activity", 'Duration'])
+        activity_events = []
         start = {}
-        for i, e in sensor_events[sensor_events.hint == sensor_events.hint].iterrows():
+        seit=sensor_events[sensor_events.hint == sensor_events.hint].iterrows()
+        for i, e in seit:
 
             if(e.hint == 'begin'):
                 start[e.activity] = e
@@ -41,10 +41,11 @@ class CASAS(Dataset):
                             "Activity": e.activity, 'Duration': e.time-start[e.activity].time}
                 # actevent=[start[splt[0]].time,e.time,splt[0]]
                 # start[splt[0]]=None
-                activity_events = activity_events.append(
-                    actevent, ignore_index=True)
+                activity_events.append(actevent)
                 start[e.activity] = None
 
+        activity_events=pd.DataFrame(data=activity_events,
+            columns=["StartTime", "EndTime", "Activity", 'Duration'])
         activity_events = activity_events.sort_values(['StartTime', 'EndTime'])
         
         activities = activity_events['Activity'].unique()

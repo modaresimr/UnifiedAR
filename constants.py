@@ -17,7 +17,8 @@ from feature_extraction import *
 from general.libimport import *
 from general.utils import Data
 from metric import *
-from ml_strategy import *
+import ml_strategy.Simple
+import ml_strategy.SeperateGroup
 from preprocessing import *
 from segmentation import *
 
@@ -132,7 +133,7 @@ methods.dataset = [
 ]
 
 methods.mlstrategy = [
-    {'method': lambda: SimpleStrategy()},
-    {'method': lambda: SeperateGroupStrategy()},
+    {'method': lambda: ml_strategy.Simple.SimpleStrategy()},
+    # {'method': lambda: SeperateGroupStrategy()},
     
 ]
