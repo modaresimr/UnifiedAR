@@ -1,8 +1,8 @@
 import os
 from os.path import exists
-
+import logging
 from intervaltree import intervaltree
-
+logger = logging.getLogger(__file__)
 
 # Define a Data Object
 
@@ -29,6 +29,8 @@ def argmaxdic(dic):
 class MyTask:
     def applyParams(self, params):
         self.params = params
+        for p in params:
+            self.__dict__[p]=params[p]
         return True
 
     def reset(self):
@@ -195,7 +197,7 @@ def loadall(file):
     return [data, func]
 
 
-def configurelogger(logging, dir):
+def configurelogger(file, dir):
     from datetime import datetime
     # Default parameters
     log_filename = os.path.basename(__file__).split('.')[0] + \

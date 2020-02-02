@@ -48,17 +48,17 @@ def method_param_selector(callback):
 
 
 def runOptLearn(optl, test=0):
-    try:
-        optl.run()
-        optl.success=True   
-    except Exception as e:
-        if test:
-            raise e
-        import sys
-        import traceback
-        print(e, file=sys.stderr)
-        traceback.print_exc()
-        optl.success=False
+    # try:
+    optl.run()
+    optl.success=True   
+    # except Exception as e:
+    #     if test:
+    #         raise e
+    #     import sys
+    #     import traceback
+    #     print(e, file=sys.stderr)
+    #     traceback.print_exc()
+    #     optl.success=False
     return optl
 
 

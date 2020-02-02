@@ -15,7 +15,7 @@ class Dataset(MyTask):
         pass
 
     def load(self):
-        self.activity_events, self.activities, self.sensor_events, self.sensor_desc = _load()
+        self.activity_events, self.activities, self.sensor_events, self.sensor_desc = self._load()
         self._calculate_activity()
         self._caclculate_sensor()
         return self
@@ -167,26 +167,26 @@ class Dataset(MyTask):
 
     # endregion
 
-    # region PickleState
+    # # region PickleState
 
-    def __getstate__(self):
-        """Save x as sparse matrix if the density of x is smaller than 0.5
-        """
-        # state = self.__dict__.copy()
-        # if self.x is not None:
-        #     density_count = np.count_nonzero(self.x)
-        #     density = float(density_count) / self.x.size
-        #     if density < 0.5:
-        #         state['x'] = sp.csr_matrix(state['x'])
-        return self.__dict__
+    # def __getstate__(self):
+    #     """Save x as sparse matrix if the density of x is smaller than 0.5
+    #     """
+    #     # state = self.__dict__.copy()
+    #     # if self.x is not None:
+    #     #     density_count = np.count_nonzero(self.x)
+    #     #     density = float(density_count) / self.x.size
+    #     #     if density < 0.5:
+    #     #         state['x'] = sp.csr_matrix(state['x'])
+    #     return self.__dict__
 
-    def __setstate__(self, state):
-        """Set state from pickled file
-        """
-        # if sp.issparse(state['x']):
-        #     state['x'] = state['x'].todense()
-        # self.__dict__.update(state)
-    # endregion
+    # def __setstate__(self, state):
+    #     """Set state from pickled file
+    #     """
+    #     # if sp.issparse(state['x']):
+    #     #     state['x'] = state['x'].todense()
+    #     # self.__dict__.update(state)
+    # # endregion
 
     # region Summary
     def summary(self):

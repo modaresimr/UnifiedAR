@@ -11,7 +11,7 @@ class OptLearn(MyTask):
         self.functions=functions
         self.callback=callback
     
-    @profile
+#    @profile
     def run(self):
         shortrunname=self.shortrunname
         func  =self.functions
@@ -65,6 +65,7 @@ class OptLearn(MyTask):
 class ParamMaker:
     def __init__(self,items):
         self.items=items
+        self._fixItems()
 
     def convertToArray(self):
         #seg.params.length
@@ -100,3 +101,13 @@ class ParamMaker:
                 paramDic[p['var']]=array[i]
         return paramDic
 
+    def _fixItems(self):
+        for item in self.items:
+            for p in item.defparams:
+                if 'var' in p: continue
+                for n in p:
+                    if n == 'min' or n == 'max' or n == 'init':
+                        continue
+                    p['var']=n
+                    p['init']=p[n]
+                    break

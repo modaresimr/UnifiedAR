@@ -6,12 +6,18 @@ def featureExtraction(feat,datasetdscr,windows,istrain):
     
     if(istrain):
         method.precompute(datasetdscr,windows)
-    result=[]
-    
-    for w in windows:
-        result.append(method.featureExtract(w))
+    fw=method.featureExtract(windows[0])
 
-    result  =   np.array(result)
+    if(len(fw.shape)==1):
+        result=np.zeros((len(windows),fw.shape[0]))
+    else:
+        result=np.zeros((len(windows),fw.shape[0],fw.shape[1]))
+    result[0]=fw
+    for i in range(1,len(windows)):
+        w=windows[i]
+        result[i]=method.featureExtract(w)
+
+    #result  =   np.array(result)
     
     return result
 

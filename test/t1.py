@@ -1,10 +1,13 @@
 
+import  general.utils as utils
+import  datatool.testdata as testdata
 import result_analyse.visualisation as vs
-import general.utils as utils
+
+result='CASASr1'
+#result='A4Hr1'
+dataset,real_events,pred_events=utils.loadState(result)
 
 
-dataset, real_events, pred_events = utils.loadState('r1')
 
-vs.my_result_analyse(dataset, real_events, pred_events)
-
+vs.my_result_analyse(dataset,real_events,pred_events)
 

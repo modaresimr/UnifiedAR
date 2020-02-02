@@ -12,13 +12,14 @@ class SimpleCombiner(Combiner):
         act_data=np.argmax(act_data, axis=1) 
         return self.convertAndMergeToEvent(segment_data, act_data)
 
-    def convertAndMergeToEvent(self, set_window, predictedclasses):
+    def convertAndMergeToEvent(self, set_window, predicted):
         events = []
         ptree = {}
         for i in range(0, len(set_window)):
             start = set_window[i]['start']
             end = set_window[i]['end']
-            pclass = predictedclasses[i]
+            #pclass = np.argmax(predicted[i])
+            pclass = predicted[i]
 
             if not(pclass in ptree):
                 ptree[pclass] = IntervalTree()

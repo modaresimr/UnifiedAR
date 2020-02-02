@@ -31,8 +31,9 @@ class FixedSlidingWindow(Segmentation):
         return {'window':window,'start':stime, 'end':etime}
     
     def applyParams(self,params):
+        res=super().applyParams(params);
         shift=pd.Timedelta(params['shift'],unit='s')
         size=pd.Timedelta(params['size'],unit='s')
         if(shift>size):
             return False;
-        return super().applyParams(params);
+        return res

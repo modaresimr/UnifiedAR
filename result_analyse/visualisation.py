@@ -5,7 +5,6 @@ from matplotlib.pylab import plt
 from wardmetrics.core_methods import eval_events, eval_segments
 from wardmetrics.utils import *
 from wardmetrics.visualisations import *
-
 import metric.MyMetric as MyMetric
 import result_analyse.dataset_viewer as dv
 import result_analyse.SpiderChart as spiderchart
@@ -160,7 +159,7 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None):
   from pandas.plotting import register_matplotlib_converters
   register_matplotlib_converters()
   size=0.45
-  if(onlyAct):
+  if not(onlyAct is None):
       real_acts=real_acts.loc[real_acts.Activity==onlyAct]
       pred_acts=pred_acts.loc[pred_acts.Activity==onlyAct]
 

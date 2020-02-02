@@ -33,7 +33,7 @@ class SimpleStrategy(MLStrategy):
         # with open('objs1.pkl', 'wb') as f: 
         #     pickle.dump([Sdata.set,Sdata.label, func], f)
         
-        func.classifier.createmodel(len(Sdata.set[0]),len(self.acts))
+        func.classifier.createmodel(Sdata.set[0].shape,len(self.acts))
         func.classifier.train(Sdata.set, Sdata.label) 
         
         predicted=func.classifier.predict(Sdata.set)
@@ -47,6 +47,8 @@ class SimpleStrategy(MLStrategy):
     def test(self, data):
         func=self.functions
         data=self.justifySet(self.acts,data)
+        func.acts=self.acts
+
         Tdata=func.preprocessor.process(self.datasetdscr, data)
         Sdata=prepare_segment(func,Tdata,self.datasetdscr)
         Sdata.set=featureExtraction(func.featureExtractor,None,Sdata.set_window,False)

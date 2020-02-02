@@ -1,10 +1,17 @@
+no_memory_limit=True
+import pandas as pd
 
+import classifier.Keras
+import classifier.PyActLearn
+import classifier.sklearn
+import classifier.libsvm
+import datatool.a4h_handeler
+import datatool.casas_handeler
+import datatool.vankasteren_handeler
 from activity_fetcher import *
 from classifier import *
+from classifier.sklearn import UAR_DecisionTree
 from combiner import *
-import datatool.CASAS
-import datatool.A4H
-import datatool.VanKasteren
 from evaluation import *
 from feature_extraction import *
 from general.libimport import *
@@ -13,23 +20,18 @@ from metric import *
 from ml_strategy import *
 from preprocessing import *
 from segmentation import *
-import pandas as pd
-
-no_memory_limit=True
 
 methods = Data('methods')
 
 methods.segmentation = [
-    #{'method': lambda: Probabilistic(), 'params': [], 'findopt':False},
+    {'method': lambda: Probabilistic(), 'params': [], 'findopt':False},
     # {'method': lambda: FixedEventWindow(), 'params': [
-    #     {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 20},
-    #     {'var': 'shift', 'min': 1, 'max': 20, 'type': 'int', 'init': 1}
+    #     {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 10},
+    #     {'var': 'shift', 'min': 1, 'max': 20, 'type': 'int', 'init': 5}
     #        ], 'findopt': False},
     {'method': lambda: FixedSlidingWindow(), 'params': [
-        {'var': 'size', 'min': pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(
-            30, unit='m').total_seconds(), 'type': 'float', 'init': pd.Timedelta(60, unit='s').total_seconds()},
-        {'var': 'shift', 'min': pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(
-            30, unit='m').total_seconds(), 'type': 'float', 'init': pd.Timedelta(50, unit='s').total_seconds()}
+        {'var': 'size', 'min':60, 'max': 30*60, 'type': 'float', 'init': 120},
+        {'var': 'shift', 'min': 2, 'max': 15*60, 'type': 'float', 'init': 60}
     ], 'findopt': False}
     #   {'method': lambda:FixedTimeWindow(), 'params':[
     #                  {'var':'size','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(15, unit='s').total_seconds()},
@@ -44,14 +46,40 @@ methods.preprocessing = [
     {'method': lambda: SimplePreprocessing()},
     ]
 methods.classifier = [
-    #     {'method': lambda:SVMClassifier(), 'params':[],
+    #     {'method': lambda:classifier.libsvm.LibSVM(), 'params':[],
     #  'findopt':False},
-    {'method': lambda: SimpleKeras(), 'params': [
-        {'var': 'epochs', 'init': 3}
+    {'method': lambda: classifier.Keras.SimpleKeras(), 'params': [
+        {'var': 'epochs', 'init': 30}
     ]},
-    # {'method': lambda: LSTMTest(), 'params': [
-    #     {'var': 'epochs', 'min': 10, 'max': 20, 'type': tf.int8, 'init': 3}
-    # ], 'findopt': False},
+    # {'method': lambda: classifier.Keras.LSTMTest(), 'params': [
+    #     {'var': 'epochs', 'init': 3}
+    # ]},
+    # {'method': lambda: classifier.PyActLearn.PAL_LSTM_Legacy(), 'params': [
+    #     {'var': 'epochs', 'init': 3}
+    # ]},
+    # {'method': lambda: classifier.sklearn.UAR_RandomForest(), 'params': [
+    #     {'var': 'n_estimators', 'init': 20},
+    #     {'var':'random_state','init':0}
+    # ]},
+    # {'method': lambda: classifier.sklearn.UAR_KNN(), 'params': [
+    #     {'var': 'k', 'init': 5},
+    # ]},
+    {'method': lambda: classifier.sklearn.UAR_SVM(), 'params': [
+        {'var': 'kernel', 'init': 'rbf'},
+        {'var': 'gamma', 'init': 1},
+        {'var': 'C', 'init': 100.},
+        {'var':'decision_function_shape','init':'ovr'}
+    ]},
+    {'method': lambda: classifier.sklearn.UAR_SVM2(), 'params': [
+        {'kernel': 'linear'},
+        {'gamma': 1},
+        {'C':100.},
+        {'decision_function_shape':'ovr'}
+    ]},
+    #{'method': lambda: classifier.sklearn.UAR_DecisionTree(), 'params': [ ]},
+    {'method': lambda: classifier.Keras.LSTMTest(), 'params': [
+        {'var': 'epochs',  'init': 10}
+    ]},
 ]
 
 
@@ -83,15 +111,24 @@ methods.feature_extraction = [
     #  'findopt':False},
     {'method': lambda: Cook1FeatureExtraction(), 'params': [],
      'findopt':False},
+    #  {'method': lambda: PAL_Features(), 'params': [],
+    #  'findopt':False},
+    #  {'method': lambda:RawFeatureExtraction(), 'params': [
+    #      {'var':'normalized','init':True}
+    #   ],'findopt':False},
+    #  {'method': lambda:SequenceRaw(), 'params': [
+    #      {'var':'normalized','init':True},
+    #      {'var':'per_sensor','init':True}
+    #   ],'findopt':False},
 ]
 
 
 methods.dataset = [
-    {'method': lambda: datatool.CASAS.CASAS('datasetfiles/CASAS/KaryoAdlNormal/','KaryoAdlNormal')},
-    {'method': lambda: datatool.CASAS.CASAS('datasetfiles/CASAS/Home1/','Home1')},
-    {'method': lambda: datatool.CASAS.CASAS('datasetfiles/CASAS/Home2/','Home2')},
-    {'method': lambda: datatool.A4H.A4H('datasetfiles/A4H/','A4H')},
-    {'method': lambda: datatool.VanKasteren.VanKasteren('datasetfiles/VanKasteren/','VanKasteren')},
+    {'method': lambda: datatool.casas_handeler.CASAS('datasetfiles/CASAS/KaryoAdlNormal/','KaryoAdlNormal')},
+    {'method': lambda: datatool.casas_handeler.CASAS('datasetfiles/CASAS/Home1/','Home1')},
+    {'method': lambda: datatool.casas_handeler.CASAS('datasetfiles/CASAS/Home2/','Home2')},
+    {'method': lambda: datatool.a4h_handeler.A4H('datasetfiles/A4H/','A4H')},
+    {'method': lambda: datatool.vankasteren_handeler.VanKasteren('datasetfiles/VanKasteren/','VanKasteren')},
 ]
 
 methods.mlstrategy = [

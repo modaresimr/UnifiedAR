@@ -17,12 +17,12 @@ if __name__ == '__main__':
     args_ok = False
     parser = argparse.ArgumentParser(description='Run on datasets.')
     #parser.add_argument('-d', '--dataset', help=' to original datasets')
-    parser.add_argument('-o', '--output', help='Output folder')
+    parser.add_argument('-o', '--output', help='Output folder', default='logs')
     #parser.add_argument('--h5py', help='HDF5 dataset folder')
     args = parser.parse_args()
-    utils.configurelogger(logging, args.output)
+    utils.configurelogger(__file__, args.output)
 
-    datasetdscr = methods.dataset[0]['method']().load()
+    datasetdscr = methods.dataset[1]['method']().load()
     strategy = methods.mlstrategy[0]['method']()
     evalres = methods.evaluation[0]['method']().evaluate(datasetdscr, strategy)
     # cm=confusion_matrix(Sdata.label,result.predictedclasses,self.acts)
@@ -30,6 +30,7 @@ if __name__ == '__main__':
     #         result.cm=cm
     #         result.event_cm=event_cm
     # result.eventeval=EventBasedMetric(Sdata.a_events,pred_events,Sdata.acts)
+    # methods.event_metric[0]['method']().
 
     utils.saveState([datasetdscr, evalres.real_events, evalres.pred_events],
                     datasetdscr.shortname()+'r1')
