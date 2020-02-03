@@ -23,6 +23,8 @@ if __name__ == '__main__':
     utils.configurelogger(__file__, args.output)
 
     datasetdscr = methods.dataset[1]['method']().load()
+    # import sys
+    # sys.exit()
     strategy = methods.mlstrategy[0]['method']()
     evalres = methods.evaluation[0]['method']().evaluate(datasetdscr, strategy)
     # cm=confusion_matrix(Sdata.label,result.predictedclasses,self.acts)
@@ -31,7 +33,11 @@ if __name__ == '__main__':
     #         result.event_cm=event_cm
     # result.eventeval=EventBasedMetric(Sdata.a_events,pred_events,Sdata.acts)
     # methods.event_metric[0]['method']().
+    
+    for i in range(len(evalres)):
+        utils.saveState([datasetdscr, evalres[i].real_events, evalres[i].pred_events],
+                    datasetdscr.shortname()+'r'+str(i))
 
-    utils.saveState([datasetdscr, evalres.real_events, evalres.pred_events],
-                    datasetdscr.shortname()+'r1')
+    # utils.saveState([datasetdscr, evalres.real_events, evalres.pred_events],
+    #                 datasetdscr.shortname()+'r1')
     # print(strategy.evaluate(evalres))
