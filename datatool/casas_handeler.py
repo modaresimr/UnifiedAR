@@ -36,12 +36,15 @@ class CASAS(Dataset):
                 start[e.activity] = e
 
             elif(e.hint == 'end'):
+                if not(e.activity in start):
+                    continue
+
                 actevent = {"StartTime": start[e.activity].time,	"EndTime": e.time,
                             "Activity": e.activity, 'Duration': e.time-start[e.activity].time}
                 # actevent=[start[splt[0]].time,e.time,splt[0]]
                 # start[splt[0]]=None
                 activity_events.append(actevent)
-                start[e.activity] = None
+                del start[e.activity]
 
         activity_events=pd.DataFrame(data=activity_events,
             columns=["StartTime", "EndTime", "Activity", 'Duration'])
