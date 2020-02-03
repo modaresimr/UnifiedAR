@@ -2,7 +2,7 @@ from general.utils import MyTask
 import numpy as np
 from intervaltree.intervaltree import IntervalTree
 import logging
-
+import pandas as pd
 logger = logging.getLogger(__file__)
 
 
@@ -17,8 +17,11 @@ class Dataset(MyTask):
 
     def load(self):
         self.activity_events, self.activities, self.sensor_events, self.sensor_desc = self._load()
+        logger.debug('database file loaded... now convert it ')
         self._calculate_activity()
+        logger.debug('activities converted...')
         self._caclculate_sensor()
+        logger.debug('sensors converted...')
         return self
 
     def _calculate_activity(self):
@@ -49,17 +52,41 @@ class Dataset(MyTask):
         self.sensor_desc_map = {}
 
         for i, sd in self.sensor_desc[self.sensor_desc.Nominal == 1].iterrows():
-            self.sensor_desc_map_inverse[i] = {k: v for v,
-                                               k in enumerate(sd.ItemRange['range'])}
-            self.sensor_desc_map[i] = {v: k for v,
-                                       k in enumerate(sd.ItemRange['range'])}
-        self.sensor_events.value = self.sensor_events.apply(lambda x: float(x.value) if not(x.SID in self.sensor_desc_map_inverse) else self.sensor_desc_map_inverse[x.SID][str(
-            int(x.value))] if type(x.value) is float else self.sensor_desc_map_inverse[x.SID][x.value], axis=1)
+            self.sensor_desc_map_inverse[i] = {k: v for v,k in enumerate(sd.ItemRange['range'])}
+            self.sensor_desc_map[i] = {v: k for v,k in enumerate(sd.ItemRange['range'])}
+        def _convertVal3(x):
+            return _convertVal(x.SID,x.Value)
+                    
+        def _convertVal2(sid,val):
+            try:
+                valf=float(val)
+                return valf
+            except:
+                return self.sensor_desc_map_inverse[sid][val]            
 
-        self.sensor_id_map = {v: k for v,
-                              k in enumerate(self.sensor_desc.index)}
-        self.sensor_id_map_inverse = {k: v for v,
-                                      k in enumerate(self.sensor_desc.index)}
+        def _convertVal(sid,val):
+            
+            if sid in self.sensor_desc_map_inverse:
+                # if type(x.value) is float :
+                #         return self.sensor_desc_map_inverse[x.SID][str(int(x.value))]           
+                return self.sensor_desc_map_inverse[sid][val]            
+            else :
+                return float(val)
+        # for i,x in self.sensor_events.iterrows() :
+            
+
+        import time 
+        s=time.time()
+        # for i in range(0,len(self.sensor_events)):
+        #     self.sensor_events.iat[i,2] = _convertVal(self.sensor_events.iat[i,0],self.sensor_events.iat[i,2])
+        for p in self.sensor_desc_map_inverse:
+            for v in self.sensor_desc_map_inverse[p]:
+                self.sensor_events=self.sensor_events.replace({'SID':p,'value':v},{'value':self.sensor_desc_map_inverse[p][v]})
+        self.sensor_events.value=pd.to_numeric(self.sensor_events.value)
+        # print(time.time()-s)
+        # print(self.sensor_events)
+        self.sensor_id_map = {v: k for v,k in enumerate(self.sensor_desc.index)}
+        self.sensor_id_map_inverse = {k: v for v,k in enumerate(self.sensor_desc.index)}
 
     # region PublicActivityRoutines
 

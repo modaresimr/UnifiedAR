@@ -17,24 +17,27 @@ class Probabilistic(Segmentation):
         buffer=Buffer(s_events,0,0)  
         
         a_s={sid:{a:0 for a in [-1]+acts} for sid,desc in sensor_desc.iterrows()}
-        
+        sids=s_events.values
         w_a={a:{i:0 for i in range(-1,L+1)} for a in acts}
-        for i,a in a_events.iterrows():
+        tmp_a=a_events.values
+        for i in range(len(tmp_a)):
             ##print(i)
-            six=buffer.searchTime(a.StartTime,-1)
+            a=tmp_a[i]
+            six=buffer.searchTime(a[0],-1)
             if(six==None):
-                six=buffer.searchTime(a.StartTime,-1)
+                six=buffer.searchTime(a[0],-1)
                 pass
-            eix=buffer.searchTime(a.EndTime,+1)
+            eix=buffer.searchTime(a[1],+1)
             #window=buffer.data.SID.iloc[six:eix+1];
+            
             for si in range(six,eix+1):
-                s=buffer.data.SID.iat[si]
-                a_s[s][a.Activity]+=1
+                s=sids[si][0]
+                a_s[s][a[2]]+=1
                 a_s[s][-1]+=1
                 
             for l in range(L+1):
-                w_a[a.Activity][l]+=1-min(1,abs(w[l]-a.Duration)/w[l])
-            w_a[a.Activity][-1]+=1
+                w_a[a[2]][l]+=1-min(1,abs(w[l]-a[3])/w[l])
+            w_a[a[2]][-1]+=1
                 
         Pw_a={a:{i:0 for i in range(L+1)} for a in acts}
         Pa_s={sid:{a:0 for a in acts} for sid,desc in sensor_desc.iterrows()}
@@ -45,7 +48,7 @@ class Probabilistic(Segmentation):
                 Pa_s[sid][a]=0 if a_s[sid][-1]==0 else a_s[sid][a]/a_s[sid][-1]
             
         Pw_s={sid:{i:0 for i in range(L+1)} for sid,desc in datasetdscr.sensor_desc.iterrows()}
-        w_s={sid:{i:0 for i in range(L+1)} for sid,desc in datasetdscr.sensor_desc.iterrows()}
+        w_s ={sid:{i:0 for i in range(L+1)} for sid,desc in datasetdscr.sensor_desc.iterrows()}
         for sid,desc in sensor_desc.iterrows():
             for l in range(L+1):
                 a=argmaxdic(Pa_s[sid])
@@ -81,30 +84,29 @@ class Probabilistic(Segmentation):
             sindex=eindex
         #etime=buffer.times[eindex]
         
-        window=buffer.data.iloc[sindex:eindex+1];
+        window=buffer.data[sindex:eindex+1];
         #buffer.removeTop(sindex)
-        window.iat[0,1].value
+        # window[0,1].value
         return {'window':window,'start':stime, 'end':etime}
 
     def segment2(self,w_history,buffer):   
-        
-        eindex=self.lastindex+1
-        self.lastindex=eindex
-        if(eindex >=len(buffer.data)):
+        eindex = self.lastindex + 1
+        self.lastindex = eindex
+        if(eindex >= len(buffer.data)):
             return None
-        sensor=buffer.data.iloc[eindex]
-        etime=buffer.times[eindex]
+        sensor  = buffer.datavalues[eindex,0]
+        etime   = buffer.times[eindex]
         
         #eindex=buffer.searchTime(etime,-1)
         
-        size=self.w[self.w_s[sensor.SID]]
+        size=self.w[self.w_s[sensor]]
         stime=etime-size
-        sindex=buffer.searchTime(stime,+1)
+        sindex=buffer.searchTime(stime,-1)
         if(sindex is None):
             sindex=eindex
         #etime=buffer.times[eindex]
         
-        window=range(sindex,eindex+1);
+        idx=range(sindex,eindex + 1)
         #buffer.removeTop(sindex)
         
-        return {'windowindx':window,'start':stime, 'end':etime}
+        return idx

@@ -3,6 +3,12 @@ import pandas as pd
 
 
 class FixedEventWindow(Segmentation):
+    def applyParams(self, params):
+        shift = params['shift']
+        size = params['size']
+        if(shift > size):
+            return False
+        return super().applyParams(params)
 
     def segment(self, w_history, buffer):
         params = self.params
@@ -32,9 +38,3 @@ class FixedEventWindow(Segmentation):
         window.iat[0, 1].value
         return {'window': window, 'start': stime, 'end': etime}
 
-    def applyParams(self, params):
-        shift = params['shift']
-        size = params['size']
-        if(shift > size):
-            return False
-        return super().applyParams(params)

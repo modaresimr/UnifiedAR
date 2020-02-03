@@ -11,7 +11,7 @@ class OptLearn(MyTask):
         self.functions=functions
         self.callback=callback
     
-    @profile
+    # @profile
     def run(self):
         shortrunname=self.shortrunname
         func  =self.functions

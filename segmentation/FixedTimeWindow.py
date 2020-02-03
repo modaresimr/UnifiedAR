@@ -1,7 +1,20 @@
 from segmentation.segmentation_abstract import Segmentation
 class FixedTimeWindow(Segmentation):
-        
+    def applyParams(self,params):
+        if not super().applyParams(params): return False
+        shift=pd.Timedelta(params['shift'],unit='s')
+        size=pd.Timedelta(params['size'],unit='s')
+        return shift<=size
+            
+    
     def segment(self,w_history,buffer):
+        idx=self.segment2(w_history,buffer)
+        window=buffer.data.iloc[idx]
+        # buffer.removeTop(sindex)
+        window.iat[0,1].value
+        return {'window':window,'start':stime, 'end':etime}
+    
+    def segment2(self,w_history,buffer):
         params=self.params
         shift=pd.Timedelta(params['shift'],unit='s')
         size=pd.Timedelta(params['size'],unit='s')
@@ -24,14 +37,7 @@ class FixedTimeWindow(Segmentation):
             eindex=sindex
         etime=buffer.times[eindex]
 
-        window=buffer.data.iloc[sindex:eindex+1];
-        buffer.removeTop(sindex)
-        window.iat[0,1].value
-        return {'window':window,'start':stime, 'end':etime}
+        idx=range(sindex,eindex + 1)
+        return idx
     
-    def applyParams(self,params):
-        shift=pd.Timedelta(params['shift'],unit='s')
-        size=pd.Timedelta(params['size'],unit='s')
-        if(shift>size):
-            return False;
-        return super().applyParams(params);
+    

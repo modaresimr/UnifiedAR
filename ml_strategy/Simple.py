@@ -33,7 +33,7 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         logger.debug('Preprocessing Finished %s' % (func.preprocessor.shortname()))
         Sdata=prepare_segment2(func,Tdata,self.datasetdscr)
         logger.debug('Segmentation Finished %d segment created %s' % (len(Sdata.set_window), func.segmentor.shortname()))
-        Sdata.set=featureExtraction(func.featureExtractor,self.datasetdscr,Sdata.set_window,True)
+        Sdata.set=featureExtraction(func.featureExtractor,self.datasetdscr,Sdata.s_event_list,Sdata.set_window,True)
         logger.debug('FeatureExtraction Finished shape %s , %s' % (str(Sdata.set.shape), func.featureExtractor.shortname()))
 
         func.classifier.createmodel(Sdata.set[0].shape,len(self.acts))
@@ -42,12 +42,12 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         logger.debug('Classifier model trained  %s' % (func.classifier.shortname()))
 
         logger.info("Evaluating....")
-        predicted=func.classifier.predict(Sdata.set)
-        pred_events=func.combiner.combine(Sdata.set_window,predicted)
+        predicted   =func.classifier.predict(Sdata.set)
+        pred_events =func.combiner.combine(Sdata.s_event_list,Sdata.set_window,predicted)
         logger.debug('events merged  %s' % (func.combiner.shortname()))
         #eventeval=EventBasedMetric(Sdata.a_events,pred_events,self.acts)
-        event_cm=event_confusion_matrix(Sdata.a_events,pred_events,self.acts)
-        quality=CMbasedMetric(event_cm,'macro')
+        event_cm    =event_confusion_matrix(Sdata.a_events,pred_events,self.acts)
+        quality     =CMbasedMetric(event_cm,'macro')
         logger.debug('Evalution quality is f1=%.2f acc=%.2f precision=%.2f recall=%.2f' % (quality.f1,quality.accuracy,quality.precision,quality.recall))
         return quality.f1
         
@@ -58,14 +58,14 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         func.acts=self.acts
 
         Tdata=func.preprocessor.process(self.datasetdscr, data)
-        Sdata=prepare_segment(func,Tdata,self.datasetdscr)
-        Sdata.set=featureExtraction(func.featureExtractor,None,Sdata.set_window,False)
+        Sdata=prepare_segment2(func,Tdata,self.datasetdscr)
+        Sdata.set=featureExtraction(func.featureExtractor,None,Sdata.s_event_list,Sdata.set_window,False)
         result=Data('TestResult')
         result.Sdata=Sdata
         result.predicted=func.classifier.predict(Sdata.set)
         result.predictedclasses=func.classifier.predict_classes(Sdata.set)    
 
-        pred_events=self.functions.combiner.combine(Sdata.set_window,result.predicted)
+        pred_events=self.functions.combiner.combine(Sdata.s_event_list,Sdata.set_window,result.predicted)
         
         result.pred_events=pred_events
         result.real_events=data.a_events

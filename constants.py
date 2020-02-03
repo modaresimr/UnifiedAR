@@ -8,33 +8,40 @@ import classifier.libsvm
 import datatool.a4h_handeler
 import datatool.casas_handeler
 import datatool.vankasteren_handeler
-from activity_fetcher import *
-from classifier import *
+import activity_fetcher.CookActivityFetcher
 from classifier.sklearn import UAR_DecisionTree
-from combiner import *
-from evaluation import *
-from feature_extraction import *
-from general.libimport import *
+import combiner.SimpleCombiner
+import evaluation.SimpleEval
+import evaluation.KFoldEval
+import feature_extraction.SimpleFeatureExtraction
+import feature_extraction.DeepLearningFeatureExtraction
+import feature_extraction.Cook
+import feature_extraction.PAL_Features
+import feature_extraction.Raw
+# from general.libimport import *
 from general.utils import Data
 from metric import *
 import ml_strategy.Simple
 import ml_strategy.SeperateGroup
-from preprocessing import *
-from segmentation import *
+import preprocessing.SimplePreprocessing
+import segmentation.Probabilistic
+import segmentation.FixedEventWindow
+import segmentation.FixedSlidingWindow
+import segmentation.FixedTimeWindow
 
 methods = Data('methods')
 
 methods.segmentation = [
-    {'method': lambda: Probabilistic(), 'params': [], 'findopt':False},
-    # {'method': lambda: FixedEventWindow(), 'params': [
+    {'method': lambda: segmentation.Probabilistic.Probabilistic(), 'params': [], 'findopt':False},
+    # {'method': lambda: segmentation.FixedEventWindow.FixedEventWindow(), 'params': [
     #     {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 10},
     #     {'var': 'shift', 'min': 1, 'max': 20, 'type': 'int', 'init': 5}
     #        ], 'findopt': False},
-    {'method': lambda: FixedSlidingWindow(), 'params': [
+    {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
         {'var': 'size', 'min':60, 'max': 30*60, 'type': 'float', 'init': 120},
         {'var': 'shift', 'min': 2, 'max': 15*60, 'type': 'float', 'init': 60}
     ], 'findopt': False}
-    #   {'method': lambda:FixedTimeWindow(), 'params':[
+    #   {'method': lambda:segmentation.FixedTimeWindow.FixedTimeWindow(), 'params':[
     #                  {'var':'size','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(15, unit='s').total_seconds()},
     #                  {'var':'shift','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(1, unit='s').total_seconds()}
     #              ],
@@ -44,13 +51,13 @@ methods.segmentation = [
 
 
 methods.preprocessing = [
-    {'method': lambda: SimplePreprocessing()},
+    {'method': lambda: preprocessing.SimplePreprocessing.SimplePreprocessing()},
     ]
 methods.classifier = [
     #     {'method': lambda:classifier.libsvm.LibSVM(), 'params':[],
     #  'findopt':False},
     {'method': lambda: classifier.Keras.SimpleKeras(), 'params': [
-        {'var': 'epochs', 'init': 30}
+        {'var': 'epochs', 'init': 3}
     ]},
     # {'method': lambda: classifier.Keras.LSTMTest(), 'params': [
     #     {'var': 'epochs', 'init': 3}
@@ -94,30 +101,30 @@ methods.event_metric = [
     #{'method': lambda: Accuracy()},
 ]
 
-methods.activity_fetcher = [{'method': lambda: CookActivityFetcher()}]
-methods.combiner = [{'method':lambda: SimpleCombiner()}]
+methods.activity_fetcher = [{'method': lambda: activity_fetcher.CookActivityFetcher.CookActivityFetcher()}]
+methods.combiner = [{'method':lambda: combiner.SimpleCombiner.SimpleCombiner()}]
 methods.evaluation = [
-    {'method': lambda: SimpleEval()},
-    {'method': lambda: KFoldEval(5)},
+    {'method': lambda: evaluation.SimpleEval.SimpleEval()},
+    {'method': lambda: evaluation.KFoldEval.KFoldEval(5)},
 ]
 
 
 methods.feature_extraction = [
-    # {'method': lambda:SimpleFeatureExtraction(), 'params':[],
+    # {'method': lambda:feature_extraction.SimpleFeatureExtraction.SimpleFeatureExtraction(), 'params':[],
     #  'findopt':False},
-    #  {'method': lambda:DeepLearningFeatureExtraction(), 'params':[
+    #  {'method': lambda:feature_extraction.DeepLearningFeatureExtraction.DeepLearningFeatureExtraction(), 'params':[
     #             {'var':'size','min':10, 'max': 20, 'type':tf.int8,'init':50},
     #             {'var':'layers','min':1, 'max': 3, 'type':tf.int8,'init':pd.Timedelta(20, unit='s').total_seconds()}
     #         ],
     #  'findopt':False},
-    {'method': lambda: Cook1FeatureExtraction(), 'params': [],
+    {'method': lambda: feature_extraction.Cook.Cook1(), 'params': [],
      'findopt':False},
-    #  {'method': lambda: PAL_Features(), 'params': [],
+    #  {'method': lambda: feature_extraction.PAL_Features.PAL_Features(), 'params': [],
     #  'findopt':False},
-    #  {'method': lambda:RawFeatureExtraction(), 'params': [
+    #  {'method': lambda:feature_extraction.Raw.Classic(), 'params': [
     #      {'var':'normalized','init':True}
     #   ],'findopt':False},
-    #  {'method': lambda:SequenceRaw(), 'params': [
+    #  {'method': lambda:feature_extraction.Raw.Sequence()), 'params': [
     #      {'var':'normalized','init':True},
     #      {'var':'per_sensor','init':True}
     #   ],'findopt':False},

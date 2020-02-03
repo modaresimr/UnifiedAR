@@ -83,7 +83,8 @@ def findOverlap(a, b):
 class Buffer:
     def __init__(self, input, minsize, maxsize):
         self.data = input
-        self.times = input.time.tolist()
+        self.times = input.time.values
+        self.datavalues = input.values
         self.minsize = minsize
         self.maxsize = maxsize
         self.start_index = 0

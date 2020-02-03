@@ -24,8 +24,9 @@ class SimpleEval(Evaluation):
         Test = Data('test')
         Train.s_events = sensor_events[sensor_events.time < dataset_split]
         Train.a_events = activity_events[activity_events.EndTime < dataset_split]
-
+        Train.s_event_list=Train.s_events.values
+        
         Test.s_events = sensor_events[sensor_events.time >= dataset_split]
         Test.a_events = activity_events[activity_events.EndTime >= dataset_split]
-
+        Test.s_event_list=Test.s_events.values
         return Train, Test

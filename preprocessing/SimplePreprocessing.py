@@ -10,9 +10,9 @@ class SimplePreprocessing(Preprocessing):
         for sid, info in datasetdscr.sensor_desc.iterrows():
             last = {}
             last['value'] = -1000
-            if(info.Nominal | info.OnChange):
+            if (info.Nominal | info.OnChange):
                 continue
-            xs = dataset.s_events.loc[dataset.s_events.SID == sid]
+            xs  = dataset.s_events.loc[dataset.s_events.SID == sid]
             min = xs.value.min()
             max = xs.value.max()
             #print(min, max, max-min)
@@ -28,6 +28,7 @@ class SimplePreprocessing(Preprocessing):
         d = Data(dataset.name)
         d.s_events = dataset.s_events.drop(removekeys)
         d.a_events = dataset.a_events
+        d.s_event_list = d.s_events.values
         d.acts = dataset.acts
         d.act_map = dataset.act_map
         return d

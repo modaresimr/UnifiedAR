@@ -1,4 +1,4 @@
-from activity_fetcher.activity_fetcher_abstract import *
+from activity_fetcher.activity_fetcher_abstract import AbstractActivityFetcher
 
 class MaxActivityFetcher(AbstractActivityFetcher):
     def getActivity(self,dataset,window):

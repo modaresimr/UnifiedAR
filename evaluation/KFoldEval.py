@@ -1,4 +1,4 @@
-from evaluation.evaluation_abstract import *
+from evaluation.evaluation_abstract import Evaluation
 from general.utils import Data
 from sklearn.model_selection import KFold
 

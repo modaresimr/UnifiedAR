@@ -8,23 +8,22 @@ import numpy as np
 
 
 class SimpleCombiner(Combiner):
-    def combine(self, segment_data, act_data):
-        act_data=np.argmax(act_data, axis=1) 
-        return self.convertAndMergeToEvent(segment_data, act_data)
-
-    def convertAndMergeToEvent(self, set_window, predicted):
-        events = []
-        ptree = {}
+    def combine(self, s_event_list,set_window, act_data):
+        predicted   = np.argmax(act_data, axis=1) 
+        events      = []
+        ptree       = {}
         for i in range(0, len(set_window)):
-            start = set_window[i]['start']
-            end = set_window[i]['end']
+            idx     = set_window[i]
+            start   = s_event_list[idx[0],1]
+            end     = s_event_list[idx[-1],1]
             #pclass = np.argmax(predicted[i])
-            pclass = predicted[i]
+            pclass  = predicted[i]
 
             if not(pclass in ptree):
                 ptree[pclass] = IntervalTree()
-            ptree[pclass][start:end] = {
-                'Activity': pclass, 'StartTime': start, 'EndTime': end}
+            ptree[pclass][start:end+pd.to_timedelta('1s')] = {
+                'Activity': pclass, 'StartTime': start, 'EndTime': end
+            }
 
         tree = IntervalTree()
 

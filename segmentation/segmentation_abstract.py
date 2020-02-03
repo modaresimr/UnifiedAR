@@ -60,13 +60,14 @@ def prepare_segment2(func,dtype,datasetdscr):
     func.activityFetcher.precompute(dtype)
 
     procdata = Data(segmentor.__str__())
-    procdata.generator = segment2(dtype,datasetdscr, segmentor)
-    procdata.set = []
-    procdata.label = []
+    procdata.generator  = segment2(dtype,datasetdscr, segmentor)
+    procdata.set        = []
+    procdata.label      = []
     procdata.set_window = []
-    procdata.acts = func.acts
-    procdata.s_events = dtype.s_events
-    procdata.a_events = dtype.a_events
+    procdata.acts       = func.acts
+    procdata.s_events   = dtype.s_events
+    procdata.s_event_list= dtype.s_event_list
+    procdata.a_events   = dtype.a_events
     
     i = 0
     for x in procdata.generator:
@@ -74,8 +75,7 @@ def prepare_segment2(func,dtype,datasetdscr):
             print(segmentor.shortname(), i)
         i += 1
         procdata.set_window.append(x)
-        # procdata.label.append(
-        #     func.activityFetcher.getActivity(dtype, x['window']))
+        procdata.label.append(func.activityFetcher.getActivity2(dtype.s_event_list, x))
     del procdata.generator
     procdata.label = np.array(procdata.label)
 
