@@ -33,7 +33,7 @@ def method_param_selector(callback):
 
         optl = OptLearn(func, callback)
         allpool.append(optl)
-        break
+        # break
 
     success, fail = run(allpool, True)
 
