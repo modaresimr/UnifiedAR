@@ -29,10 +29,10 @@ def CMbasedMetric(cm, average=None):
     validres = ~np.isnan(precision) & ~np.isnan(recall)
     validres[0] = False
 
-    result['precision'] = np.average(precision[validres])
-    result['recall'] = np.average(recall[validres])
-    result['f1'] = 2*result['precision']*result['recall'] / \
-        (result['precision']+result['recall'])  # np.average(f1[validres])
+    result['precision'] = round(np.average(precision[validres]),2)
+    result['recall'] = round(np.average(recall[validres]),2)
+    result['f1'] = round(2*result['precision']*result['recall'] / \
+        (result['precision']+result['recall']),2)  # np.average(f1[validres])
 
     return result
 
