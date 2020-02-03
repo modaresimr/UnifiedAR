@@ -1,7 +1,8 @@
 import pandas as pd
 from wardmetrics.core_methods import eval_segments
 from wardmetrics.utils import print_detailed_segment_results, print_twoset_segment_metrics
-
+import logging
+logger = logging.getLogger(__file__)
 
 def time2int(t):
     return t.value/pd.to_timedelta('60s').value

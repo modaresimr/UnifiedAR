@@ -1,7 +1,8 @@
 from evaluation.evaluation_abstract import Evaluation
 from general.utils import Data
 from sklearn.model_selection import KFold
-
+import logging
+logger = logging.getLogger(__file__)
 
 class KFoldEval(Evaluation):
     def __init__(self, fold):
@@ -14,7 +15,7 @@ class KFoldEval(Evaluation):
             dataset.sensor_events, dataset.activity_events, self.fold)
         models = {}
         for f, (Train, Test) in enumerate(ttmaker):
-            print('=========Fold ', f, ' ===========')
+            logger.debug('=========Fold %d ============', f)
             acts=[a for a in dataset.activities_map]
             strategy.train(dataset, Train, acts)
             models[f] = strategy.test(Test)

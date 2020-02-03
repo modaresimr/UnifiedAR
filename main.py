@@ -22,7 +22,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     utils.configurelogger(__file__, args.output)
 
-    datasetdscr = methods.dataset[1]['method']().load()
+    datasetdscr = methods.dataset[0]['method']().load()
     # import sys
     # sys.exit()
     strategy = methods.mlstrategy[0]['method']()
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     
     for i in range(len(evalres)):
         utils.saveState([datasetdscr, evalres[i].real_events, evalres[i].pred_events],
-                    datasetdscr.shortname()+'r'+str(i))
+                    datasetdscr.shortname()+'r/'+str(i))
 
     # utils.saveState([datasetdscr, evalres.real_events, evalres.pred_events],
     #                 datasetdscr.shortname()+'r1')

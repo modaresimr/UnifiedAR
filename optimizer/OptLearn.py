@@ -2,7 +2,8 @@ from memory_profiler import profile
 from constants import no_memory_limit
 from general.utils import MyTask
 import skopt
-
+import logging
+logger = logging.getLogger(__file__)
 
 class OptLearn(MyTask):
     no_memory_limit=False
@@ -16,7 +17,7 @@ class OptLearn(MyTask):
         shortrunname=self.shortrunname
         func  =self.functions
         
-        print(shortrunname,'start')
+        logger.debug('%s %s', shortrunname,'start')
         
         
         func.segmentor.reset()
@@ -36,8 +37,8 @@ class OptLearn(MyTask):
                 return -100000
             if not func.classifier.applyParams(claparams):
                 return -100000
-            print(func.segmentor.params)
-            print(shortrunname,'segparam:',segparams,'feaparam:',feaparams,'claparm:',claparams)
+            logger.debug('%s',func.segmentor.params)
+            logger.debug('%s segparam: %s feaparam: %s claparam: %s', shortrunname,segparams,feaparams,claparams)
             q=self.callback(func)
             # if no_memory_limit:
             #     result['last']=result['history'][str(param)]={'q':q}
@@ -48,7 +49,7 @@ class OptLearn(MyTask):
             optq=skopt.forest_minimize(qfunc,bounds)
         else:
             optq={'x':x0, 'q':qfunc(x0)};
-        print(shortrunname,optq)
+        logger.debug('%s %s', shortrunname,optq)
         
         result['optq']=optq
         result['segparams']=params.getParams(optq['x'],0)
@@ -73,7 +74,7 @@ class ParamMaker:
         bounds=[]
 
         for item in self.items:
-            print(item)
+            logger.debug('%s',item)
             if(item.findopt):
                 for p in item.defparams:
                     bounds.append([p['min'],p['max']])

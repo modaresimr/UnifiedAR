@@ -1,7 +1,8 @@
 from classifier.classifier_abstract import Classifier
 import tensorflow as tf
 import numpy as np
-
+import logging
+logger = logging.getLogger(__file__)
 
 class KerasClassifier(Classifier):
     def applyParams(self, params):
@@ -48,11 +49,11 @@ class KerasClassifier(Classifier):
         return self.model.predict_classes(testset)
 
     def save(self, file):
-        print('saving model to', file)
+        logger.debug('saving model to %s', file)
         self.model.save(file+'.h5')
 
     def load(self, file):
-        print('loading model from', file)
+        logger.debug('loading model from %s', file)
         if not('.h5' in file):
             file = file+'.h5'
         self.model = tf.keras.models.load_model(file)

@@ -3,6 +3,9 @@ from joblib.parallel import Parallel, delayed, parallel_backend
 from general.utils import Data, MyTask
 from optimizer.OptLearn import OptLearn
 
+import logging
+logger = logging.getLogger(__file__)
+
 
 def method_param_selector(callback):
     import itertools
@@ -76,12 +79,12 @@ def run(allpool, test):
         if(result[i].success):
             success.append(result[i])
         else:
-            print("!!!FAILED:", i, result[i].shortname)
+            logger.error("!!!FAILED: %d %s", i, result[i].shortname)
             fail.append(result[i])
     # for pool in allpool:
     #     runOptLearn(pool)
     #     break;
-    print('finish')
+    logger.debug('finish')
     return success, fail
 
 def createFunction(function):

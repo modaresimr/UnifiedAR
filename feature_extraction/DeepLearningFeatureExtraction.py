@@ -1,6 +1,7 @@
 from feature_extraction.feature_abstract import FeatureExtraction
 import tensorflow as tf
-
+import logging
+logger = logging.getLogger(__file__)
 class DeepLearningFeatureExtraction(FeatureExtraction):
     def precompute(self,datasetdscr,windows):
         super().precompute(datasetdscr,windows)
@@ -36,11 +37,11 @@ class DeepLearningFeatureExtraction(FeatureExtraction):
         # model=autoencoder;
         # self.encoder=encoder;
         # self.decoder=model.layers[3](model.layers[2])
-        print(wins.shape, input_size)
+        logger.debug('shape %d inputsize %d',wins.shape, input_size)
         #model.compile(optimizer='adam',loss='sparse_categorical_crossentropy',metrics=['accuracy'])
-        print('encoder========================')
+        logger.debug('encoder========================')
         self.encoder.summary()
-        print('autoencoder========================')
+        logger.debug('autoencoder========================')
         
         
         model.compile(optimizer='adamax', loss=tf.keras.losses.mean_absolute_error)

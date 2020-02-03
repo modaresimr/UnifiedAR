@@ -193,7 +193,7 @@ def loadall(file):
             classifier.load(file+f)
             func.__dict__[x[1]] = classifier
         else:
-            print('unsupported'+f)
+            logger.error('unsupported'+f)
 
     return [data, func]
 

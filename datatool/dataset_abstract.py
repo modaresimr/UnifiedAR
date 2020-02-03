@@ -1,8 +1,9 @@
 from general.utils import MyTask
 import numpy as np
 from intervaltree.intervaltree import IntervalTree
-import logging
+
 import pandas as pd
+import logging
 logger = logging.getLogger(__file__)
 
 
@@ -10,7 +11,10 @@ class Dataset(MyTask):
     def __init__(self,data_path,data_dscr):
         self.data_path = data_path
         self.data_dscr = data_dscr
-    
+
+    def shortname(self):
+        return self.data_dscr
+
     def _load(self):
         pass
     
@@ -220,10 +224,10 @@ class Dataset(MyTask):
     def summary(self):
         """Print summary of loaded datasets
         """
-        print('Dataset Path: %s' % self.data_path)
-        print('Sensors: %d' % len(self.sensor_desc))
-        print('Activities: %d' % len(self.activities))
-        print('loaded events: %d' % len(self.sensor_events))
+        logger.debug('Dataset Path: %s' % self.data_path)
+        logger.debug('Sensors: %d' % len(self.sensor_desc))
+        logger.debug('Activities: %d' % len(self.activities))
+        logger.debug('loaded events: %d' % len(self.sensor_events))
     # endregion
 
     _COLORS = ('#b20000, #56592d, #acdae6, #cc00be, #591616, #d5d9a3, '

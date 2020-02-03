@@ -39,7 +39,7 @@ class VanKasteren(Dataset):
 
         sensor_events = sensor_events.sort_values(['time'])
         activity_events = activity_events.sort_values(['StartTime', 'EndTime'])
-        print('finish downloading files')
+        # print('finish downloading files')
         acts = {
             0: 'None',
             1: 'leave house',

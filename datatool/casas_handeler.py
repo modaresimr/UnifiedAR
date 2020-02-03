@@ -26,7 +26,6 @@ class CASAS(Dataset):
         sensor_events = all
         sensor_events=sensor_events.sort_values(['time'])
         
-        print('finish downloading files')
 
         activity_events = []
         start = {}

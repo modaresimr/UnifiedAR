@@ -1,7 +1,8 @@
 from classifier.classifier_abstract import *
 from libsvm.svmutil import *
 import numpy as np
-
+import logging
+logger = logging.getLogger(__file__)
 
 class LibSVM(Classifier):
 
@@ -27,9 +28,9 @@ class LibSVM(Classifier):
         return p_labs
 
     def save(self, file):
-        print('saving ', file)
+        logger.debug('saving %s', file)
         svm_save_model(file+'.libsvm', self.model)
 
     def loadmodel(self, file):
-        print('loading ', file)
+        logger.debug('loading %s', file)
         self.model = svm_load_model(file+'.libsvm')

@@ -2,6 +2,8 @@ from combiner.combiner_abstract import Combiner
 from intervaltree.intervaltree import IntervalTree
 import pandas as pd
 import numpy as np
+import logging
+logger = logging.getLogger(__file__)
 
 # print([p['start'] for p in sw[label==7]])
 # pev.loc[pev.Activity==7]
