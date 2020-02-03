@@ -47,7 +47,7 @@ class FixedSlidingWindow(Segmentation):
         if len(w_history)==0 :
           lastStart=pd.to_datetime(0) 
         else :
-          lastStart=w_history[len(w_history)-1]['start']
+          lastStart=buffer.times[w_history[len(w_history)-1][0]]
 
         lastStartshift=lastStart+shift;
         sindex=buffer.searchTime(lastStartshift,-1)
