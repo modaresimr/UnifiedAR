@@ -19,7 +19,7 @@ def CMbasedMetric(cm, average=None):
             f1[i] = 0
     result = {}
 
-    result['accuracy'] = accuracy
+    result['accuracy'] = round(accuracy,2)
     if(average is None):
         result['precision'] = precision
         result['recall'] = recall
