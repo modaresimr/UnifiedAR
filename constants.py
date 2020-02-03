@@ -32,15 +32,15 @@ import segmentation.FixedTimeWindow
 methods = Data('methods')
 
 methods.segmentation = [
-    {'method': lambda: segmentation.Probabilistic.Probabilistic(), 'params': [], 'findopt':False},
+    # {'method': lambda: segmentation.Probabilistic.Probabilistic(), 'params': [], 'findopt':False},
     # {'method': lambda: segmentation.FixedEventWindow.FixedEventWindow(), 'params': [
     #     {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 10},
     #     {'var': 'shift', 'min': 1, 'max': 20, 'type': 'int', 'init': 5}
     #        ], 'findopt': False},
-    # {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
-    #     {'var': 'size', 'min':60, 'max': 30*60, 'type': 'float', 'init': 120},
-    #     {'var': 'shift', 'min': 2, 'max': 15*60, 'type': 'float', 'init': 60}
-    # ], 'findopt': False}
+    {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
+        {'var': 'size', 'min':60, 'max': 30*60, 'type': 'float', 'init': 120},
+        {'var': 'shift', 'min': 2, 'max': 15*60, 'type': 'float', 'init': 60}
+    ], 'findopt': False}
     #   {'method': lambda:segmentation.FixedTimeWindow.FixedTimeWindow(), 'params':[
     #                  {'var':'size','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(15, unit='s').total_seconds()},
     #                  {'var':'shift','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(1, unit='s').total_seconds()}

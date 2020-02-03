@@ -1,10 +1,13 @@
 
 
+import argparse
+from datetime import datetime
+import logging
+
+import general.utils as utils
 # from activity_fetcher import *
 from constants import methods
-import general.utils as utils
-import logging
-import argparse
+
 logger = logging.getLogger(__file__)
 # from datatool import *
 # from evaluation import *
@@ -34,9 +37,11 @@ if __name__ == '__main__':
     # result.eventeval=EventBasedMetric(Sdata.a_events,pred_events,Sdata.acts)
     # methods.event_metric[0]['method']().
     
+    utils.saveState([datasetdscr, evalres],'%s-%s/' % (datetime.now().strftime('%y%m%d_%H-%M-%S'),datasetdscr.shortname()))
     for i in range(len(evalres)):
-        utils.saveState([datasetdscr, evalres[i].real_events, evalres[i].pred_events],methods,
-                    datasetdscr.shortname()+'r/'+str(i))
+        quality=evalres[i].quality
+        logger.debug('Evalution quality fold=%d is f1=%.2f acc=%.2f precision=%.2f recall=%.2f' % (i, quality.f1,quality.accuracy,quality.precision,quality.recall))
+        
 
     # utils.saveState([datasetdscr, evalres.real_events, evalres.pred_events],
     #                 datasetdscr.shortname()+'r1')

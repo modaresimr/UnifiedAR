@@ -61,13 +61,24 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         Sdata=prepare_segment2(func,Tdata,self.datasetdscr)
         Sdata.set=featureExtraction(func.featureExtractor,None,Sdata.s_event_list,Sdata.set_window,False)
         result=Data('TestResult')
+        result.shortrunname=func.shortrunname
         result.Sdata=Sdata
         result.predicted=func.classifier.predict(Sdata.set)
-        result.predictedclasses=func.classifier.predict_classes(Sdata.set)    
+        result.params={}
+        for f in func.__dict__:
+            obj = func.__dict__[f]
+            if isinstance(obj, MyTask):
+                result.params[f]=obj.params
+        
+        result.predicted_classes=func.classifier.predict_classes(Sdata.set)    
 
         pred_events=self.functions.combiner.combine(Sdata.s_event_list,Sdata.set_window,result.predicted)
         
         result.pred_events=pred_events
         result.real_events=data.a_events
+
+        result.event_cm    =event_confusion_matrix(data.a_events,pred_events,self.acts)
+        result.quality     =CMbasedMetric(result.event_cm,'macro')
         
+
         return result

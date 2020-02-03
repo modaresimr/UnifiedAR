@@ -27,6 +27,7 @@ def argmaxdic(dic):
 
 
 class MyTask:
+    params={}
     def applyParams(self, params):
         self.params = params
         for p in params:
