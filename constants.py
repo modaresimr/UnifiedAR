@@ -37,10 +37,10 @@ methods.segmentation = [
     #     {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 10},
     #     {'var': 'shift', 'min': 1, 'max': 20, 'type': 'int', 'init': 5}
     #        ], 'findopt': False},
-    {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
-        {'var': 'size', 'min':60, 'max': 30*60, 'type': 'float', 'init': 120},
-        {'var': 'shift', 'min': 2, 'max': 15*60, 'type': 'float', 'init': 60}
-    ], 'findopt': False}
+    # {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
+    #     {'var': 'size', 'min':60, 'max': 30*60, 'type': 'float', 'init': 120},
+    #     {'var': 'shift', 'min': 2, 'max': 15*60, 'type': 'float', 'init': 60}
+    # ], 'findopt': False}
     #   {'method': lambda:segmentation.FixedTimeWindow.FixedTimeWindow(), 'params':[
     #                  {'var':'size','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(15, unit='s').total_seconds()},
     #                  {'var':'shift','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(1, unit='s').total_seconds()}
@@ -72,22 +72,22 @@ methods.classifier = [
     # {'method': lambda: classifier.sklearn.UAR_KNN(), 'params': [
     #     {'var': 'k', 'init': 5},
     # ]},
-    {'method': lambda: classifier.sklearn.UAR_SVM(), 'params': [
-        {'var': 'kernel', 'init': 'rbf'},
-        {'var': 'gamma', 'init': 1},
-        {'var': 'C', 'init': 100.},
-        {'var':'decision_function_shape','init':'ovr'}
-    ]},
-    {'method': lambda: classifier.sklearn.UAR_SVM2(), 'params': [
-        {'kernel': 'linear'},
-        {'gamma': 1},
-        {'C':100.},
-        {'decision_function_shape':'ovr'}
-    ]},
-    #{'method': lambda: classifier.sklearn.UAR_DecisionTree(), 'params': [ ]},
-    {'method': lambda: classifier.Keras.LSTMTest(), 'params': [
-        {'var': 'epochs',  'init': 10}
-    ]},
+    # {'method': lambda: classifier.sklearn.UAR_SVM(), 'params': [
+    #     {'var': 'kernel', 'init': 'rbf'},
+    #     {'var': 'gamma', 'init': 1},
+    #     {'var': 'C', 'init': 100.},
+    #     {'var':'decision_function_shape','init':'ovr'}
+    # ]},
+    # {'method': lambda: classifier.sklearn.UAR_SVM2(), 'params': [
+    #     {'kernel': 'linear'},
+    #     {'gamma': 1},
+    #     {'C':100.},
+    #     {'decision_function_shape':'ovr'}
+    # ]},
+    # #{'method': lambda: classifier.sklearn.UAR_DecisionTree(), 'params': [ ]},
+    # {'method': lambda: classifier.Keras.LSTMTest(), 'params': [
+    #     {'var': 'epochs',  'init': 10}
+    # ]},
 ]
 
 
