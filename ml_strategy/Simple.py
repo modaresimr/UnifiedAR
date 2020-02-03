@@ -48,8 +48,8 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         #eventeval=EventBasedMetric(Sdata.a_events,pred_events,self.acts)
         event_cm    =event_confusion_matrix(Sdata.a_events,pred_events,self.acts)
         quality     =CMbasedMetric(event_cm,'macro')
-        logger.debug('Evalution quality is f1=%.2f acc=%.2f precision=%.2f recall=%.2f' % (quality.f1,quality.accuracy,quality.precision,quality.recall))
-        return quality.f1
+        logger.debug('Evalution quality is %s'%quality)
+        return quality['f1']
         
         
     def test(self, data):
