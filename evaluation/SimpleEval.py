@@ -14,7 +14,7 @@ class SimpleEval(Evaluation):
         strategy.train(dataset, Train, acts)
         testres = strategy.test(Test)
         
-        return testres
+        return [testres]
 
     def makeTrainTest(self, sensor_events, activity_events):
         dataset_split = min(activity_events.StartTime) + \

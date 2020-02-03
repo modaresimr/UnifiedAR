@@ -57,7 +57,7 @@ methods.classifier = [
     #     {'method': lambda:classifier.libsvm.LibSVM(), 'params':[],
     #  'findopt':False},
     {'method': lambda: classifier.Keras.SimpleKeras(), 'params': [
-        {'var': 'epochs', 'init': 3}
+        {'var': 'epochs', 'init': 30}
     ]},
     # {'method': lambda: classifier.Keras.LSTMTest(), 'params': [
     #     {'var': 'epochs', 'init': 3}
@@ -104,7 +104,7 @@ methods.event_metric = [
 methods.activity_fetcher = [{'method': lambda: activity_fetcher.CookActivityFetcher.CookActivityFetcher()}]
 methods.combiner = [{'method':lambda: combiner.SimpleCombiner.SimpleCombiner()}]
 methods.evaluation = [
-    {'method': lambda: evaluation.SimpleEval.SimpleEval()},
+    # {'method': lambda: evaluation.SimpleEval.SimpleEval()},
     {'method': lambda: evaluation.KFoldEval.KFoldEval(5)},
 ]
 

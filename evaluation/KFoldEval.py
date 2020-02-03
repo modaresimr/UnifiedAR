@@ -9,15 +9,17 @@ class KFoldEval(Evaluation):
     def precompute(self, dataset):
         pass
 
-    def evaluate(self, dataset, func):
+    def evaluate(self, dataset, strategy):
         ttmaker = self.makeFoldTrainTest(
             dataset.sensor_events, dataset.activity_events, self.fold)
         models = {}
         for f, (Train, Test) in enumerate(ttmaker):
             print('=========Fold ', f, ' ===========')
-            models[f] = func(dataset, Train, Test)
+            acts=[a for a in dataset.activities_map]
+            strategy.train(dataset, Train, acts)
+            models[f] = strategy.test(Test)
 
-        return models[0]
+        return models
 
     def makeFoldTrainTest(self, sensor_events, activity_events, fold):
         sdate = sensor_events.time.apply(lambda x: x.date())
@@ -31,7 +33,10 @@ class KFoldEval(Evaluation):
             Train0.s_events = sensor_events.loc[sdate.isin(days[train_index])]
             Train0.a_events = activity_events.loc[adate.isin(
                 days[train_index])]
+            Train0.s_event_list=Train0.s_events.values
             Test0 = Data('test_fold_'+str(j))
             Test0.s_events = sensor_events.loc[sdate.isin(days[test_index])]
             Test0.a_events = activity_events.loc[adate.isin(days[test_index])]
+            Test0.s_event_list=Test0.s_events.values
+
             yield Train0, Test0
