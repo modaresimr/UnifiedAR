@@ -1,7 +1,7 @@
 from general.utils import MyTask
 
 
-class Evaluation:
+class Evaluation(MyTask):
 
     def precompute(self):
         pass

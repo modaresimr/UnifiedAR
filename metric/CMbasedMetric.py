@@ -9,19 +9,28 @@ def CMbasedMetric(cm,average=None):
     precision= TP/(TP+FP)
     recall= TP/(TP+FN)
     f1=2*recall*precision/(recall+precision)
+    for i in range(len(precision)):
+        if(np.isnan(precision[i])):
+            precision[i]=0
+        if(np.isnan(recall[i])):
+            recall[i]=0
+        if(np.isnan(f1[i])):
+            f1[i]=0
+    result={}
 
-    result=Data('CMMetric')
-
-    result.accuracy=accuracy
+    result['accuracy']=accuracy
     if(average is None):   
-        result.precision=precision
-        result.recall=recall
-        result.f1=f1
+        result['precision']=precision
+        result['recall']=recall
+        result['f1']=f1
         return result
 
-    result.precision=np.average(precision[~np.isnan(precision)])
-    result.recall=np.average(recall[~np.isnan(recall)])
-    result.f1=np.average(f1[~np.isnan(f1)])
+    validres=~np.isnan(precision)&~np.isnan(recall)
+    validres[0]=False
+
+    result['precision']=np.average(precision[validres])
+    result['recall']=np.average(recall[validres])
+    result['f1']=np.average(f1[validres])
 
     return result
 
@@ -40,3 +49,4 @@ def get_tp_fp_fn_tn(cm):
         temp = np.delete(temp, i, 1)  # delete ith column
         TN.append(temp.sum())
     return TP,FP,FN,TN
+

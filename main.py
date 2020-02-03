@@ -29,15 +29,18 @@ if __name__ == '__main__':
     # import sys
     # sys.exit()
     strategy = methods.mlstrategy[0]['method']()
-    evalres = methods.evaluation[0]['method']().evaluate(datasetdscr, strategy)
+    evaluation=methods.evaluation[0]['method']()
+    evalres = evaluation.evaluate(datasetdscr, strategy)
     # cm=confusion_matrix(Sdata.label,result.predictedclasses,self.acts)
     #         event_cm=event_confusion_matrix(Sdata.a_events,pred_events,self.acts)
     #         result.cm=cm
     #         result.event_cm=event_cm
     # result.eventeval=EventBasedMetric(Sdata.a_events,pred_events,Sdata.acts)
     # methods.event_metric[0]['method']().
-    
-    utils.saveState([datasetdscr, evalres],'%s-%s/' % (datetime.now().strftime('%y%m%d_%H-%M-%S'),datasetdscr.shortname()))
+    run_date=datetime.now().strftime('%y%m%d_%H-%M-%S')
+    run_info={'dataset':datasetdscr.shortname(),'run_date':run_date,'dataset_path':datasetdscr.data_path, 'strategy':strategy.shortname(),'evalution':evaluation.shortname()}
+
+    utils.saveState([run_info,datasetdscr, evalres],'%s-%s/' % (run_date,datasetdscr.shortname()))
     for i in range(len(evalres)):
         quality=evalres[i].quality
         logger.debug('Evalution quality fold=%d is f1=%.2f acc=%.2f precision=%.2f recall=%.2f' % (i, quality.f1,quality.accuracy,quality.precision,quality.recall))
