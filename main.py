@@ -35,7 +35,7 @@ if __name__ == '__main__':
     # methods.event_metric[0]['method']().
     
     for i in range(len(evalres)):
-        utils.saveState([datasetdscr, evalres[i].real_events, evalres[i].pred_events],
+        utils.saveState([datasetdscr, evalres[i].real_events, evalres[i].pred_events],methods,
                     datasetdscr.shortname()+'r/'+str(i))
 
     # utils.saveState([datasetdscr, evalres.real_events, evalres.pred_events],
