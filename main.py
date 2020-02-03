@@ -43,7 +43,7 @@ if __name__ == '__main__':
     utils.saveState([run_info,datasetdscr, evalres],'%s-%s/' % (run_date,datasetdscr.shortname()))
     for i in range(len(evalres)):
         quality=evalres[i].quality
-        logger.debug('Evalution quality fold=%d is f1=%.2f acc=%.2f precision=%.2f recall=%.2f' % (i, quality.f1,quality.accuracy,quality.precision,quality.recall))
+        logger.debug('Evalution quality fold=%d is %s' % (i, quality))
         
 
     # utils.saveState([datasetdscr, evalres.real_events, evalres.pred_events],
