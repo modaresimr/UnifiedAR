@@ -13,33 +13,14 @@ class VanKasteren(Dataset):
         
     def _load(self):
         rootfolder = self.data_path
-        sensefile = rootfolder+"sensedata.txt"
-        actfile = rootfolder+"actdata.txt"
+        sensefile = rootfolder + "sensedata.txt"
+        actfile = rootfolder   + "actdata.txt"
 
         all = pd.read_csv(sensefile, '\t', None, header=0, names=[
             "StartTime", "EndTime", "SID", "value"])
 
-        all.StartTime = pd.to_datetime(
-            all.StartTime, format='%d-%b-%Y %H:%M:%S')
+        all.StartTime = pd.to_datetime(all.StartTime, format='%d-%b-%Y %H:%M:%S')
         all.EndTime = pd.to_datetime(all.EndTime, format='%d-%b-%Y %H:%M:%S')
-
-        sensor_events = pd.DataFrame(columns=["time", "SID", "value"])
-        for i, s in all.iterrows():
-            sensor_events = sensor_events.append(
-                {'time': s.StartTime, 'SID': s.SID, 'value': s.value}, ignore_index=True)
-            sensor_events = sensor_events.append(
-                {'time': s.EndTime, 'SID': s.SID, 'value': 0}, ignore_index=True)
-
-        activity_events = pd.read_csv(actfile, '\t', None, header=0, names=[
-            "StartTime", "EndTime", "Activity"])
-        activity_events.StartTime = pd.to_datetime(
-            activity_events.StartTime, format='%d-%b-%Y %H:%M:%S')
-        activity_events.EndTime = pd.to_datetime(
-            activity_events.EndTime, format='%d-%b-%Y %H:%M:%S')
-
-        sensor_events = sensor_events.sort_values(['time'])
-        activity_events = activity_events.sort_values(['StartTime', 'EndTime'])
-        # print('finish downloading files')
         acts = {
             0: 'None',
             1: 'leave house',
@@ -66,13 +47,28 @@ class VanKasteren(Dataset):
             23:	'Groceries Cupboard',
             24:	'Hall-Bedroom door'}
 
-        activities = [k for v, k in enumerate(acts)]
+        sensor_events = pd.DataFrame(columns=["SID", "time", "value"])
+        for i, s in all.iterrows():
+            sensor_events = sensor_events.append({'SID': sens[s.SID], 'time': s.StartTime, 'value': s.value}, ignore_index=True)
+            sensor_events = sensor_events.append({'SID': sens[s.SID], 'time': s.EndTime, 'value': 0}, ignore_index=True)
+
+        activity_events = pd.read_csv(actfile, '\t', None, header=0, names=["StartTime", "EndTime", "Activity"])
+        activity_events.StartTime = pd.to_datetime(
+            activity_events.StartTime, format='%d-%b-%Y %H:%M:%S')
+        activity_events.EndTime  = pd.to_datetime(activity_events.EndTime, format='%d-%b-%Y %H:%M:%S')
+        activity_events.Activity = activity_events.Activity.apply(lambda x: acts[x])
+        sensor_events = sensor_events.sort_values(['time'])
+        activity_events = activity_events.sort_values(['StartTime', 'EndTime'])
+        # print('finish downloading files')
+        
+
+        activities = [acts[k] for k in acts]
 
         sensor_desc = pd.DataFrame(columns=['ItemId', 'ItemName', 'Cumulative',
                                             'Nominal', 'OnChange', 'ItemRange', 'Location', 'Object', 'SensorName'])
         tmp_sensors = sensor_events['SID'].unique()
-        for k, s in enumerate(sens):
-            item = {'ItemId': k, 'ItemName': s, 'Cumulative': 0, 'Nominal': 1, 'OnChange': 1, 'ItemRange': {
+        for k in sens:
+            item = {'ItemId': sens[k], 'ItemName': sens[k], 'Cumulative': 0, 'Nominal': 1, 'OnChange': 1, 'ItemRange': {
                 'range': ['0', '1']}, 'Location': 'None', 'Object': 'None', 'SensorName': 'None'}
             sensor_desc = sensor_desc.append(item, ignore_index=True)
 

@@ -29,12 +29,10 @@ class Dataset(MyTask):
         return self
 
     def _calculate_activity(self):
-        self.activity_events = self.activity_events.sort_values(
-            ['StartTime', 'EndTime'])
+        self.activity_events = self.activity_events.sort_values(['StartTime', 'EndTime'])
         self.activities.sort()
         self.activities = np.insert(self.activities, 0, 'None')
-        self.activities_map_inverse = {
-            k: v for v, k in enumerate(self.activities)}
+        self.activities_map_inverse = {k: v for v, k in enumerate(self.activities)}
         self.activities_map = {v: k for v, k in enumerate(self.activities)}
         self.activity_events.Activity = self.activity_events.Activity.apply(
             lambda x: self.activities_map_inverse[x])
