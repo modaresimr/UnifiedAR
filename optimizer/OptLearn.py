@@ -4,7 +4,7 @@ from general.utils import MyTask
 import skopt
 import logging
 logger = logging.getLogger(__file__)
-
+import numpy as np
 class OptLearn(MyTask):
     no_memory_limit=False
     def __init__(self,functions,callback):
