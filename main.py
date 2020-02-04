@@ -8,7 +8,7 @@ import general.utils as utils
 # from activity_fetcher import *
 from constants import methods
 
-logger = logging.getLogger(__file__)
+
 # from datatool import *
 # from evaluation import *
 # from feature_extraction import *
@@ -24,8 +24,9 @@ if __name__ == '__main__':
     #parser.add_argument('--h5py', help='HDF5 dataset folder')
     args = parser.parse_args()
     utils.configurelogger(__file__, args.output)
-
-    datasetdscr = methods.dataset[0]['method']().load()
+    logger = logging.getLogger(__file__)
+    
+    datasetdscr = methods.dataset[1]['method']().load()
     # import sys
     # sys.exit()
     strategy = methods.mlstrategy[0]['method']()

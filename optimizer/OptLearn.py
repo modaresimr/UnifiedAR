@@ -32,21 +32,21 @@ class OptLearn(MyTask):
             feaparams=params.getParams(param,1)
             claparams=params.getParams(param,2)
             if not func.featureExtractor.applyParams(feaparams):
-                return -100000
+                return 100000
             if not func.segmentor.applyParams(segparams):
-                return -100000
+                return 100000
             if not func.classifier.applyParams(claparams):
-                return -100000
+                return 100000
             logger.debug('%s',func.segmentor.params)
             logger.debug('%s segparam: %s feaparam: %s claparam: %s', shortrunname,segparams,feaparams,claparams)
             q=self.callback(func)
             # if no_memory_limit:
             #     result['last']=result['history'][str(param)]={'q':q}
             
-            return -q if ~np.isnan(q) else -100000
+            return -q if ~np.isnan(q) else 100000
         
         if len(x0)>0:
-            optq=skopt.forest_minimize(qfunc,bounds)
+            optq=skopt.forest_minimize(qfunc,bounds,n_jobs=-1)
             optq={'x':optq['x'],'q':optq['fun']}
         else:
             optq={'x':x0, 'q':qfunc(x0)};

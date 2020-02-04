@@ -8,10 +8,6 @@ logger = logging.getLogger(__file__)
 class PAL_Features(FeatureExtraction):
     feature_list = {}
     routines={}
-    def applyParams(self, params):
-        self.normalized = params.get('normalized', False)
-        self.per_sensor = params.get('per_sensor', False)
-        return super().applyParams(params)
 
     def precompute(self, datasetdscr, windows):
         self.max_windowsize = max([len(w) for w in windows])
@@ -41,9 +37,15 @@ class PAL_Features(FeatureExtraction):
         f = self._calculate_stat_features(window)
         self.lastwindow = window
         return f
+    def featureExtract2(self,s_event_list,idx):
+        window=s_event_list
+        f = self._calculate_stat_features(window,idx)
+        self.lastwindow = idx
+        return f
+
 
     # region FeatureCalculation
-    def _calculate_stat_features(self, window):
+    def _calculate_stat_features(self, window,idx):
         """Populate the feature vector with statistical features using sliding window
         """
         num_feature_columns = self._count_feature_columns()
@@ -53,22 +55,21 @@ class PAL_Features(FeatureExtraction):
             if routine.enabled:
                 routine.clear()
 
-        return self._calculate_window_feature(window)
+        return self._calculate_window_feature(window,idx)
 
-    def _conver_window2eventlist(self, window):
+    def _conver_window2eventlist(self, window,idx):
         event_list = []
-        for i in range(0, window.shape[0]):
-
+        for i in range(0, idx.shape[0]):
             cur_data_dict = {
-                'datetime': window.iat[i, 1],
-                'sensor_id': window.iat[i, 0],
-                'sensor_status': window.iat[i, 2],
+                'datetime':     window[idx[i], 1],
+                'sensor_id':    window[idx[i], 0],
+                'sensor_status':window[idx[i], 2],
                 # 'activity':lastACT
             }
             event_list.append(cur_data_dict)
         return event_list
 
-    def _calculate_window_feature(self, window):
+    def _calculate_window_feature(selsuf, window,idx):
         """Calculate feature vector for current window specified by cur_row_id
 
         Args:
@@ -81,7 +82,7 @@ class PAL_Features(FeatureExtraction):
         # Default Window Size to 30
 
         num_enabled_sensors = self.scount
-        event_list = self._conver_window2eventlist(window)
+        event_list = self._conver_window2eventlist(window,idx)
         window_size = min(self.max_windowsize, len(event_list))-1
         
         cur_row_id = window_size

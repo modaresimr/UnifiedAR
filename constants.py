@@ -40,7 +40,7 @@ methods.segmentation = [
     {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
         {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120},
         {'var': 'shift', 'min': 10, 'max': 7*60 , 'type': 'float', 'init': 60}
-    ], 'findopt': True}
+    ], 'findopt': False}
     #   {'method': lambda:segmentation.FixedTimeWindow.FixedTimeWindow(), 'params':[
     #                  {'var':'size','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(15, unit='s').total_seconds()},
     #                  {'var':'shift','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(1, unit='s').total_seconds()}
@@ -57,7 +57,7 @@ methods.classifier = [
     #     {'method': lambda:classifier.libsvm.LibSVM(), 'params':[],
     #  'findopt':False},
     {'method': lambda: classifier.Keras.SimpleKeras(), 'params': [
-        {'var': 'epochs', 'init': 30}
+        {'var': 'epochs', 'init': 10}
     ]},
     # {'method': lambda: classifier.Keras.LSTMTest(), 'params': [
     #     {'var': 'epochs', 'init': 3}
@@ -104,7 +104,7 @@ methods.event_metric = [
 methods.activity_fetcher = [{'method': lambda: activity_fetcher.CookActivityFetcher.CookActivityFetcher()}]
 methods.combiner = [{'method':lambda: combiner.SimpleCombiner.SimpleCombiner()}]
 methods.evaluation = [
-    # {'method': lambda: evaluation.SimpleEval.SimpleEval()},
+    {'method': lambda: evaluation.SimpleEval.SimpleEval()},
     {'method': lambda: evaluation.KFoldEval.KFoldEval(5)},
 ]
 
