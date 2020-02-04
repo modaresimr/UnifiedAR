@@ -220,7 +220,9 @@ def configurelogger(file, dir):
         output_dir = '.'
     log_filename = os.path.join(output_dir, log_filename)
     # Setup Logging as early as possible
+    import sys
     logging.basicConfig(level=logging.DEBUG,
                         format='[%(asctime)s] %(name)s:%(levelname)s:%(message)s',
                         handlers=[logging.FileHandler(log_filename),
-                                  logging.StreamHandler()])
+                                  logging.StreamHandler(sys.stdout)])
+    logging.getLogger().setLevel(logging.DEBUG)

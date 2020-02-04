@@ -26,6 +26,15 @@ class SimpleCombiner(Combiner):
             ptree[pclass][start:end+pd.to_timedelta('1s')] = {
                 'Activity': pclass, 'StartTime': start, 'EndTime': end
             }
+            if(i>0 and pclass>0 and predicted[i-1]==predicted[i] and set_window[i-1][-1]==idx[0]-1):
+                #fix gap
+                start   = s_event_list[set_window[i-1][-1],1]
+                end     = s_event_list[idx[0],1]
+                if(end>start):
+                #pclass = np.argmax(predicted[i])
+                    ptree[pclass][start:end] = {
+                        'Activity': pclass, 'StartTime': start, 'EndTime': end
+                    }                   
 
         tree = IntervalTree()
 

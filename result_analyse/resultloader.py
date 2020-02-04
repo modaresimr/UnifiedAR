@@ -14,7 +14,7 @@ def get_runs():
             if(len(res)!=3):
                 raise Error
             [run_info,datasetdscr,evalres]=res
-            disp_name='dataset:%s date:%s eval:%s'%(run_info['dataset'],run_info['run_date'],run_info['evalution'])
+            disp_name='dataset:%s date:%s %s'%(run_info['dataset'],run_info['run_date'], evalres[0].shortrunname)
             result.append((disp_name,item))
         except:
             logger.warn('File %s can not import'%item)
@@ -27,6 +27,6 @@ def display_result(file):
         quality=evalres[i].quality
         logger.debug('Evalution quality fold=%d is f1=%.2f acc=%.2f precision=%.2f recall=%.2f' % (i, quality.f1,quality.accuracy,quality.precision,quality.recall))
 
-
-get_runs()
+if __name__ == '__main__':
+    get_runs()
 

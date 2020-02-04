@@ -190,7 +190,7 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None):
 #                       colors="red", alpha=1, linewidth=.3)
   # plt.hlines(ract, rstart, rend, colors=(0,.5,0,.2), linewidth=1)
   # plt.hlines(pact, pstart, pend, colors="red", lw=2)
-  loc = mdates.MinuteLocator(byminute=[0, 30])
+  loc = mdates.HourLocator(interval=2)
   ax.xaxis.set_major_locator(loc)
   ax.xaxis.set_major_formatter(mdates.AutoDateFormatter(loc))
 
