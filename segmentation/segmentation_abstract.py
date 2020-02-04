@@ -1,7 +1,7 @@
 from general.utils import Data, MyTask
 import numpy as np
 from general.utils import Buffer
-
+import logging 
 # Define segmentation
 def segment(dtype,datasetdscr, segment_method):
     buffer = Buffer(dtype.s_events, 0, 0)
@@ -42,7 +42,7 @@ def prepare_segment(func,dtype,datasetdscr):
     i = 0
     for x in procdata.generator:
         if i % 10000 == 0:
-            print(segmentor.shortname(), i)
+            logger.debug(segmentor.shortname(), i)
         i += 1
         procdata.set_window.append(x)
         procdata.label.append(
