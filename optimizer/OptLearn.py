@@ -43,7 +43,7 @@ class OptLearn(MyTask):
             # if no_memory_limit:
             #     result['last']=result['history'][str(param)]={'q':q}
             
-            return -q
+            return -q if ~np.isnan(q) else -100000
         
         if len(x0)>0:
             optq=skopt.forest_minimize(qfunc,bounds)
