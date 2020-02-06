@@ -4,9 +4,9 @@ class FixedSlidingWindow(Segmentation):
 
     def applyParams(self,params):
         res=super().applyParams(params);
-        shift=pd.Timedelta(params['shift'],unit='s')
-        size=pd.Timedelta(params['size'],unit='s')
-        if(shift>size):
+        self.shift=pd.Timedelta(params['shift'],unit='s')
+        self.size=pd.Timedelta(params['size'],unit='s')
+        if(self.shift>self.size):
             return False;
         return res
 
@@ -40,9 +40,8 @@ class FixedSlidingWindow(Segmentation):
     
 
     def segment2(self,w_history,buffer):
-        params=self.params
-        shift=pd.Timedelta(params['shift'],unit='s')
-        size=pd.Timedelta(params['size'],unit='s')
+        shift=self.shift
+        size=self.size
 
         if len(w_history)==0 :
           lastStart=pd.to_datetime(0) 
