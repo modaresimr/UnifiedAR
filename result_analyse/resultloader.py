@@ -28,7 +28,7 @@ def getRunTable(run_info,dataset,evalres):
             'f1':quality['f1'],
             'params':str(evalres[i].params['segmentor'])
         }, ignore_index=True)
-        cm=sklearn.metrics.confusion_matrix(evalres[i].Sdata.label, evalres[i]. predicted_classes)
+        cm=sklearn.metrics.confusion_matrix(evalres[i].Sdata.label, evalres[i]. predicted_classes,labels=range(len(dataset.activities)))
         quality=CMbasedMetric(cm,'macro')
         #print('classical quality:%s'%(quality))
         df=df.append({

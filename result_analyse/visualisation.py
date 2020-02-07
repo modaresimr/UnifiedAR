@@ -1,13 +1,17 @@
 import matplotlib.dates as mdates
 import matplotlib.patches as patches
+import numpy as np
 import pandas as pd
+import sklearn.metrics
 from matplotlib.pylab import plt
 from wardmetrics.core_methods import eval_events, eval_segments
 from wardmetrics.utils import *
 from wardmetrics.visualisations import *
+
 import metric.MyMetric as MyMetric
 import result_analyse.dataset_viewer as dv
 import result_analyse.SpiderChart as spiderchart
+from metric.CMbasedMetric import CMbasedMetric
 from metric.EventBasedMetric import time2int
 
 
@@ -212,3 +216,122 @@ def _plotActs(ax, x, s, e, **kwargs):
                ax.add_patch(patches.Rectangle((s[i],x[i]-size/2), e[i]-s[i],size, **kwargs))
 
                # 
+
+
+
+
+def plot_CM(dataset,evalres):
+    sumcm=evalres[0].event_cm
+    for i in range(1,len(evalres)):
+        cm=evalres[i].event_cm
+        sumcm+=cm
+    #plot_confusion_matrix(sumcm,evalres[0].Sdata.acts,figsize=[25,12])
+    tmp2(sumcm,dataset.activities)
+
+def tmp(cm,acts):
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    plt.imshow(cm, interpolation='nearest')
+    plt.xticks(np.arange(0,len(acts)), acts)
+    plt.yticks(np.arange(0,len(acts)), acts)
+
+    plt.show()
+
+def tmp2(cm,acts):
+	import numpy as np
+	import matplotlib.pyplot as plt
+
+	conf_arr = cm
+
+	norm_conf = []
+	for i in conf_arr:
+		a = 0
+		tmp_arr = []
+		a = sum(i, 0)
+		for j in i:
+			tmp_arr.append(0 if a==0 else float(j)/float(a))
+		norm_conf.append(tmp_arr)
+
+	fig = plt.figure()
+	plt.clf()
+	ax = fig.add_subplot(111)
+	ax.set_aspect(1)
+	res = ax.imshow(np.array(norm_conf), cmap=plt.cm.jet, 
+					interpolation='nearest')
+
+	width, height = conf_arr.shape
+
+	# for x in range(width):
+	# 	for y in range(height):
+	# 		ax.annotate(str(conf_arr[x][y]), xy=(y, x), 
+	# 					horizontalalignment='center',
+	# 					verticalalignment='center')
+
+	cb = fig.colorbar(res)
+	# alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+	plt.xticks(range(width), acts,rotation=-90)
+	plt.yticks(range(height), acts)
+	plt.show()
+
+def plot_pre_act(dataset,myevalres):
+    activities=dataset.activities
+    summycm={}
+    sumcm={}
+    for p in myevalres:
+        evalres=myevalres[p]
+        summycm[p]=np.zeros((len(activities),len(activities)))
+        for i in range(len(evalres)):
+            cm=evalres[i].event_cm
+            summycm[p]+=cm
+
+        sumcm[p]=np.zeros((len(activities),len(activities)))
+        for i in range(0,len(myevalres)):
+            cm=sklearn.metrics.confusion_matrix(evalres[i].Sdata.label, evalres[i]. predicted_classes,labels=range(len(activities)))
+            sumcm[p]+=cm
+    import matplotlib.pyplot as plt
+    def get_new_fig(fn, figsize=[12,9]):
+        """ Init graphics """
+        fig1 = plt.figure(fn, figsize)
+        ax1 = fig1.gca()   #Get Current Axis
+        ax1.cla() # clear existing plot
+        return fig1, ax1
+
+
+    bar_count=len(myevalres)
+    x = np.arange(len(activities))  # the label locations
+
+    fig, ax = get_new_fig(',',[20,5])#plt.subplots()
+    rects=[]
+    width=.7/(bar_count*2)
+    for i,p in enumerate(myevalres):
+        e2=(100*CMbasedMetric(sumcm[p],average=None)['f1']).round()
+        rects.append(ax.bar(x - 1.2*width*(i+.5), e2, width, label=p))
+        e3=(100*CMbasedMetric(summycm[p],average=None)['f1']).round()        
+        rects.append(ax.bar(x + (1.2*width*(i+.5)), e3, width, label='MY '+p))
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    name='F1 score'
+    ax.set_ylabel(name)
+    ax.set_title(dataset.data_dscr)
+    ax.set_xticks(x)
+    ax.set_xticklabels(dataset.activities_map_inverse,rotation=-60)
+
+    ax.legend()
+
+    def autolabel(rects):
+        """Attach a text label above each bar in *rects*, displaying its height."""
+        for rect in rects:
+            height = rect.get_height()
+            ax.annotate('{}'.format(height),
+                        xy=(rect.get_x() + rect.get_width() / 2, height),
+                        xytext=(0, 3),  # 3 points vertical offset
+                        textcoords="offset points",
+                        ha='center', va='bottom')
+
+    #for rect in rects:
+        #autolabel(rect)
+
+    fig.tight_layout()
+    fig.patch.set_facecolor('white')
+    plt.show()
