@@ -72,6 +72,7 @@ class SequenceNN(KerasClassifier):
             #   tf.keras.metrics.FalseNegatives(name='fn'),
             # CategoricalTruePositives(name='tp',num_classes=outputsize,batch_size=500),
             tf.keras.metrics.SparseCategoricalAccuracy(name='acc'),
+            # 'accuracy'
             # tf.keras.metrics.BinaryAccuracy(name='accuracy'),
             # tf.keras.metrics.Precision(name='precision'),
             # tf.keras.metrics.Recall(name='recall'),
@@ -109,9 +110,9 @@ class LSTMTest(SequenceNN):
     def getmodel(self, inputsize, outputsize):
 
         return tf.keras.models.Sequential([
-            tf.keras.layers.Dense(128, input_shape=inputsize),
+			# tf.keras.layers.Dense(128, input_shape=inputsize),
             # tf.keras.layers.Embedding(input_dim=inputsize,output_dim=100),
-            tf.keras.layers.LSTM(128, activation=tf.nn .relu),
+            tf.keras.layers.LSTM(128, activation=tf.nn .relu,input_shape=inputsize),
             #tf.keras.layers.Dense(512, activation=tf.nn.relu),
             tf.keras.layers.Dropout(0.2),
             tf.keras.layers.Dense(outputsize, activation=tf.nn.softmax)

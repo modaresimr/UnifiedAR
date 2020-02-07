@@ -8,6 +8,8 @@ class FixedEventWindow(Segmentation):
         size = params['size']
         if(shift > size):
             return False
+        if(shift <= 1):
+            return False
         return super().applyParams(params)
 
     def segment(self, w_history, buffer):
@@ -43,14 +45,11 @@ class FixedEventWindow(Segmentation):
         size = self.size
 
         if len(w_history) == 0:
-            lastStart = pd.to_datetime(0)
+            sindex=0
         else:
-            lastStart = buffer.times[w_history[len(w_history)-1][0]]
+            # lastStart = buffer.times[w_history[len(w_history)-1][0]]
+            sindex = w_history[len(w_history)-1][0]
 
-        sindex = buffer.searchTime(lastStart, -1)
-
-        if(sindex is None):
-            return None
         sindex = sindex+shift
         if(len(buffer.times) <= sindex):
             return None

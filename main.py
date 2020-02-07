@@ -19,14 +19,14 @@ from constants import methods
 if __name__ == '__main__':
     args_ok = False
     parser = argparse.ArgumentParser(description='Run on datasets.')
-    #parser.add_argument('-d', '--dataset', help=' to original datasets')
+    parser.add_argument('-d', '--dataset', help=' to original datasets', default=1)
     parser.add_argument('-o', '--output', help='Output folder', default='logs')
     #parser.add_argument('--h5py', help='HDF5 dataset folder')
     args = parser.parse_args()
     utils.configurelogger(__file__, args.output)
     logger = logging.getLogger(__file__)
     
-    datasetdscr = methods.dataset[1]['method']().load()
+    datasetdscr = methods.dataset[int(args.dataset)]['method']().load()
     # import sys
     # sys.exit()
     strategy = methods.mlstrategy[0]['method']()

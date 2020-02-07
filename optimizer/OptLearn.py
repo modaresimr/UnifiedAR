@@ -46,7 +46,7 @@ class OptLearn(MyTask):
             return -q if ~np.isnan(q) else 100000
         
         if len(x0)>0:
-            optq=skopt.forest_minimize(qfunc,bounds,n_jobs=-1)
+            optq=skopt.forest_minimize(qfunc,bounds,n_jobs=8,n_calls=30)
             optq={'x':optq['x'],'q':optq['fun']}
         else:
             optq={'x':x0, 'q':qfunc(x0)};

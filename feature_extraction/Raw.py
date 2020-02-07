@@ -1,6 +1,6 @@
 from feature_extraction.feature_abstract import FeatureExtraction
 import pandas as pd
-
+import numpy as np
 
 class Classic(FeatureExtraction):
     sec_in_day = (60*60*24)
@@ -73,6 +73,28 @@ class Sequence(FeatureExtraction):
             
             sid = self.datasetdscr.sensor_id_map_inverse[window.iat[j, 0]]
             timval = window.iat[j, 1]
+            timval=timval.hour*60*60+timval.minute*60+timval.second
+            if self.normalized:
+                timval = timval/(24*3600)
+            f[j,0] = timval
+
+            if self.per_sensor:
+                f[j,sid+1] = 1
+            else:
+                f[j,1] = sid
+        
+        return f
+
+
+    def featureExtract2(self, win,idx):
+        window = win
+
+
+        f=np.zeros((self.max_windowsize,self.len_per_event))
+        for j in range(0, min(self.max_windowsize,len(idx))):
+            
+            sid = self.datasetdscr.sensor_id_map_inverse[window[idx[j], 0]]
+            timval = window[idx[j], 1]
             timval=timval.hour*60*60+timval.minute*60+timval.second
             if self.normalized:
                 timval = timval/(24*3600)
