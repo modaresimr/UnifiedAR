@@ -14,6 +14,8 @@ class SimpleCombiner(Combiner):
         predicted   = np.argmax(act_data, axis=1) 
         events      = []
         ptree       = {}
+        epsilon=pd.to_timedelta('1s')
+        
         for i in range(0, len(set_window)):
             idx     = set_window[i]
             start   = s_event_list[idx[0],1]
@@ -23,7 +25,7 @@ class SimpleCombiner(Combiner):
 
             if not(pclass in ptree):
                 ptree[pclass] = IntervalTree()
-            ptree[pclass][start:end+pd.to_timedelta('1s')] = {
+            ptree[pclass][start:end+epsilon] = {
                 'Activity': pclass, 'StartTime': start, 'EndTime': end
             }
             if(i>0 and pclass>0 and predicted[i-1]==predicted[i] and set_window[i-1][-1]==idx[0]-1):

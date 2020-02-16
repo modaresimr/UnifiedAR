@@ -40,9 +40,10 @@ def event_confusion_matrix(r_activities,p_activities,labels):
 def merge_split_overlap_IntervalTree(p_acts,r_acts):
     tree=IntervalTree()
 
+    
     for act in p_acts:
-        start=act['StartTime'].value;
-        end=act['EndTime'].value;
+        start=act['StartTime'].value
+        end=act['EndTime'].value
         if(start==end):
             start=start-1
         #tree[start:end]={'P':{'Activitiy':act.Activity,'Type':'P','Data':act}]
@@ -52,8 +53,8 @@ def merge_split_overlap_IntervalTree(p_acts,r_acts):
         tree[start:end]=d #{'P':act,'PActivitiy':act.Activity}
         
     for act in r_acts:
-        start=act['StartTime'].value;
-        end=act['EndTime'].value;
+        start=act['StartTime'].value
+        end=act['EndTime'].value
         if(start==end):
             start=start-1
         #tree[start:end]=[{'Activitiy':act.Activity,'Type':'R','Data':act}]

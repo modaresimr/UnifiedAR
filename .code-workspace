@@ -1,0 +1,14 @@
+{
+    "folders": [
+      {
+        // Source code
+        "name": "UnifiedAR",
+        "path": "."
+      },
+      {
+        // Source code
+        "name": "Profiler",
+        "path": "/opt/conda/lib/python3.6/site-packages/pyprof_timer/"
+      },
+    ]
+  }

@@ -10,19 +10,19 @@ class LibSVM(Classifier):
         self.outputsize = outputsize
         pass
 
-    def train(self, x, y):
+    def _train(self, x, y):
         prob = svm_problem(y, x)
         param = svm_parameter('-t 2')
         self.model = svm_train(prob,param)
 
-    def predict(self, testset):
+    def _predict(self, testset):
         res = np.zeros((len(testset), self.outputsize))
         cls = self.predict_classes(testset)
         for i in range(0, len(testset)):
             res[i] = cls[i]
         return res
 
-    def predict_classes(self, testset):
+    def _predict_classes(self, testset):
         tmp = np.zeros(len(testset))
         p_labs, p_acc, p_vals = svm_predict(tmp, testset, self.model)
         return p_labs

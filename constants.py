@@ -13,7 +13,8 @@ from classifier.sklearn import UAR_DecisionTree
 import combiner.SimpleCombiner
 import evaluation.SimpleEval
 import evaluation.KFoldEval
-import feature_extraction.SimpleFeatureExtraction
+import feature_extraction.Simple
+import feature_extraction.KHistory
 import feature_extraction.DeepLearningFeatureExtraction
 import feature_extraction.Cook
 import feature_extraction.PAL_Features
@@ -32,15 +33,15 @@ import segmentation.FixedTimeWindow
 methods = Data('methods')
 
 methods.segmentation = [
-     {'method': lambda: segmentation.Probabilistic.Probabilistic(), 'params': [], 'findopt':False},
+#     {'method': lambda: segmentation.Probabilistic.Probabilistic(), 'params': [], 'findopt':False},
 #    {'method': lambda: segmentation.FixedEventWindow.FixedEventWindow(), 'params': [
 #        {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 14},
 #        {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 12}
 #           ], 'findopt': False},
-#     {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
-#         {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120},
-#         {'var': 'shift', 'min': 10, 'max': 7*60 , 'type': 'float', 'init': 60}
-#     ], 'findopt': False}
+    {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
+        {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120},
+        {'var': 'shift', 'min': 10, 'max': 7*60 , 'type': 'float', 'init': 60}
+    ], 'findopt': False}
     #   {'method': lambda:segmentation.FixedTimeWindow.FixedTimeWindow(), 'params':[
     #                  {'var':'size','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(15, unit='s').total_seconds()},
     #                  {'var':'shift','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(1, unit='s').total_seconds()}
@@ -60,7 +61,7 @@ methods.classifier = [
         {'var': 'epochs', 'init': 10}
     ]},
     # {'method': lambda: classifier.Keras.LSTMTest(), 'params': [
-    #     {'var': 'epochs', 'init': 3}
+    #     {'var': 'epochs', 'init': 10}
     # ]},
     # {'method': lambda: classifier.PyActLearn.PAL_LSTM_Legacy(), 'params': [
     #     {'var': 'epochs', 'init': 3}
@@ -104,14 +105,15 @@ methods.event_metric = [
 methods.activity_fetcher = [{'method': lambda: activity_fetcher.CookActivityFetcher.CookActivityFetcher()}]
 methods.combiner = [{'method':lambda: combiner.SimpleCombiner.SimpleCombiner()}]
 methods.evaluation = [
-    #  {'method': lambda: evaluation.SimpleEval.SimpleEval()},
-    {'method': lambda: evaluation.KFoldEval.KFoldEval(5)},
+     {'method': lambda: evaluation.SimpleEval.SimpleEval()},
+    # {'method': lambda: evaluation.KFoldEval.KFoldEval(5)},
 ]
 
 
 methods.feature_extraction = [
-    {'method': lambda:feature_extraction.SimpleFeatureExtraction.SimpleFeatureExtraction(), 'params':[],
-      'findopt':False},
+    # {'method': lambda:feature_extraction.Simple.Simple(), 'params':[],
+    #   'findopt':False},
+    {'method': lambda:feature_extraction.KHistory.KHistory(), 'params':[{'k':1},{'method':feature_extraction.Cook.Cook1()}],'findopt':False},
     #  {'method': lambda:feature_extraction.DeepLearningFeatureExtraction.DeepLearningFeatureExtraction(), 'params':[
     #             {'var':'size','min':10, 'max': 20, 'type':tf.int8,'init':50},
     #             {'var':'layers','min':1, 'max': 3, 'type':tf.int8,'init':pd.Timedelta(20, unit='s').total_seconds()}

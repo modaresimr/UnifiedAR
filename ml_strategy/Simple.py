@@ -1,10 +1,11 @@
-
+import auto_profiler
 import logging
 
 from sklearn.metrics import confusion_matrix
 
 from feature_extraction.feature_abstract import featureExtraction
 from general.utils import Data, MyTask
+import general.utils
 from metric.CMbasedMetric import CMbasedMetric
 from metric.event_confusion_matrix import event_confusion_matrix
 from metric.EventBasedMetric import EventBasedMetric
@@ -12,6 +13,7 @@ import ml_strategy.abstract
 from optimizer.BruteForce import method_param_selector
 from optimizer.OptLearn import OptLearn, ParamMaker
 from segmentation.segmentation_abstract import prepare_segment,prepare_segment2
+
 logger = logging.getLogger(__file__)
 
 class SimpleStrategy(ml_strategy.abstract.MLStrategy):
@@ -25,7 +27,7 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
 
 
 
-    
+    @auto_profiler.Profiler(depth=3, on_disable=general.utils.logProfile)
     def learning(self,func):
         func.acts=self.acts
         logger.debug('Starting learning .... %s' % (func.shortrunname))
@@ -33,7 +35,7 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         logger.debug('Preprocessing Finished %s' % (func.preprocessor.shortname()))
         Sdata=prepare_segment2(func,Tdata,self.datasetdscr)
         logger.debug('Segmentation Finished %d segment created %s' % (len(Sdata.set_window), func.segmentor.shortname()))
-        Sdata.set=featureExtraction(func.featureExtractor,self.datasetdscr,Sdata.s_event_list,Sdata.set_window,True)
+        Sdata.set=featureExtraction(func.featureExtractor,self.datasetdscr,Sdata,True)
         logger.debug('FeatureExtraction Finished shape %s , %s' % (str(Sdata.set.shape), func.featureExtractor.shortname()))
 
         func.classifier.createmodel(Sdata.set[0].shape,len(self.acts))
@@ -59,16 +61,16 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
 
         Tdata=func.preprocessor.process(self.datasetdscr, data)
         Sdata=prepare_segment2(func,Tdata,self.datasetdscr)
-        Sdata.set=featureExtraction(func.featureExtractor,None,Sdata.s_event_list,Sdata.set_window,False)
+        Sdata.set=featureExtraction(func.featureExtractor,None,Sdata,False)
         result=Data('TestResult')
         result.shortrunname=func.shortrunname
         result.Sdata=Sdata
         result.predicted=func.classifier.predict(Sdata.set)
-        result.params={}
+        result.functions={}
         for f in func.__dict__:
             obj = func.__dict__[f]
-            if isinstance(obj, MyTask):
-                result.params[f]=obj.params
+            if isinstance(obj, MyTask):              
+                result.functions[f]=(obj.shortname(),obj.params)
         
         result.predicted_classes=func.classifier.predict_classes(Sdata.set)    
 

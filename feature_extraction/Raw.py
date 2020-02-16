@@ -1,6 +1,9 @@
 from feature_extraction.feature_abstract import FeatureExtraction
 import pandas as pd
 import numpy as np
+from general.sparray import sparray
+from scipy.sparse import lil_matrix
+
 
 class Classic(FeatureExtraction):
     sec_in_day = (60*60*24)
@@ -12,9 +15,9 @@ class Classic(FeatureExtraction):
         return super().applyParams(params)
 
     def precompute(self, datasetdscr, windows):
-        self.datasetdscr=datasetdscr
+        self.datasetdscr = datasetdscr
         self.scount = sum(1 for x in datasetdscr.sensor_id_map)
-        self.max_windowsize=max([len(w) for w in windows])
+        self.max_windowsize = max([len(w) for w in windows])
 
         if self.per_sensor:
             self.len_per_event = 1 + len(self.scount)
@@ -24,12 +27,12 @@ class Classic(FeatureExtraction):
     def featureExtract(self, win):
         window = win['window']
 
-        f = np.ones(self.scount+3)*0 
+        f = np.zeros(self.scount+3)
 
         for j in range(0, min(self.max_windowsize, window.shape[0])):
             sid = self.datasetdscr.sensor_id_map_inverse[window.iat[j, 0]]
             timval = window.iat[j, 1]
-            timval=timval.hour*60*60+timval.minute*60+timval.second
+            timval = timval.hour*60*60+timval.minute*60+timval.second
             if self.normalized:
                 timval = timval/(24*3600)
             f[j*self.len_per_event] = timval
@@ -40,7 +43,6 @@ class Classic(FeatureExtraction):
                 f[j*self.len_per_event+1] = sid
 
         return f
-
 
 
 #########################
@@ -55,56 +57,52 @@ class Sequence(FeatureExtraction):
         return super().applyParams(params)
 
     def precompute(self, datasetdscr, windows):
-        self.datasetdscr=datasetdscr
+        self.datasetdscr = datasetdscr
         self.scount = sum(1 for x in datasetdscr.sensor_id_map)
-        self.max_windowsize=max([len(w) for w in windows])
+        self.max_windowsize = max([len(w) for w in windows])
 
         if self.per_sensor:
             self.len_per_event = 1 + self.scount
         else:
             self.len_per_event = 2
+        self.shape = (self.max_windowsize, self.len_per_event)
 
     def featureExtract(self, win):
         window = win['window']
 
+        f = np.zeros(self.shape)
+        for j in range(0, min(self.max_windowsize, window.shape[0])):
 
-        f=np.zeros((self.max_windowsize,self.len_per_event))
-        for j in range(0, min(self.max_windowsize,window.shape[0])):
-            
             sid = self.datasetdscr.sensor_id_map_inverse[window.iat[j, 0]]
             timval = window.iat[j, 1]
-            timval=timval.hour*60*60+timval.minute*60+timval.second
+            timval = timval.hour*60*60+timval.minute*60+timval.second
             if self.normalized:
                 timval = timval/(24*3600)
-            f[j,0] = timval
+            f[j, 0] = timval
 
             if self.per_sensor:
-                f[j,sid+1] = 1
+                f[j, sid+1] = 1
             else:
-                f[j,1] = sid
-        
+                f[j, 1] = sid
+
         return f
 
-
-    def featureExtract2(self, win,idx):
+    def featureExtract2(self, win, idx):
         window = win
 
+        f = np.zeros(self.shape)
+        for j in range(0, min(self.max_windowsize, len(idx))):
 
-        f=np.zeros((self.max_windowsize,self.len_per_event))
-        for j in range(0, min(self.max_windowsize,len(idx))):
-            
             sid = self.datasetdscr.sensor_id_map_inverse[window[idx[j], 0]]
             timval = window[idx[j], 1]
-            timval=timval.hour*60*60+timval.minute*60+timval.second
+            timval = timval.hour*60*60+timval.minute*60+timval.second
             if self.normalized:
                 timval = timval/(24*3600)
-            f[j,0] = timval
+            f[j, 0] = timval
 
             if self.per_sensor:
-                f[j,sid+1] = 1
+                f[j, sid+1] = 1
             else:
-                f[j,1] = sid
-        
+                f[j, 1] = sid
+
         return f
-
-

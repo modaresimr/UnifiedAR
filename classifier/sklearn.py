@@ -9,7 +9,7 @@ import numpy as np
 
 class sklearnClassifier(Classifier):
 
-    def createmodel(self, inputsize, outputsize):
+    def _createmodel(self, inputsize, outputsize):
         self.outputsize = outputsize
         self.inputsize = inputsize
         self.model = self.getmodel(inputsize, outputsize)
@@ -18,13 +18,13 @@ class sklearnClassifier(Classifier):
     def getmodel(self, inputsize, outputsize):
         raise NotImplementedError
 
-    def train(self, trainset, trainlabel):
+    def _train(self, trainset, trainlabel):
         return self.model.fit(trainset, trainlabel)
 
-    def evaluate(self, testset, testlabel):
+    def _evaluate(self, testset, testlabel):
         self.model.evaluate(testset, testlabel)
 
-    def predict(self, testset):
+    def _predict(self, testset):
         try:
             return self.model.predict_proba(testset)
         except AttributeError:
@@ -34,14 +34,11 @@ class sklearnClassifier(Classifier):
                  res[i]=cls[i]
             return res
 
-    def predict_classes(self, testset):
+    def _predict_classes(self, testset):
         return self.model.predict(testset)
 
 
 class UAR_KNN(sklearnClassifier):
-    def applyParams(self, params):
-        self.k = params.get('k', 5)
-        return super().applyParams(params)
 
     def getmodel(self, inputsize, outputsize):
         return sklearn.neighbors.KNeighborsClassifier(n_neighbors=self.k)

@@ -1,51 +1,115 @@
 from classifier.classifier_abstract import Classifier
 import tensorflow as tf
+import tensorflow_addons as tfa
+
+
 import numpy as np
 import logging
 logger = logging.getLogger(__file__)
 
 class KerasClassifier(Classifier):
-    def applyParams(self, params):
-        self.epochs = params['epochs']
-        return super().applyParams(params)
+    
+    @staticmethod
+    def tf_f1_score(y_true, y_pred):
+        """Computes 3 different f1 scores, micro macro
+        weighted.
+        micro: f1 score accross the classes, as 1
+        macro: mean of f1 scores per class
+        weighted: weighted average of f1 scores per class,
+                weighted from the support of each class
 
-    def createmodel(self, inputsize, outputsize):
+
+        Args:
+            y_true (Tensor): labels, with shape (batch, num_classes)
+            y_pred (Tensor): model's predictions, same shape as y_true
+
+        Returns:
+            tuple(Tensor): (micro, macro, weighted)
+                        tuple of the computed f1 scores
+        """
+
+        f1s = [0, 0, 0]
+
+        y_true = tf.cast(y_true, tf.float64)
+        y_pred = tf.cast(y_pred, tf.float64)
+
+        for i, axis in enumerate([None, 0]):
+            TP = tf.math.count_nonzero(y_pred * y_true, axis=axis)
+            FP = tf.math.count_nonzero(y_pred * (y_true - 1), axis=axis)
+            FN = tf.math.count_nonzero((y_pred - 1) * y_true, axis=axis)
+
+            precision = TP / (TP + FP)
+            recall = TP / (TP + FN)
+            f1 = 2 * precision * recall / (precision + recall)
+
+            f1s[i] = tf.reduce_mean(f1)
+
+        weights = tf.reduce_sum(y_true, axis=0)
+        weights /= tf.reduce_sum(weights)
+
+        f1s[2] = tf.reduce_sum(f1 * weights)
+
+        micro, macro, weighted = f1s
+        return micro
+
+    # @staticmethod
+    # def f1(y_true, y_pred):
+    #     K=tf.keras.backend
+    #     y_true=K.cast(y_true, 'float')
+    #     y_pred = K.round(y_pred)
+    #     tp = K.sum(K.cast(y_true*y_pred, 'float'), axis=0)
+    #     tn = K.sum(K.cast((1-y_true)*(1-y_pred), 'float'), axis=0)
+    #     fp = K.sum(K.cast((1-y_true)*y_pred, 'float'), axis=0)
+    #     fn = K.sum(K.cast(y_true*(1-y_pred), 'float'), axis=0)
+
+    #     p = tp / (tp + fp + K.epsilon())
+    #     r = tp / (tp + fn + K.epsilon())
+
+    #     f1 = 2*p*r / (p+r+K.epsilon())
+    #     f1 = tf.where(tf.math.is_nan(f1), tf.zeros_like(f1), f1)
+    #     return K.mean(f1)
+    def _createmodel(self, inputsize, outputsize):
         self.outputsize = outputsize
+        a=tfa.metrics.F1Score(num_classes=outputsize,average='micro')
+        a.average ='macro'
         METRICS = [
             #   tf.keras.metrics.TruePositives(name='tp'),
             #   tf.keras.metrics.FalsePositives(name='fp'),
             #   tf.keras.metrics.TrueNegatives(name='tn'),
             #   tf.keras.metrics.FalseNegatives(name='fn'),
             # CategoricalTruePositives(name='tp',num_classes=outputsize,batch_size=500),
+            # KerasClassifier.tf_f1_score,
+            # a,
             tf.keras.metrics.SparseCategoricalAccuracy(name='acc'),
             # tf.keras.metrics.BinaryAccuracy(name='accuracy'),
             # tf.keras.metrics.Precision(name='precision'),
             # tf.keras.metrics.Recall(name='recall'),
             # tf.keras.metrics.AUC(name='auc'),
         ]
-
+        
+        loss=tfa.losses.sparsemax_loss
+        loss=tfa.losses.sigmoid_focal_crossentropy
+        loss='sparse_categorical_crossentropy'
         model = self.getmodel(inputsize, outputsize)
         model.summary()
         model.compile(
-            optimizer='adam', loss='sparse_categorical_crossentropy', metrics=METRICS)
+            optimizer='adam',loss=loss, metrics=METRICS)
         self.model = model
         return model
 
     def getmodel(self, inputsize, outputsize):
         raise NotImplementedError
 
-    def train(self, trainset, trainlabel):
+    def _train(self, trainset, trainlabel):
         return self.model.fit(trainset, trainlabel, epochs=self.epochs)
 
-    def evaluate(self, testset, testlabel):
+    def _evaluate(self, testset, testlabel):
         self.model.evaluate(testset, testlabel)
 
-    def predict(self, testset):
-        # testset  =   np.reshape(testset, (testset.shape[0], 1, testset.shape[1]))
+    def _predict(self, testset):
         return self.model.predict(testset)
 
-    def predict_classes(self, testset):
-        # testset  =   np.reshape(testset, (testset.shape[0], 1, testset.shape[1]))
+    def _predict_classes(self, testset):
         return self.model.predict_classes(testset)
 
     def save(self, file):
@@ -60,50 +124,13 @@ class KerasClassifier(Classifier):
 
 
 class SequenceNN(KerasClassifier):
+    def _reshape(self, data):
+        if(len(data.shape) == 2):
+            return np.reshape(
+                data, (data.shape[0], 1, data.shape[1]))
+        return data
 
-    def createmodel(self, inputsize, outputsize):
-        self.outputsize = outputsize
-        if(len(inputsize) == 1):
-            inputsize=(1,inputsize[0])
-        METRICS = [
-            #   tf.keras.metrics.TruePositives(name='tp'),
-            #   tf.keras.metrics.FalsePositives(name='fp'),
-            #   tf.keras.metrics.TrueNegatives(name='tn'),
-            #   tf.keras.metrics.FalseNegatives(name='fn'),
-            # CategoricalTruePositives(name='tp',num_classes=outputsize,batch_size=500),
-            tf.keras.metrics.SparseCategoricalAccuracy(name='acc'),
-            # 'accuracy'
-            # tf.keras.metrics.BinaryAccuracy(name='accuracy'),
-            # tf.keras.metrics.Precision(name='precision'),
-            # tf.keras.metrics.Recall(name='recall'),
-            # tf.keras.metrics.AUC(name='auc'),
-        ]
-
-        model = self.getmodel(inputsize, outputsize)
-        model.summary()
-        model.compile(
-            optimizer='adam', loss='sparse_categorical_crossentropy', metrics=METRICS)
-        self.model = model
-        return model
-
-    def train(self, trainset, trainlabel):
-        if(len(trainset.shape) == 2):
-            trainset = np.reshape(
-                trainset, (trainset.shape[0], 1, trainset.shape[1]))
-        return super().train(trainset, trainlabel)
-
-    def predict(self, testset):
-        if(len(testset.shape) == 2):
-            testset = np.reshape(
-                testset, (testset.shape[0], 1, testset.shape[1]))
-        return self.model.predict(testset)
-
-    def predict_classes(self, testset):
-        if(len(testset.shape) == 2):
-            testset = np.reshape(
-                testset, (testset.shape[0], 1, testset.shape[1]))
-        return self.model.predict_classes(testset)
-
+    
 
 class LSTMTest(SequenceNN):
 
@@ -130,9 +157,9 @@ class SimpleKeras(KerasClassifier):
 
 
 class WangMLP(KerasClassifier):
-    from pyActLearn.learning.nn.mlp import MLP
 
     def getmodel(self, inputsize, outputsize):
+        from pyActLearn.learning.nn.mlp import MLP
         return MLP(inputsize, outputsize, [1000])
 
 

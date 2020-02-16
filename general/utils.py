@@ -4,6 +4,7 @@ import logging
 from intervaltree import intervaltree
 logger = logging.getLogger(__file__)
 
+
 # Define a Data Object
 
 
@@ -222,7 +223,14 @@ def configurelogger(file, dir):
     # Setup Logging as early as possible
     import sys
     logging.basicConfig(level=logging.DEBUG,
-                        format='[%(asctime)s] %(name)s:%(levelname)s:%(message)s',
+                        format='[%(asctime)s] %(filename)-10s %(funcName)-10s %(levelname)-8s %(message)s',
                         handlers=[logging.FileHandler(log_filename),
                                   logging.StreamHandler(sys.stdout)])
     logging.getLogger().setLevel(logging.DEBUG)
+
+
+import auto_profiler
+def logProfile(p):
+    title=  'Time   [Hits * PerHit] Function name [Called from] [Function Location]\n'+\
+            '-----------------------------------------------------------------------\n'
+    logger.debug("TimeProfiling\n%s%s"%(title,auto_profiler.Tree(p.root,threshold=.10)))

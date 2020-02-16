@@ -2,7 +2,12 @@ from feature_extraction.feature_abstract import FeatureExtraction
 import pandas as pd
 import numpy as np
 class Cook1(FeatureExtraction):
+    def getShape(self):
+        scount=sum(1 for x in self.datasetdscr.sensor_id_map);
+        return (scount+3,)
+        
     sec_in_day=(60*60*24)
+    
     def featureExtract(self,win):
         window=win['window']
         scount=sum(1 for x in self.datasetdscr.sensor_id_map);

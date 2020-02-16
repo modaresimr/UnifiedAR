@@ -6,7 +6,7 @@ import tensorflow.compat.v1 as tf
 
 
 
-from pyActLearn.learning.nn import variable_summary
+
 from .layers import HiddenLayer, SoftmaxLayer
 from .injectors import BatchSequenceInjector
 from .criterion import MonitorBased, ConstIterations
@@ -325,6 +325,8 @@ class LSTM:
             with tf.name_scope('train'):
                 self.fit_step = self.optimizer.minimize(self.loss)
             # Setup Summaries
+            
+            from pyActLearn.learning.nn import variable_summary
             self.summaries.append(variable_summary(self.input_W, tag='input_layer/weights'))
             self.summaries.append(variable_summary(self.input_b, tag='input_layer/biases'))
             self.summaries.append(variable_summary(self.output_W, tag='output_layer/weights'))

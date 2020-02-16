@@ -8,19 +8,19 @@ from pyActLearn.learning.nn.sda import SDA
 
 
 class PyActLearnClassifier(Classifier):
-    def createmodel(self, inputsize, outputsize):
+    def _createmodel(self, inputsize, outputsize):
         raise NotImplementedError
 
-    def train(self, trainset, trainlabel):
+    def _train(self, trainset, trainlabel):
         raise NotImplementedError
 
-    def evaluate(self, testset, testlabel):
+    def _evaluate(self, testset, testlabel):
         raise NotImplementedError
 
-    def predict(self, testset):
+    def _predict(self, testset):
         raise NotImplementedError
 
-    def predict_classes(self, testset):
+    def _predict_classes(self, testset):
         raise NotImplementedError
 
     def save(self, desc):
@@ -35,22 +35,22 @@ class PAL_NN(Classifier):
     def getmodel(self, inputsize, outputsize):
         raise NotImplementedError
 
-    def createmodel(self, inputsize, outputsize):
+    def _createmodel(self, inputsize, outputsize):
         self.outputsize=outputsize
         self.model=self.getmodel(inputsize,outputsize)
         return self.model
 
-    def train(self, trainset, trainlabel):    
+    def _train(self, trainset, trainlabel):    
         self.model.fit(trainset, trainlabel, iter_num=5000, batch_size=100,
                        criterion='monitor_based', summaries_dir='logs')
 
-    def evaluate(self, testset, testlabel):
+    def _evaluate(self, testset, testlabel):
         raise NotImplementedError
 
-    def predict(self, testset):
+    def _predict(self, testset):
         return self.model.predict_proba(testset)
 
-    def predict_classes(self, testset):
+    def _predict_classes(self, testset):
         return self.model.predict(testset)
 
     def save(self, file):
@@ -100,7 +100,7 @@ class PAL_SDA(PAL_NN):
     """Stacked Auto-encoder
     """
 
-    def createmodel(self, inputsize, outputsize):
+    def getmodel(self, inputsize, outputsize):
         return SDA(inputsize, outputsize, [300, 300, 300])
     
     

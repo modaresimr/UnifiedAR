@@ -7,7 +7,7 @@ import logging
 import general.utils as utils
 # from activity_fetcher import *
 from constants import methods
-
+import auto_profiler
 
 # from datatool import *
 # from evaluation import *
@@ -18,6 +18,7 @@ from constants import methods
 # from segmentation import *
 if __name__ == '__main__':
     args_ok = False
+    auto_profiler.Profiler.GlobalDisable=True
     parser = argparse.ArgumentParser(description='Run on datasets.')
     parser.add_argument('-d', '--dataset', help=' to original datasets', default=1)
     parser.add_argument('-o', '--output', help='Output folder', default='logs')
@@ -27,17 +28,11 @@ if __name__ == '__main__':
     logger = logging.getLogger(__file__)
     
     datasetdscr = methods.dataset[int(args.dataset)]['method']().load()
-    # import sys
-    # sys.exit()
+ 
     strategy = methods.mlstrategy[0]['method']()
     evaluation=methods.evaluation[0]['method']()
     evalres = evaluation.evaluate(datasetdscr, strategy)
-    # cm=confusion_matrix(Sdata.label,result.predictedclasses,self.acts)
-    #         event_cm=event_confusion_matrix(Sdata.a_events,pred_events,self.acts)
-    #         result.cm=cm
-    #         result.event_cm=event_cm
-    # result.eventeval=EventBasedMetric(Sdata.a_events,pred_events,Sdata.acts)
-    # methods.event_metric[0]['method']().
+
     run_date=datetime.now().strftime('%y%m%d_%H-%M-%S')
     run_info={'dataset':datasetdscr.shortname(),'run_date':run_date,'dataset_path':datasetdscr.data_path, 'strategy':strategy.shortname(),'evalution':evaluation.shortname()}
 
@@ -46,7 +41,3 @@ if __name__ == '__main__':
         quality=evalres[i].quality
         logger.debug('Evalution quality fold=%d is %s' % (i, quality))
         
-
-    # utils.saveState([datasetdscr, evalres.real_events, evalres.pred_events],
-    #                 datasetdscr.shortname()+'r1')
-    # print(strategy.evaluate(evalres))

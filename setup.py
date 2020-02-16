@@ -36,6 +36,8 @@ setuptools.setup(
         'plotly',
 		'import-ipynb',
         'memory_profiler',
-        'ward-metrics'
+        'ward-metrics',
+        'libsvm',
+        'pyprof-timer'
     ]
 )
