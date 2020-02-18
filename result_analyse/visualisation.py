@@ -14,18 +14,28 @@ import result_analyse.SpiderChart as spiderchart
 from metric.CMbasedMetric import CMbasedMetric
 from metric.EventBasedMetric import time2int
 
+def filterTime(events,duration=None):
+    if(duration is not None):
+        events=events.loc[duration[0]<=events.EndTime]
+        events=events.loc[duration[1]>=events.StartTime]
+    return events
 
-def my_result_analyse(dataset,real_events,pred_events):
+    
+
+def my_result_analyse(dataset,real_events,pred_events,onlyAct=None,duration=None):
+    real_events=filterTime(real_events,duration)
+    pred_events=filterTime(pred_events,duration)
+    
     # visualize(dataset)
     remove_gaps(real_events,pred_events)
     print('visualizing real and pred')
-    plotJoinAct(dataset,real_events,pred_events)
-    plotMyMetric(dataset,real_events,pred_events)
-    plotWardMetric(dataset,real_events,pred_events)
+    plotJoinAct(dataset,real_events,pred_events,onlyAct=onlyAct)
+    plotMyMetric(dataset,real_events,pred_events,onlyAct=onlyAct)
+    plotWardMetric(dataset,real_events,pred_events,onlyAct=onlyAct)
 
-def plotWardMetric(dataset,real_events,pred_events):
+def plotWardMetric(dataset,real_events,pred_events,onlyAct=None):
     # Calculate segment results:
-    acts=[i for i in dataset.activities_map]
+    acts=[i for i in dataset.activities_map] if onlyAct==None else [onlyAct]
     revent = {}
     pevent = {}
     for act in acts:
@@ -33,8 +43,12 @@ def plotWardMetric(dataset,real_events,pred_events):
         pevent[act]=[]
         
     for i,e in real_events.iterrows():
+        if not (e.Activity in acts):
+            continue
         revent[e.Activity].append((time2int(e.StartTime), time2int(e.EndTime)))
     for i,e in pred_events.iterrows():
+        if not (e.Activity in acts):
+            continue
         pevent[e.Activity].append((time2int(e.StartTime), time2int(e.EndTime)))
 
     result={}
@@ -47,30 +61,47 @@ def plotWardMetric(dataset,real_events,pred_events):
 
         twoset_results, segments_with_scores, segment_counts, normed_segment_counts = eval_segments(ground_truth_test, detection_test)
 
+
+        
+
+        fn = segment_counts["D"] + segment_counts["F"] + segment_counts["Us"] + segment_counts["Ue"]
+        fp = segment_counts["I"] + segment_counts["M"] + segment_counts["Os"] + segment_counts["Oe"]
+
+        recall=segment_counts['TP']/(segment_counts['TP']+fn)
+        prec=segment_counts['TP']/(segment_counts['TP']+fp)
+        f1=2*recall*prec/(recall+prec+0.000001)
+        print({'recall':recall,'precision':prec,'f1':f1})
         # Print results:
+        
         print_detailed_segment_results(segment_counts)
+        
+        segment_counts['TN']=0
+        normed_segment_counts['TN']=0
+        all=np.sum(detailed_segment_results_to_list(segment_counts))
+        for item in normed_segment_counts:
+            normed_segment_counts[item]=round(segment_counts[item]/all*100,2)
+        print('Normalized segment_results %')
         print_detailed_segment_results(normed_segment_counts)
-        print_twoset_segment_metrics(twoset_results)
-
+        print_twoset_segment_metrics(twoset_results)    
         # Access segment results in other formats:
-        print("\nAbsolute values:")
-        print("----------------")
-        print(detailed_segment_results_to_list(segment_counts)) # segment scores as basic python list
-        print(detailed_segment_results_to_string(segment_counts)) # segment scores as string line
-        print(detailed_segment_results_to_string(segment_counts, separator=";", prefix="(", suffix=")\n")) # segment scores as string line
+        # print("\nAbsolute values:")
+        # print("----------------")
+        # print(detailed_segment_results_to_list(segment_counts)) # segment scores as basic python list
+        # print(detailed_segment_results_to_string(segment_counts)) # segment scores as string line
+        # print(detailed_segment_results_to_string(segment_counts, separator=";", prefix="(", suffix=")\n")) # segment scores as string line
 
-        print("Normed values:")
-        print("--------------")
-        print(detailed_segment_results_to_list(normed_segment_counts)) # segment scores as basic python list
-        print(detailed_segment_results_to_string(normed_segment_counts)) # segment scores as string line
-        print(detailed_segment_results_to_string(normed_segment_counts, separator=";", prefix="(", suffix=")\n")) # segment scores as string line
+        # print("Normed values:")
+        # print("--------------")
+        # print(detailed_segment_results_to_list(normed_segment_counts)) # segment scores as basic python list
+        # print(detailed_segment_results_to_string(normed_segment_counts)) # segment scores as string line
+        # print(detailed_segment_results_to_string(normed_segment_counts, separator=";", prefix="(", suffix=")\n")) # segment scores as string line
 
         # Access segment metrics in other formats:
-        print("2SET metrics:")
-        print("-------------")
-        print(twoset_segment_metrics_to_list(twoset_results)) # twoset_results as basic python list
-        print(twoset_segment_metrics_to_string(twoset_results)) # twoset_results as string line
-        print(twoset_segment_metrics_to_string(twoset_results, separator=";", prefix="(", suffix=")\n")) # twoset_results as string line
+        # print("2SET metrics:")
+        # print("-------------")
+        # print(twoset_segment_metrics_to_list(twoset_results)) # twoset_results as basic python list
+        # print(twoset_segment_metrics_to_string(twoset_results)) # twoset_results as string line
+        # print(twoset_segment_metrics_to_string(twoset_results, separator=";", prefix="(", suffix=")\n")) # twoset_results as string line
 
         # Visualisations:
         plot_events_with_segment_scores(segments_with_scores, ground_truth_test, detection_test)
@@ -100,17 +131,22 @@ def plotWardMetric(dataset,real_events,pred_events):
         plot_event_analysis_diagram(detailed_scores)
 
 
-def remove_gaps(real_events,pred_events):
+def remove_gaps(real_events,pred_events,onlyAct=None):
     pc=0
     removdur=pd.to_timedelta('0s')
+    pred_events=pred_events[['StartTime','EndTime','Activity']]
+    if not(onlyAct is None):
+        real_events=real_events.loc[real_events.Activity==onlyAct]
+        pred_events=pred_events.loc[pred_events.Activity==onlyAct]
+
     for rc in range(1,len(real_events)):
         lasttime=real_events.iloc[rc]['EndTime']
-        real_events.iloc[rc]['EndTime']-=removdur
-        real_events.iloc[rc]['StartTime']-=removdur
+        real_events.iat[rc,1]-=removdur
+        real_events.iat[rc,0]-=removdur
         
         while (pc<len(pred_events) and pred_events.iloc[pc]['StartTime']-removdur<lasttime):
-            pred_events.iloc[pc]['EndTime']-=removdur
-            pred_events.iloc[pc]['StartTime']-=removdur
+            pred_events.iat[pc,1]-=removdur
+            pred_events.iat[pc,0]-=removdur
             pc+=1
         
         if(pc>0):
@@ -124,28 +160,30 @@ def remove_gaps(real_events,pred_events):
         else:
             inittime=min(real_events.iloc[rc+1]['StartTime'],pred_events.iloc[pc]['StartTime'])
         
-        removdur+=inittime-lasttime- dur
+        removdur+=max(np.timedelta64(),inittime-lasttime- dur)
     
     for i in range(pc,len(pred_events)):
-        pred_events.iloc[i]['EndTime']-=removdur
-        pred_events.iloc[i]['StartTime']-=removdur
+        pred_events.iat[i,1]-=removdur
+        pred_events.iat[i,0]-=removdur
 
 
-        
+    return real_events,pred_events    
 
 
 
     
 
-def plotMyMetric(dataset,real_events,pred_events):
-    res=MyMetric.eval(real_events,pred_events,[i for i in dataset.activities_map],debug=0)
+def plotMyMetric(dataset,real_events,pred_events,onlyAct=None):
+    acts=[i for i in dataset.activities_map] if onlyAct==None else [onlyAct]
+    res=MyMetric.eval(real_events,pred_events,acts,debug=1)
 
-    for i in range(len(res)):
+    for i in res:
         metrics=res[i]
         plotJoinAct(dataset,real_events,pred_events,onlyAct=i)
         df=pd.DataFrame(metrics)
         print(dataset.activities_map[i],"========")
         print(df)
+        print('average=',np.average(list(df.loc['f1'])))
         df=df.drop(['tp','fp','fn'])
         spiderchart.plot(df,[0.25,.5,.75])
 
@@ -163,16 +201,18 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None):
   from pandas.plotting import register_matplotlib_converters
   register_matplotlib_converters()
   size=0.45
+  acts=dataset.activities if onlyAct is None else [onlyAct]
   if not(onlyAct is None):
       real_acts=real_acts.loc[real_acts.Activity==onlyAct]
       pred_acts=pred_acts.loc[pred_acts.Activity==onlyAct]
-
+  
   if(len(real_acts)==0):
+    print('no activity of this type')
     return
-  ft=real_acts.StartTime.iloc[0]
-  dur=ft+pd.to_timedelta('12h')
-  real_acts=real_acts.loc[real_acts.StartTime<dur]
-  pred_acts=pred_acts.loc[pred_acts.StartTime<dur]
+#   ft=real_acts.StartTime.iloc[0]
+#   dur=ft+pd.to_timedelta('12h')
+#   real_acts=real_acts.loc[real_acts.StartTime<dur]
+#   pred_acts=pred_acts.loc[pred_acts.StartTime<dur]
   # apply(lambda x:dataset.activities_map[x.Activity], axis=1).tolist()
   ract = (real_acts.Activity+(size/2)).tolist()
   rstart = real_acts.StartTime.tolist()
@@ -182,9 +222,9 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None):
   pstart = pred_acts.StartTime.tolist()
   pend = pred_acts.EndTime.tolist()
   if(onlyAct):
-      fig, ax = plt.subplots(figsize=(10, 2))
+      fig, ax = plt.subplots(figsize=(10, 1))
   else:
-      fig, ax = plt.subplots()
+      fig, ax = plt.subplots(figsize=(10, len(acts)/5))
   ax.set_title(label)
   _plotActs(ax,ract, rstart, rend,
                       linewidth=1,edgecolor='k',facecolor='g', size=size, alpha=.6)
@@ -194,7 +234,7 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None):
 #                       colors="red", alpha=1, linewidth=.3)
   # plt.hlines(ract, rstart, rend, colors=(0,.5,0,.2), linewidth=1)
   # plt.hlines(pact, pstart, pend, colors="red", lw=2)
-  loc = mdates.HourLocator(interval=2)
+  loc = mdates.AutoDateLocator()
   ax.xaxis.set_major_locator(loc)
   ax.xaxis.set_major_formatter(mdates.AutoDateFormatter(loc))
 
@@ -205,7 +245,7 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None):
   if(onlyAct):
     ax.set_ylim(onlyAct-size,onlyAct+size)
   else:
-    ax.set_ylim(-1+size,len(dataset.activities)-size)
+    ax.set_ylim(0+size,len(dataset.activities)-size)
   plt.margins(0.1)
   plt.show()
 
@@ -274,7 +314,7 @@ def tmp2(cm,acts):
 	plt.yticks(range(height), acts)
 	plt.show()
 
-def plot_pre_act(dataset,myevalres):
+def plot_per_act(dataset,myevalres):
     activities=dataset.activities
     summycm={}
     sumcm={}
@@ -335,3 +375,16 @@ def plot_pre_act(dataset,myevalres):
     fig.tight_layout()
     fig.patch.set_facecolor('white')
     plt.show()
+
+
+if __name__ == '__main__':
+    import result_analyse.resultloader
+    import general.utils as utils
+    run_info,dataset,evalres=utils.loadState(result_analyse.resultloader.get_runs()[0][0])
+    real_events=evalres[0].real_events
+    pred_events=evalres[0].pred_events
+    #my_result_analyse(dataset,evalres[0].real_events,evalres[0].pred_events,duration=(pd.to_datetime('17-2-2020'),pd.to_datetime('17-2-2021')))
+    remove_gaps(real_events,pred_events,7)
+    plotJoinAct(dataset,real_events,pred_events,onlyAct=onlyAct)
+    vs.plotMyMetric(dataset,real_events,pred_events,onlyAct=onlyAct)
+    vs.plotWardMetric(dataset,real_events,pred_events,onlyAct=onlyAct)

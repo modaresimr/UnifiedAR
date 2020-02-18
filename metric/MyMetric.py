@@ -19,8 +19,12 @@ def eval(real_a_event, pred_a_event, acts,debug=0):
         
     sec1=pd.to_timedelta('1s').value
     for i,e in real_a_event.iterrows():
+        if not (e.Activity in acts):
+            continue
         revent[e.Activity].append((e.StartTime.value/sec1, e.EndTime.value/sec1))
     for i,e in pred_a_event.iterrows():
+        if not (e.Activity in acts):
+            continue
         pevent[e.Activity].append((e.StartTime.value/sec1,e.EndTime.value/sec1))
 
     result={}
@@ -100,26 +104,31 @@ def eval_my_metric(real,pred,alpha=1,debug=0):
             metric[m]['f1']         =2*metric[m]['recall']*metric[m]['precision']/(metric[m]['recall']+metric[m]['precision']) if (metric[m]['recall']+metric[m]['precision'])!=0 else 0
         return metric
 
-
+import matplotlib.dates as mdates
 def plot_events_with_event_scores(gt_event_scores, detected_event_scores, ground_truth_events, detected_events, label=None):
-    fig,ax = plt.subplots(figsize=(10, 3))
+    fig,ax = plt.subplots(figsize=(10, 2))
     ax.set_title(label)
     maxsize=10
+    maxsize=len(detected_events)
     for i in range(min(maxsize,len(detected_events))):
         d = detected_events[i]
         plt.axvspan(d[0], d[1], 0, 0.5,linewidth=1,edgecolor='k',facecolor='r', alpha=.6)
         plt.text((d[1] + d[0]) / 2, 0.2, "%g" %round(detected_event_scores[i],2 if detected_event_scores[i]<10 else 0), horizontalalignment='center', verticalalignment='center')
-
+    maxsize=len(ground_truth_events)
     for i in range(min(maxsize,len(ground_truth_events))):
         gt = ground_truth_events[i]
         plt.axvspan(gt[0], gt[1], 0.5, 1,linewidth=1,edgecolor='k',facecolor='g', alpha=.6)
         plt.text((gt[1] + gt[0]) / 2, 0.8, "%g" %round(gt_event_scores[i],2 if gt_event_scores[i]<10 else 0), horizontalalignment='center', verticalalignment='center')
 
-    plt.tight_layout()
+    # loc = mdates.AutoDateLocator()
+    # ax.xaxis.set_major_locator(loc)
+    # ax.xaxis.set_major_formatter(mdates.AutoDateFormatter(loc))
+    # plt.tight_layout()
 
     
     plt.show()
     
+
 
 def _makeIntervalTree(evnt,label):
     
