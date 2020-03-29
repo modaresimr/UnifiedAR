@@ -137,20 +137,20 @@ def instantiate(method):
     m.applyParams(method['params'])
 
 
-def saveState(vars, file):
+def saveState(vars, file,name='data'):
     import pickle
 
     file = 'save_data/'+file+'/'
     if not (os.path.exists(file)):
         os.makedirs(file)
-    with open(file+'data.pkl', 'wb') as f:
+    with open(file+name+'.pkl', 'wb') as f:
         pickle.dump(vars, f)
 
 
-def loadState(file):
+def loadState(file,name='data'):
     import pickle
     file = 'save_data/'+file+'/'
-    with open(file+'data.pkl', 'rb') as f:
+    with open(file+name+'.pkl', 'rb') as f:
         return pickle.load(f)
 
 

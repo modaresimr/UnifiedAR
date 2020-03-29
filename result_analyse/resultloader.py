@@ -88,6 +88,63 @@ def get_runs():
             logger.warn('File %s can not import'%item)
     return result
 
+# +
+def get_runs_summary(dataset=''):
+    list=os.listdir('save_data/')
+    list.sort(key=lambda f:os.path.getmtime('save_data/'+f),reverse=True)
+    result=[]
+    def loader(file):
+        if dataset not in file:
+               return
+        try:
+            res=utils.loadState(file,'summary')
+            # if(len(res)!=3):
+            #     raise Error
+            # [run_info,datasetdscr,evalres]=res
+            # disp_name='dataset:%s date:%s %s'%(run_info['dataset'],run_info['run_date'], evalres[0].shortrunname)
+            f1=res['folds'][0]['quality']['f1']
+            disp_name=file+":f1="+str(f1)+"=="+res['folds'][0]['shortrunname']+"===="+str(res['folds'])
+            return(disp_name,file)
+        except:
+            logger.warn('File %s can not import'%file)
+#            raise
+
+
+
+    from joblib import Parallel, delayed
+    import multiprocessing
+    num_cores = multiprocessing.cpu_count()
+    results = Parallel(n_jobs=num_cores)(delayed(loader)(file) for file in list)
+    for item in results:
+        if(item is None):continue
+        result.append(item)
+        
+    return result
+
+
+def get_runs_summary2(dataset=''):
+    list=os.listdir('save_data/')
+    list.sort(key=lambda f:os.path.getmtime('save_data/'+f),reverse=True)
+    result=[]
+    for item in list:
+        if dataset not in item:
+               	continue
+        try:
+            res=utils.loadState(item,'summary')
+            # if(len(res)!=3):
+            #     raise Error
+            # [run_info,datasetdscr,evalres]=res
+            # disp_name='dataset:%s date:%s %s'%(run_info['dataset'],run_info['run_date'], evalres[0].shortrunname)
+            f1=res['folds'][0]['quality']['f1']
+            disp_name=item+":f1="+str(f1)+"=="+res['folds'][0]['shortrunname']+"===="+str(res['folds'])
+            result.append((disp_name,item))
+        except:
+            logger.warn('File %s can not import'%item)
+#            raise
+    return result
+
+
+# -
 
 def display_result(file):
     [run_info,datasetdscr,evalres]=utils.loadState(file)

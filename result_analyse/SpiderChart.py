@@ -10,7 +10,7 @@ from matplotlib.projections.polar import PolarAxes
 from matplotlib.projections import register_projection
 from matplotlib.spines import Spine
 from matplotlib.transforms import Affine2D
- 
+
  
 
 
@@ -107,7 +107,7 @@ def radar_factory(num_vars, frame='circle'):
 
 
 
-def plot(df,rng): 
+def plot(df,rng,title=None,ax=None): 
 	group=df.index
 	#df=df.drop(['group'],axis=1)
 	N = len(list(df))
@@ -116,24 +116,27 @@ def plot(df,rng):
 	spoke_labels = list(df)
 	case_data = df.values
 
-	fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(projection='radar'))
+	if ax is None:
+		fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(projection='radar'))
 	#fig.subplots_adjust(top=0.85, bottom=0.05)
-
+	ax.set_title(title,  position=(0.5, 1.2),
+                     horizontalalignment='center', verticalalignment='center')
 	ax.set_rgrids(rng)
-	plt.ylim(0,1)
+	ax.set_ylim(0,1)
+	#ax.set_xlim(0,1)
 	#ax.set_title(title,  position=(0.5, 1.1), ha='center')
-
-	for d in case_data:
-		line = ax.plot(theta, d)
-		ax.fill(theta, d,  alpha=0.1)
+	cmap=plt.cm.get_cmap('Dark2')
+	for i,d in enumerate(case_data):
+		line = ax.plot(theta, d,color=cmap(i))
+		ax.fill(theta, d,  alpha=0.1,color=cmap(i))
 	ax.set_varlabels(spoke_labels)
 
 
 	labels = (group)
-	legend = ax.legend(labels, loc=(0.9, .95),labelspacing=0.1, fontsize='small')
+	legend = ax.legend(labels, loc=(0.9, .9),labelspacing=0.1, fontsize='small')
 
 
-	plt.show()
+	#plt.show()
 
 
 # Set data

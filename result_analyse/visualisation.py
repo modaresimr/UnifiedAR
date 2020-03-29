@@ -130,8 +130,63 @@ def plotWardMetric(dataset,real_events,pred_events,onlyAct=None):
         plot_events_with_event_scores(gt_event_scores, det_event_scores, ground_truth_test, detection_test, show=False)
         plot_event_analysis_diagram(detailed_scores)
 
+def remove_gaps(real_events,pred_events,onlyAct=None, max_events=20):
+    if(len(real_events) +len(pred_events)<5):return real_events,pred_events
+    removdur=pd.to_timedelta('0s')
+    
+    pred_events=pred_events[['StartTime','EndTime','Activity']].copy()
+    real_events=real_events[['StartTime','EndTime','Activity','Duration']].copy()
+    if not(onlyAct is None):
+        real_events=real_events.loc[real_events.Activity==onlyAct]
+        pred_events=pred_events.loc[pred_events.Activity==onlyAct]
+    #print(str(onlyAct),'===>r:',len(real_events),' p:',len(pred_events))
+    real_events=real_events.head(2*max_events).tail(max_events)
+    pred_events=pred_events.loc[pred_events.EndTime<real_events.EndTime.iloc[-1]].loc[pred_events.EndTime>=real_events.StartTime.iloc[0]]
+    #print(str(onlyAct),'after===>r:',len(real_events),' p:',len(pred_events))
+    allItems=[]
+    
+    defGap=real_events.Duration.sum()/len(real_events.Duration)
+    if len(real_events.Duration)==0:defGap=pd.to_timedelta('2m')
+    for i,(k,row) in enumerate(real_events.iterrows()):
+        allItems.append({'indx':i, 'type':'real','state': 'start','time':row.StartTime})
+        allItems.append({'indx':i, 'type':'real','state': 'end','time':row.EndTime})
+    for i,(k,row) in enumerate(pred_events.iterrows()):
+        allItems.append({'indx':i, 'type':'pred','state': 'start','time':row.StartTime})
+        allItems.append({'indx':i, 'type':'pred','state': 'end','time':row.EndTime})
 
-def remove_gaps(real_events,pred_events,onlyAct=None):
+
+    allItems.sort(key=lambda elem:elem['time'])
+    removdur=pd.to_timedelta('0s')
+    gap_start=allItems[0]['time']
+    gap_end=allItems[0]['time']
+    states={'real':0,'pred':0}
+    for i,item in enumerate(allItems):
+        isvalid=states['pred']+states['real']==0
+        if(item['state']=='start'):
+            states[item['type']]=1
+            gap_end=item['time']
+        else :
+            states[item['type']]=0
+            gap_start=item['time']
+        dur=max(defGap,pd.to_timedelta('2m'))
+        if(isvalid):  
+            removdur+=max(np.timedelta64(),gap_end-gap_start-dur)
+        if(item['state']=='start'):
+            if(item['type']=='real'):
+                rc=item['indx']
+                real_events.iat[rc,1]-=removdur
+                real_events.iat[rc,0]-=removdur
+            if(item['type']=='pred'):
+                pc=item['indx']
+                pred_events.iat[pc,1]-=removdur
+                pred_events.iat[pc,0]-=removdur
+
+    return real_events,pred_events    
+
+
+
+
+def remove_gaps_old(real_events,pred_events,onlyAct=None):
     pc=0
     removdur=pd.to_timedelta('0s')
     pred_events=pred_events[['StartTime','EndTime','Activity']]
@@ -139,7 +194,7 @@ def remove_gaps(real_events,pred_events,onlyAct=None):
         real_events=real_events.loc[real_events.Activity==onlyAct]
         pred_events=pred_events.loc[pred_events.Activity==onlyAct]
 
-    for rc in range(1,len(real_events)):
+    for rc in range(0,len(real_events)):
         lasttime=real_events.iloc[rc]['EndTime']
         real_events.iat[rc,1]-=removdur
         real_events.iat[rc,0]-=removdur
@@ -154,13 +209,18 @@ def remove_gaps(real_events,pred_events,onlyAct=None):
 
         dur=max(real_events.iloc[rc]['Duration'],pd.to_timedelta('5m'))
         
-        if(rc+1>=len(real_events)):break
-        elif pc>=len(pred_events):
-            inittime=real_events.iloc[rc+1]['StartTime']
-        else:
-            inittime=min(real_events.iloc[rc+1]['StartTime'],pred_events.iloc[pc]['StartTime'])
-        
-        removdur+=max(np.timedelta64(),inittime-lasttime- dur)
+        inittime=min(real_events.iloc[rc+1]['StartTime'],pred_events.iloc[pc]['StartTime'])
+        while pc<=len(pred_events) and real_events.iloc[rc+1]['StartTime'] >= pred_events.iloc[pc]['StartTime']:
+            if(rc+1>=len(real_events)):break
+            elif pc>=len(pred_events):
+                inittime=real_events.iloc[rc+1]['StartTime']
+            else:
+                inittime=min(real_events.iloc[rc+1]['StartTime'],pred_events.iloc[pc]['StartTime'])
+            pred_events.iat[pc,1]-=removdur
+            pred_events.iat[pc,0]-=removdur
+            pc+=1
+            removdur+=max(np.timedelta64(),inittime-lasttime- dur)
+
     
     for i in range(pc,len(pred_events)):
         pred_events.iat[i,1]-=removdur
@@ -173,19 +233,77 @@ def remove_gaps(real_events,pred_events,onlyAct=None):
 
     
 
-def plotMyMetric(dataset,real_events,pred_events,onlyAct=None):
+def plotMyMetric2(dataset,real_events,pred_events,onlyAct=None,ax=None,debug=1,calcne=1):
     acts=[i for i in dataset.activities_map] if onlyAct==None else [onlyAct]
-    res=MyMetric.eval(real_events,pred_events,acts,debug=1)
-
+    res=MyMetric.eval(real_events,pred_events,acts,debug=debug,calcne=calcne)
+    if ~(onlyAct is None ):
+        res2=res
+        res={}
+        res[onlyAct]=res2
     for i in res:
         metrics=res[i]
-        plotJoinAct(dataset,real_events,pred_events,onlyAct=i)
+        #plotJoinAct(dataset,real_events,pred_events,onlyAct=i)
         df=pd.DataFrame(metrics)
         print(dataset.activities_map[i],"========")
-        print(df)
+        print(df.round(2))
+        
         print('average=',np.average(list(df.loc['f1'])))
         df=df.drop(['tp','fp','fn'])
-        spiderchart.plot(df,[0.25,.5,.75])
+        spiderchart.plot(df,[0.25,.5,.75],title=dataset.activities_map[i],ax=ax)
+
+def plotMyMetric(allmetrics,acts,actmap={}):
+    acount=len(acts)
+    col=min(4,acount)        
+    row=int(np.ceil((acount)/float(col)))
+    import result_analyse.SpiderChart
+    result_analyse.SpiderChart.radar_factory(5, frame='polygon')
+    m_fig,m_ax=plt.subplots(row,col,figsize=(col*3, row*3),subplot_kw=dict(projection='radar'))
+    if type(m_ax)!=np.ndarray:
+        m_ax=np.array([m_ax])
+    m_ax=m_ax.flatten()
+    
+    for i, act in enumerate(acts):
+        metrics=allmetrics[act]
+        if('avg' in metrics):metrics=metrics['avg']
+        #plotJoinAct(dataset,real_events,pred_events,onlyAct=i)
+        df=pd.DataFrame(metrics)
+        name=actmap[act] if act in actmap else act
+        print(name,"========")
+        print(df.round(2))
+        
+        print('average=',np.average(list(df.loc['f1'])))
+        df=df.drop(['tp','fp','fn'])
+        spiderchart.plot(df,[0.25,.5,.75],title=name,ax=m_ax[i])
+    m_fig.tight_layout(pad=0,h_pad=-10.0, w_pad=3.0)
+
+def plotJoinMetric(joinmetrics,acts,actmap={}):
+    acount=len(acts)
+    col=min(4,acount)        
+    row=int(np.ceil((acount)/float(col)))
+    import result_analyse.SpiderChart
+    result_analyse.SpiderChart.radar_factory(5, frame='polygon')
+    m_fig,m_ax=plt.subplots(row,col,figsize=(col*3, row*3),subplot_kw=dict(projection='radar'))
+    if type(m_ax)!=np.ndarray:
+        m_ax=np.array([m_ax])
+    m_ax=m_ax.flatten()
+    
+    
+    for i, act in enumerate(acts):
+        all=0
+        name=actmap[act] if act in actmap else act
+        print(name,"========")
+        for item in joinmetrics:
+            metrics=joinmetrics[item][act]
+            if('avg' in metrics):metrics=metrics['avg']
+            #plotJoinAct(dataset,real_events,pred_events,onlyAct=i)
+            df=pd.DataFrame(metrics)
+            print('average=',np.average(list(df.loc['f1'])))
+            df=df.drop(['tp','fp','fn','recall','precision'])
+            if type(all)==type(0):
+                all=df.drop(['f1'])
+            all.loc[item]=df.loc['f1']
+        spiderchart.plot(all,[0.25,.5,.75],title=name,ax=m_ax[i])
+    m_fig.tight_layout(pad=0,h_pad=-10.0, w_pad=3.0)
 
 
 def visualize(dataset):
@@ -193,11 +311,12 @@ def visualize(dataset):
     dv.view(dataset,1)
     dv.plotAct(dataset,dataset.activity_events)
 
-#from general.utils import loadState
-#dataset,real_events,pred_events=loadState('r1')
-#my_result_analyse(dataset,real_events,pred_events)
+# from general.utils import loadState
+# dataset,real_events,pred_events=loadState('r1')
+# my_result_analyse(dataset,real_events,pred_events)
 
-def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None):
+# +
+def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None, ax=None):
   from pandas.plotting import register_matplotlib_converters
   register_matplotlib_converters()
   size=0.45
@@ -207,8 +326,15 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None):
       pred_acts=pred_acts.loc[pred_acts.Activity==onlyAct]
   
   if(len(real_acts)==0):
-    print('no activity of this type')
-    return
+        print('not enough data of this type',onlyAct)
+        return
+  if(len(pred_acts)==0):
+        pred_acts=pred_acts.append({'StartTime':real_acts.StartTime.iloc[0],'EndTime':real_acts.EndTime.iloc[0],'Activity':real_acts.Activity.iloc[0]},ignore_index=True)
+        print('not enough p data of this type',onlyAct)
+        print(pred_acts)
+        return
+
+    
 #   ft=real_acts.StartTime.iloc[0]
 #   dur=ft+pd.to_timedelta('12h')
 #   real_acts=real_acts.loc[real_acts.StartTime<dur]
@@ -221,23 +347,31 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None):
   pact = (pred_acts.Activity-(size/2)).tolist()
   pstart = pred_acts.StartTime.tolist()
   pend = pred_acts.EndTime.tolist()
-  if(onlyAct):
-      fig, ax = plt.subplots(figsize=(10, 1))
-  else:
-      fig, ax = plt.subplots(figsize=(10, len(acts)/5))
+  if ax == None:
+    if(onlyAct):
+        fig, ax = plt.subplots(figsize=(10, 0.5))
+    else:
+        fig, ax = plt.subplots(figsize=(10, len(acts)/5))
   ax.set_title(label)
-  _plotActs(ax,ract, rstart, rend,
+  if(len(real_acts)==0):
+    print('no r activity of this type',label)
+  else:
+      _plotActs(ax,ract, rstart, rend,
                       linewidth=1,edgecolor='k',facecolor='g', size=size, alpha=.6)
-  _plotActs(ax,pact, pstart, pend,
+  if(len(pred_acts)==0):
+    print('no p activity of this type',label)
+  else:
+      _plotActs(ax,pact, pstart, pend,
                       linewidth=1,edgecolor='k',facecolor='r', size=size, alpha=.6)
 #   data_linewidth_plot(pact, pstart, pend, ax=ax,
 #                       colors="red", alpha=1, linewidth=.3)
   # plt.hlines(ract, rstart, rend, colors=(0,.5,0,.2), linewidth=1)
   # plt.hlines(pact, pstart, pend, colors="red", lw=2)
-  loc = mdates.AutoDateLocator()
-  ax.xaxis.set_major_locator(loc)
-  ax.xaxis.set_major_formatter(mdates.AutoDateFormatter(loc))
-
+#   loc = mdates.AutoDateLocator()
+#   ax.xaxis.set_major_locator(loc)
+#   ax.xaxis.set_major_formatter(mdates.AutoDateFormatter(loc))
+  ax.set_xticks([])
+  ax.set_xlim(min(pstart+rstart),max(pend+rend))
   ax.set_yticks([i for i in dataset.activities_map])
   ax.yaxis.grid(True)
 
@@ -247,8 +381,10 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None):
   else:
     ax.set_ylim(0+size,len(dataset.activities)-size)
   plt.margins(0.1)
-  plt.show()
+  #plt.show()
 
+
+# -
 
 def _plotActs(ax, x, s, e, **kwargs):
           size = kwargs.pop("size", 1)
@@ -276,7 +412,7 @@ def tmp(cm,acts):
     plt.xticks(np.arange(0,len(acts)), acts)
     plt.yticks(np.arange(0,len(acts)), acts)
 
-    plt.show()
+    # plt.show()
 
 def tmp2(cm,acts):
 	import numpy as np
@@ -312,7 +448,7 @@ def tmp2(cm,acts):
 	# alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 	plt.xticks(range(width), acts,rotation=-90)
 	plt.yticks(range(height), acts)
-	plt.show()
+	# plt.show()
 
 def plot_per_act(dataset,myevalres):
     activities=dataset.activities
@@ -374,17 +510,30 @@ def plot_per_act(dataset,myevalres):
 
     fig.tight_layout()
     fig.patch.set_facecolor('white')
-    plt.show()
+    # plt.show()
 
+def convert2event(real):
+	newreal=[]
+	mind=pd.datetime(2011,1,1)
+	for item in real:
+		s=mind+pd.to_timedelta(str(item[0])+'m')
+		e=mind+pd.to_timedelta(str(item[1])+'m')
+		newreal.append({"StartTime":s, "EndTime":e, "Duration":e-s, "Activity":1})
+		
+	return pd.DataFrame(newreal)
 
 if __name__ == '__main__':
     import result_analyse.resultloader
     import general.utils as utils
-    run_info,dataset,evalres=utils.loadState(result_analyse.resultloader.get_runs()[0][0])
+    #run_info,dataset,evalres=utils.loadState(result_analyse.resultloader.get_runs()[0][0])
+    run_info,dataset,evalres=utils.loadState('ward-a')
+    
     real_events=evalres[0].real_events
     pred_events=evalres[0].pred_events
     #my_result_analyse(dataset,evalres[0].real_events,evalres[0].pred_events,duration=(pd.to_datetime('17-2-2020'),pd.to_datetime('17-2-2021')))
-    remove_gaps(real_events,pred_events,7)
-    plotJoinAct(dataset,real_events,pred_events,onlyAct=onlyAct)
-    vs.plotMyMetric(dataset,real_events,pred_events,onlyAct=onlyAct)
-    vs.plotWardMetric(dataset,real_events,pred_events,onlyAct=onlyAct)
+    onlyact=1
+
+    remove_gaps(real_events,pred_events,onlyact)
+    plotJoinAct(dataset,real_events,pred_events,onlyAct=onlyact)
+    plotMyMetric(dataset,real_events,pred_events,onlyAct=onlyact)
+    plotWardMetric(dataset,real_events,pred_events,onlyAct=onlyact)

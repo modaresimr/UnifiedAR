@@ -38,6 +38,8 @@ setuptools.setup(
         'memory_profiler',
         'ward-metrics',
         'libsvm',
-        'pyprof-timer'
+        'auto-profiler',
+        'tensorflow_addons'
+        
     ]
 )

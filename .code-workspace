@@ -10,5 +10,11 @@
         "name": "Profiler",
         "path": "/opt/conda/lib/python3.6/site-packages/pyprof_timer/"
       },
+      {
+        // Source code
+        "name": "wardmetric",
+        "path": "/opt/conda/lib/python3.6/site-packages/ward_metrics-0.9.5-py3.6.egg"
+      },
+      
     ]
   }
