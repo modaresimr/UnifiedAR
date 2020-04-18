@@ -61,7 +61,7 @@ methods.classifier = [
     #     {'var': 'epochs', 'init': 3}
     # ]},
     {'method': lambda: classifier.Keras.LSTMTest(), 'params': [
-        {'var': 'epochs', 'init': 10}
+        {'var': 'epochs', 'init': 3}
     ]},
     # {'method': lambda: classifier.PyActLearn.PAL_LSTM_Legacy(), 'params': [
     #     {'var': 'epochs', 'init': 3}
@@ -103,7 +103,10 @@ methods.event_metric = [
 ]
 
 methods.activity_fetcher = [{'method': lambda: activity_fetcher.CookActivityFetcher.CookActivityFetcher()}]
-methods.combiner = [{'method':lambda: combiner.SimpleCombiner.SimpleCombiner()}]
+methods.combiner = [
+    # {'method':lambda: combiner.SimpleCombiner.SimpleCombiner()},
+    {'method':lambda: combiner.SimpleCombiner.EmptyCombiner()}
+    ]
 methods.evaluation = [
      {'method': lambda: evaluation.SimpleEval.SimpleEval()},
     # {'method': lambda: evaluation.KFoldEval.KFoldEval(5)},

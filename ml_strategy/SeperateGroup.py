@@ -22,7 +22,7 @@ class SeperateGroupStrategy(ml_strategy.abstract.MLStrategy):
         # intree = IntervalTree()
         for indx,tacts in enumerate(self.gacts[1:]):
             logger.info("woring on activties "+tacts.__str__())
-            Tdata=self.justifySet(tacts,data,True)
+            Tdata=self.justifySet(tacts,data,False)
             self.acts_name[indx]=datasetdscr.activities[tacts]
             self.strategies[indx]=ml_strategy.Simple.SimpleStrategy()
             self.strategies[indx].train(datasetdscr,Tdata,tacts)
@@ -33,7 +33,7 @@ class SeperateGroupStrategy(ml_strategy.abstract.MLStrategy):
 
             actnames=self.acts_name[indx]
             
-            vs.plotJoinAct2(res.real_events,res.pred_events,tacts[1:],actnames[1:])
+            # vs.plotJoinAct2(res.real_events,res.pred_events,tacts[1:],actnames[1:])
             
 
             for i in range(0, len(result.Sdata.set_window)):

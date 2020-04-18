@@ -70,3 +70,29 @@ class SimpleCombiner(Combiner):
     # pev=convertAndMergeToEvent(sw,label)
 
     # sw=np.array(sw)
+
+
+
+class EmptyCombiner(Combiner):
+    def combine(self, s_event_list,set_window, act_data):
+        predicted   = np.argmax(act_data, axis=1) 
+        events      = []
+        ptree       = {}
+        epsilon     = pd.to_timedelta('1s')
+        
+        for i in range(0, len(set_window)):
+            idx     = set_window[i]
+            start   = s_event_list[idx[0],1]
+            end     = s_event_list[idx[-1],1]
+            #pclass = np.argmax(predicted[i])
+            pclass  = predicted[i]
+
+            events.append({'Activity': pclass, 'StartTime': start, 'EndTime': end})
+
+
+        events = pd.DataFrame(events)
+        events = events.sort_values(['StartTime'])
+        events = events.reset_index()
+        events = events.drop(['index'], axis=1)
+        return events
+

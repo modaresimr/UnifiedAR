@@ -42,6 +42,8 @@ def merge_split_overlap_IntervalTree(p_acts,r_acts):
 
     
     for act in p_acts:
+        if(act['Activity']==0):
+            continue
         start=act['StartTime'].value
         end=act['EndTime'].value
         if(start==end):
@@ -53,6 +55,8 @@ def merge_split_overlap_IntervalTree(p_acts,r_acts):
         tree[start:end]=d #{'P':act,'PActivitiy':act.Activity}
         
     for act in r_acts:
+        if(act['Activity']==0):
+            continue
         start=act['StartTime'].value
         end=act['EndTime'].value
         if(start==end):
