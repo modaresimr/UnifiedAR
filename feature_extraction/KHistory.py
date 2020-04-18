@@ -12,8 +12,8 @@ class KHistory(FeatureExtraction):
         f=np.zeros(self.shape)  
         l=len(idx)
         start=idx[0]
-        for k in range(self.shape[0]):
-            newstart=start-l*(self.k-k)
+        for k in range(self.k):
+            newstart=start-l*(self.k-k-1)
             idx=range(newstart,newstart+l)
             f[k,:]=self.method.featureExtract2(s_event_list,idx)
 

@@ -39,7 +39,7 @@ methods.segmentation = [
 #        {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 12}
 #           ], 'findopt': False},
     {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
-        {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120},
+        {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120/2},
         {'var': 'shift', 'min': 10, 'max': 7*60 , 'type': 'float', 'init': 60}
     ], 'findopt': False}
     #   {'method': lambda:segmentation.FixedTimeWindow.FixedTimeWindow(), 'params':[
@@ -57,12 +57,12 @@ methods.preprocessing = [
 methods.classifier = [
     #     {'method': lambda:classifier.libsvm.LibSVM(), 'params':[],
     #  'findopt':False},
-    {'method': lambda: classifier.Keras.SimpleKeras(), 'params': [
+    # {'method': lambda: classifier.Keras.SimpleKeras(), 'params': [
+    #     {'var': 'epochs', 'init': 3}
+    # ]},
+    {'method': lambda: classifier.Keras.LSTMTest(), 'params': [
         {'var': 'epochs', 'init': 10}
     ]},
-    # {'method': lambda: classifier.Keras.LSTMTest(), 'params': [
-    #     {'var': 'epochs', 'init': 10}
-    # ]},
     # {'method': lambda: classifier.PyActLearn.PAL_LSTM_Legacy(), 'params': [
     #     {'var': 'epochs', 'init': 3}
     # ]},
@@ -111,25 +111,19 @@ methods.evaluation = [
 
 
 methods.feature_extraction = [
-    # {'method': lambda:feature_extraction.Simple.Simple(), 'params':[],
-    #   'findopt':False},
-    {'method': lambda:feature_extraction.KHistory.KHistory(), 'params':[{'k':1},{'method':feature_extraction.Cook.Cook1()}],'findopt':False},
+    # {'method': lambda:feature_extraction.Simple.Simple(), 'params':[], 'findopt':False},
+    # {'method': lambda:feature_extraction.KHistory.KHistory(), 'params':[{'k':3},{'method':feature_extraction.Cook.Cook1()}],'findopt':False},
+    {'method': lambda:feature_extraction.KHistory.KHistory(), 'params':[{'k':2},{'method':feature_extraction.Simple.Simple()}],'findopt':False},
+    # {'method': lambda:feature_extraction.KHistory.KHistory(), 'params':[{'k':1},{'method':feature_extraction.Simple.Simple()}],'findopt':False},
     #  {'method': lambda:feature_extraction.DeepLearningFeatureExtraction.DeepLearningFeatureExtraction(), 'params':[
     #             {'var':'size','min':10, 'max': 20, 'type':tf.int8,'init':50},
     #             {'var':'layers','min':1, 'max': 3, 'type':tf.int8,'init':pd.Timedelta(20, unit='s').total_seconds()}
     #         ],
     #  'findopt':False},
-    # {'method': lambda: feature_extraction.Cook.Cook1(), 'params': [],
-    #  'findopt':False},
-    #  {'method': lambda: feature_extraction.PAL_Features.PAL_Features(), 'params': [],
-    #  'findopt':False},
-    #  {'method': lambda:feature_extraction.Raw.Classic(), 'params': [
-    #      {'var':'normalized','init':True}
-    #   ],'findopt':False},
-    # {'method': lambda:feature_extraction.Raw.Sequence(), 'params': [
-    #     {'var':'normalized','init':True},
-    #     {'var':'per_sensor','init':True}
-    #  ],'findopt':False},
+    # {'method': lambda: feature_extraction.Cook.Cook1(), 'params': [],     'findopt':False},
+    #  {'method': lambda: feature_extraction.PAL_Features.PAL_Features(), 'params': [],  'findopt':False},
+    #  {'method': lambda:feature_extraction.Raw.Classic(), 'params': [ {'var':'normalized','init':True}  ],'findopt':False},
+    # {'method': lambda:feature_extraction.Raw.Sequence(), 'params': [ {'var':'normalized','init':True},{'var':'per_sensor','init':True}   ],'findopt':False},
 ]
 
 
@@ -142,7 +136,7 @@ methods.dataset = [
 ]
 
 methods.mlstrategy = [
-    {'method': lambda: ml_strategy.Simple.SimpleStrategy()},
-    # {'method': lambda: SeperateGroupStrategy()},
+    # {'method': lambda: ml_strategy.Simple.SimpleStrategy()},
+    {'method': lambda: ml_strategy.SeperateGroup.SeperateGroupStrategy()},
     
 ]

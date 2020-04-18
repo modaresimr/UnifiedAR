@@ -1,6 +1,7 @@
 from classifier.classifier_abstract import Classifier
 import tensorflow as tf
 import tensorflow_addons as tfa
+from sklearn.utils.class_weight import compute_class_weight
 
 
 import numpy as np
@@ -101,7 +102,11 @@ class KerasClassifier(Classifier):
         raise NotImplementedError
 
     def _train(self, trainset, trainlabel):
-        return self.model.fit(trainset, trainlabel, epochs=self.epochs)
+        cw = compute_class_weight("balanced", range(self.outputsize), trainlabel)
+        return self.model.fit(trainset, trainlabel, epochs=self.epochs, 
+        # validation_split=0.2,
+        class_weight=cw
+        )
 
     def _evaluate(self, testset, testlabel):
         self.model.evaluate(testset, testlabel)

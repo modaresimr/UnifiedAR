@@ -58,8 +58,7 @@ class SimpleCombiner(Combiner):
 
         tree.merge_equals(data_reducer=data_reducer)
         for inv in tree:
-            events.append(
-                {'Activity': inv.data['Activity'], 'StartTime': inv.begin, 'EndTime': inv.end})
+            events.append({'Activity': inv.data['Activity'], 'StartTime': inv.begin, 'EndTime': inv.end})
 
         events = pd.DataFrame(events)
         events = events.sort_values(['StartTime'])

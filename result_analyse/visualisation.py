@@ -383,6 +383,69 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None, ax=None):
   plt.margins(0.1)
   #plt.show()
 
+def plotJoinAct2(real_acts, pred_acts,acts,labels, ax=None):
+  from pandas.plotting import register_matplotlib_converters
+  register_matplotlib_converters()
+  size=0.45
+  rcond=real_acts.Activity==-1
+  pcond=pred_acts.Activity==-1
+  for act in acts:
+    rcond|=real_acts.Activity==act
+    pcond|=pred_acts.Activity==act
+  real_acts=real_acts.loc[rcond]
+  pred_acts=pred_acts.loc[pcond]
+
+  if(len(real_acts)==0):
+        print('not enough data of this type',acts)
+        return
+  if(len(pred_acts)==0):
+        #pred_acts=pred_acts.append({'StartTime':real_acts.StartTime.iloc[0],'EndTime':real_acts.EndTime.iloc[0],'Activity':real_acts.Activity.iloc[0]},ignore_index=True)
+        print('not enough p data of this type',acts)
+        print(pred_acts)
+        return
+
+    
+#   ft=real_acts.StartTime.iloc[0]
+#   dur=ft+pd.to_timedelta('12h')
+#   real_acts=real_acts.loc[real_acts.StartTime<dur]
+#   pred_acts=pred_acts.loc[pred_acts.StartTime<dur]
+  # apply(lambda x:dataset.activities_map[x.Activity], axis=1).tolist()
+  ract = (real_acts.Activity+(size/2)).tolist()
+  rstart = real_acts.StartTime.tolist()
+  rend = real_acts.EndTime.tolist()
+  # .apply(lambda x:dataset.activities_map[x.Activity], axis=1).tolist()
+  pact = (pred_acts.Activity-(size/2)).tolist()
+  pstart = pred_acts.StartTime.tolist()
+  pend = pred_acts.EndTime.tolist()
+  if ax == None:
+     fig, ax = plt.subplots(figsize=(10, len(acts)/5+.3))
+  ax.set_title(labels.__str__())
+  if(len(real_acts)==0):
+    print('no r activity of this type',label)
+  else:
+      _plotActs(ax,ract, rstart, rend,
+                      linewidth=1,edgecolor='k',facecolor='g', size=size, alpha=.6)
+  if(len(pred_acts)==0):
+    print('no p activity of this type',label)
+  else:
+      _plotActs(ax,pact, pstart, pend,
+                      linewidth=1,edgecolor='k',facecolor='r', size=size, alpha=.6)
+#   data_linewidth_plot(pact, pstart, pend, ax=ax,
+#                       colors="red", alpha=1, linewidth=.3)
+  # plt.hlines(ract, rstart, rend, colors=(0,.5,0,.2), linewidth=1)
+  # plt.hlines(pact, pstart, pend, colors="red", lw=2)
+#   loc = mdates.AutoDateLocator()
+#   ax.xaxis.set_major_locator(loc)
+#   ax.xaxis.set_major_formatter(mdates.AutoDateFormatter(loc))
+  ax.set_xticks([])
+  ax.set_xlim(min(pstart+rstart),max(pend+rend))
+  ax.set_yticks([i for i in acts])
+  ax.yaxis.grid(True)
+
+  ax.set_yticklabels([l for l in labels])
+  ax.set_ylim(min(acts)-size,max(acts)+size)
+  plt.margins(0.1)
+  plt.show()
 
 # -
 
