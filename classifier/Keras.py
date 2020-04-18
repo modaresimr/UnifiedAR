@@ -103,10 +103,10 @@ class KerasClassifier(Classifier):
     
     def _train(self, trainset, trainlabel):
         if(np.max(trainlabel)==0):
-            self.trained=False
-            return
-        
-        cw = compute_class_weight("balanced", range(self.outputsize), trainlabel)
+            # self.trained=False
+            cw = np.ones(self.outputsize)
+        else:
+            cw = compute_class_weight("balanced", range(self.outputsize), trainlabel)
         return self.model.fit(trainset, trainlabel, epochs=self.epochs, 
         # validation_split=0.2,
         class_weight=cw
@@ -114,23 +114,23 @@ class KerasClassifier(Classifier):
         self.trained=True
 
     def _evaluate(self, testset, testlabel):
-        if(self.trained):
+        # if(self.trained):
             self.model.evaluate(testset, testlabel)
-        else:
-            print("model not trained")
+        # else:
+        #     print("model not trained")
 
     def _predict(self, testset):
-        if(self.trained):
+        # if(self.trained):
             return self.model.predict(testset)
-        else:
-            return self.model.predict(testset)*0
+        # else:
+        #     return self.model.predict(testset)*0
         
 
     def _predict_classes(self, testset):
-        if(self.trained):
+        # if(self.trained):
             return self.model.predict_classes(testset)
-        else:
-            return self.model.predict_classes(testset)*0
+        # else:
+        #     return self.model.predict_classes(testset)*0
 
     def save(self, file):
         logger.debug('saving model to %s', file)
