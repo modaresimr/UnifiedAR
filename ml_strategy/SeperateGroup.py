@@ -28,7 +28,7 @@ class SeperateGroupStrategy(ml_strategy.abstract.MLStrategy):
             self.strategies[indx].train(datasetdscr,Tdata,tacts)
             result=self.strategies[indx].test(Tdata)
             train_results[indx]=result
-
+            
             res=self.strategies[indx].test(Tdata)
 
             actnames=self.acts_name[indx]

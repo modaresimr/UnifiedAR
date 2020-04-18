@@ -100,22 +100,37 @@ class KerasClassifier(Classifier):
 
     def getmodel(self, inputsize, outputsize):
         raise NotImplementedError
-
+    
     def _train(self, trainset, trainlabel):
+        if(np.max(trainlabel)==0):
+            self.trained=False
+            return
+        
         cw = compute_class_weight("balanced", range(self.outputsize), trainlabel)
         return self.model.fit(trainset, trainlabel, epochs=self.epochs, 
         # validation_split=0.2,
         class_weight=cw
         )
+        self.trained=True
 
     def _evaluate(self, testset, testlabel):
-        self.model.evaluate(testset, testlabel)
+        if(self.trained):
+            self.model.evaluate(testset, testlabel)
+        else:
+            print("model not trained")
 
     def _predict(self, testset):
-        return self.model.predict(testset)
+        if(self.trained):
+            return self.model.predict(testset)
+        else:
+            return self.model.predict(testset)*0
+        
 
     def _predict_classes(self, testset):
-        return self.model.predict_classes(testset)
+        if(self.trained):
+            return self.model.predict_classes(testset)
+        else:
+            return self.model.predict_classes(testset)*0
 
     def save(self, file):
         logger.debug('saving model to %s', file)
