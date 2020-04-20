@@ -4,15 +4,13 @@ import pandas as pd
 from intervaltree.intervaltree import IntervalTree
 from general.utils import Data
 
-def event_confusion_matrix(r_activities,p_activities,labels):
+def event_confusion_matrix2(r_activities,p_activities,labels):
     cm=np.zeros((len(labels),len(labels)))
-    # begin=real0.StartTime.min()
-    # end=real0.EndTime.max()
-    
-    #   predicted.append({'StartTime':begin,'EndTime':end,'Activity':0})
-    #   real.append({'StartTime':begin,'EndTime':end,'Activity':0})
-    events=merge_split_overlap_IntervalTree(p_activities,r_activities)
-    #predictedtree=makeIntervalTree(labels)
+
+    predicted=[p for i,p in p_activities.iterrows()]
+    real=[p for i,p in r_activities.iterrows()]
+
+    events=merge_split_overlap_IntervalTree(predicted,real)
 
     
     for eobj in events:
@@ -21,9 +19,6 @@ def event_confusion_matrix(r_activities,p_activities,labels):
         ract=e.R.Activity if not(e.R is None) else 0
         cm[ract][pact]+=max((eobj.end-eobj.begin)/pd.to_timedelta('60s').value,0.01)
             
-    #for p in predicted:
-    #  for q in realtree[p['StartTime'].value:p['EndTime'].value]:
-    #      timeconfusion_matrix[p['Activity']][q.data['Activity']]+=findOverlap(p,q.data);
             
     return cm
 
@@ -33,23 +28,17 @@ def event_confusion_matrix(r_activities,p_activities,labels):
 
 
 
-def column_index(df, query_cols):
-    cols = df.columns.values
-    sidx = np.argsort(cols)
-    return sidx[np.searchsorted(cols,query_cols,sorter=sidx)]
+
 
 def merge_split_overlap_IntervalTree(p_acts,r_acts):
     tree=IntervalTree()
 
-    PACT=column_index(p_acts,'Activity')
-    PSTIME=column_index(p_acts,'StartTime')
-    PETIME=column_index(p_acts,'EndTime')
     
-    for row in p_acts.values:
-        if(row[PACT]==0):
+    for act in p_acts:
+        if(act['Activity']==0):
             continue
-        start=row[PSTIME].value
-        end=row[PETIME].value
+        start=act['StartTime'].value
+        end=act['EndTime'].value
         if(start==end):
             start=start-1
         #tree[start:end]={'P':{'Activitiy':act.Activity,'Type':'P','Data':act}]
@@ -57,17 +46,10 @@ def merge_split_overlap_IntervalTree(p_acts,r_acts):
         d.P=act
         d.R=None
         tree[start:end]=d #{'P':act,'PActivitiy':act.Activity}
-
-
-    RACT=column_index(r_acts,'Activity')
-    RSTIME=column_index(r_acts,'StartTime')
-    RETIME=column_index(r_acts,'EndTime')
-
-    for row in r_acts.values:
-        if(row[RACT]==0):
-            continue
-        start=row[RSTIME].value
-        end=row[RETIME].value
+        
+    for act in r_acts:
+        start=act['StartTime'].value
+        end=act['EndTime'].value
         if(start==end):
             start=start-1
         #tree[start:end]=[{'Activitiy':act.Activity,'Type':'R','Data':act}]
