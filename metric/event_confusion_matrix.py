@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 from intervaltree.intervaltree import IntervalTree
@@ -17,8 +16,8 @@ def event_confusion_matrix(r_activities,p_activities,labels):
     
     for eobj in events:
         e=eobj.data
-        pact=e.P.Activity if not(e.P is None) else 0
-        ract=e.R.Activity if not(e.R is None) else 0
+        pact=e.P['Activity'] if not(e.P is None) else 0
+        ract=e.R['Activity'] if not(e.R is None) else 0
         cm[ract][pact]+=max((eobj.end-eobj.begin)/pd.to_timedelta('60s').value,0.01)
             
     #for p in predicted:
@@ -84,10 +83,10 @@ def merge_split_overlap_IntervalTree(p_acts,r_acts):
     def data_reducer(x,y):
         res=x
         if not(y.P is None):
-            if (res.P is None) or y.P[PETIME]<res.P[PETIME]:
+            if (res.P is None) or y.P['EndTime']<res.P['EndTime']:
                 res.P=y.P
         if not(y.R is None):
-            if (res.R is None) or y.R[RETIME]<res.R[RETIME]:
+            if (res.R is None) or y.R['EndTime']<res.R['EndTime']:
                 res.R=y.R
         return res
     
