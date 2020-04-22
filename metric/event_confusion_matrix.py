@@ -48,8 +48,8 @@ def merge_split_overlap_IntervalTree(p_acts,r_acts):
     for row in p_acts.values:
         if(row[PACT]==0):
             continue
-        start=row[PSTIME].value
-        end=row[PETIME].value
+        start=row[PSTIME]
+        end=row[PETIME]
         startv=start.value
         endv=end.value
         if(startv==endv):
@@ -68,8 +68,8 @@ def merge_split_overlap_IntervalTree(p_acts,r_acts):
     for row in r_acts.values:
         if(row[RACT]==0):
             continue
-        start=row[RSTIME].value
-        end=row[RETIME].value
+        start=row[RSTIME]
+        end=row[RETIME]
         startv=start.value
         endv=end.value
         if(startv==endv):
