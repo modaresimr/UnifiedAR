@@ -50,13 +50,15 @@ def merge_split_overlap_IntervalTree(p_acts,r_acts):
             continue
         start=row[PSTIME].value
         end=row[PETIME].value
-        if(start==end):
-            start=start-1
+        startv=start.value
+        endv=end.value
+        if(startv==endv):
+            startv=startv-1
         #tree[start:end]={'P':{'Activitiy':act.Activity,'Type':'P','Data':act}]
         d=Data('P-act')
         d.P=row
         d.R=None
-        tree[start:end]=d #{'P':act,'PActivitiy':act.Activity}
+        tree[startv:endv]={'Activity':row[PACT],'StartTime':start,'EndTime':end}
 
 
     RACT=column_index(r_acts,'Activity')
@@ -68,13 +70,15 @@ def merge_split_overlap_IntervalTree(p_acts,r_acts):
             continue
         start=row[RSTIME].value
         end=row[RETIME].value
-        if(start==end):
-            start=start-1
+        startv=start.value
+        endv=end.value
+        if(startv==endv):
+            startv=startv-1
         #tree[start:end]=[{'Activitiy':act.Activity,'Type':'R','Data':act}]
         d=Data('P-act')
         d.P=None
         d.R=row
-        tree[start:end]=d #{'R':act,'RActivitiy':act.Activity}
+        tree[startv:endv]={'Activity':row[RACT],'StartTime':start,'EndTime':end}
 
     tree.split_overlaps()
     def data_reducer(x,y):
