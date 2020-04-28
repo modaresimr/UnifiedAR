@@ -26,7 +26,7 @@ class OptLearn(MyTask):
         x0,bounds=params.convertToArray()
 
         result={}
-        
+        tmp={}
         def qfunc(param): 
             segparams=params.getParams(param,0)
             feaparams=params.getParams(param,1)
@@ -39,11 +39,12 @@ class OptLearn(MyTask):
                 return 100000
             logger.debug('%s',func.segmentor.params)
             logger.debug('%s segparam: %s feaparam: %s claparam: %s', shortrunname,segparams,feaparams,claparams)
-            q=self.callback(func)
+            q,res=self.callback(func)
             # if no_memory_limit:
             #     result['last']=result['history'][str(param)]={'q':q}
-            
-            return -q if ~np.isnan(q) else 100000
+            q=-q if ~np.isnan(q) else 100000
+            tmp[q]=res
+            return q
         
         if len(x0)>0:
             optq=skopt.forest_minimize(qfunc,bounds,n_jobs=8,n_calls=30)
@@ -53,6 +54,7 @@ class OptLearn(MyTask):
         logger.debug('%s %s', shortrunname,optq)
         
         result['optq']=optq
+        result['result']=tmp[optq['q']]
         result['segparams']=params.getParams(optq['x'],0)
         result['feaparams']=params.getParams(optq['x'],1)
         result['claparams']=params.getParams(optq['x'],2)

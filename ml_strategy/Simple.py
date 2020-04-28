@@ -23,14 +23,15 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         self.traindata=self.justifySet(self.acts,data)
         bestOpt=method_param_selector(self.learning)
         self.functions=bestOpt.functions
+        self.bestOpt=bestOpt
         
 
 
 
-    @auto_profiler.Profiler(depth=3, on_disable=general.utils.logProfile)
+    @auto_profiler.Profiler(depth=5, on_disable=general.utils.logProfile)
     def learning(self,func):
         result=self.pipeline(func,self.traindata,train=True)
-        return result.quality['f1']
+        return result.quality['f1'], result
         
 
     def pipeline(self,func,data,train):

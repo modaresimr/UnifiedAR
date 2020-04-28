@@ -233,4 +233,4 @@ import auto_profiler
 def logProfile(p):
     title=  'Time   [Hits * PerHit] Function name [Called from] [Function Location]\n'+\
             '-----------------------------------------------------------------------\n'
-    logger.debug("TimeProfiling\n%s%s"%(title,auto_profiler.Tree(p.root,threshold=.10)))
+    logger.debug("TimeProfiling\n%s%s"%(title,auto_profiler.Tree(p.root,threshold=1)))
