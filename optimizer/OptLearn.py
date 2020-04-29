@@ -126,9 +126,9 @@ class ParamMaker:
 def mytestopt(qfunc,bounds,ranges,n_jobs=8) :
     vals=list(itertools.product(*ranges))
 
-    result = [qfunc(v) for v in vals]
-    # with parallel_backend('threading'):
-    #     result = (Parallel()(delayed(qfunc)(v) for v in vals))
+    # result = [qfunc(v) for v in vals]
+    with parallel_backend('threading'):
+        result = (Parallel()(delayed(qfunc)(v) for v in vals))
 
     besti=np.argmin(result)
     
