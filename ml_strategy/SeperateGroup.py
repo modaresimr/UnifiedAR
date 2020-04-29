@@ -147,6 +147,7 @@ class SeperateGroupStrategy(ml_strategy.abstract.MLStrategy):
 
         #EVALUATE #######################
         result=Data('result')
+        result.results=results
         result.predicted        =self.fusion_model.predict(f)
         result.predicted_classes=self.fusion_model.predict_classes(f)
         # predicted   = np.argmax(model.predict(f), axis=1) 
