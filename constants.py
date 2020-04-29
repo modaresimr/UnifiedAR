@@ -39,9 +39,9 @@ methods.segmentation = [
 #        {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 12}
 #           ], 'findopt': False},
     {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
-        {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120/2},
-        {'var': 'shift', 'min': 10, 'max': 7*60 , 'type': 'float', 'init': 60}
-    ], 'findopt': False}
+        {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120/2, 'range':[30,60,90,120,150,180]},
+        {'var': 'shift', 'min': 10, 'max': 7*60 , 'type': 'float', 'init': 60, 'range':[30,60,90,120,150,180]}
+    ], 'findopt': True}
     #   {'method': lambda:segmentation.FixedTimeWindow.FixedTimeWindow(), 'params':[
     #                  {'var':'size','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(15, unit='s').total_seconds()},
     #                  {'var':'shift','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(1, unit='s').total_seconds()}

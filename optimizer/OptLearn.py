@@ -5,6 +5,8 @@ import skopt
 import logging
 logger = logging.getLogger(__file__)
 import numpy as np
+import itertools
+from joblib import delayed, Parallel,parallel_backend
 class OptLearn(MyTask):
     no_memory_limit=False
     def __init__(self,functions,callback):
@@ -23,7 +25,7 @@ class OptLearn(MyTask):
         func.segmentor.reset()
         func.featureExtractor.reset()
         params=ParamMaker([func.segmentor,func.featureExtractor,func.classifier])
-        x0,bounds=params.convertToArray()
+        x0,bounds,ranges=params.convertToArray()
 
         result={}
         tmp={}
@@ -47,8 +49,9 @@ class OptLearn(MyTask):
             return q
         
         if len(x0)>0:
-            optq=skopt.forest_minimize(qfunc,bounds,n_jobs=8,n_calls=30)
-            optq={'x':optq['x'],'q':optq['fun']}
+            optq=mytestopt(qfunc,bounds,ranges,n_jobs=8)
+            # optq=skopt.forest_minimize(qfunc,bounds,n_jobs=8,n_calls=30)
+            # optq={'x':optq['x'],'q':optq['fun']}
         else:
             optq={'x':x0, 'q':qfunc(x0)};
         logger.debug('%s %s', shortrunname,optq)
@@ -75,14 +78,15 @@ class ParamMaker:
         #seg.params.length
         x0=[]
         bounds=[]
-
+        ranges=[]
         for item in self.items:
             logger.debug('%s',item)
             if(item.findopt):
                 for p in item.defparams:
                     bounds.append([p['min'],p['max']])
                     x0.append(p['init'])
-        return x0,bounds
+                    ranges.append(p['range'] if 'range' in p else list(range(p['min'],p['max'],(p['max']-p['min'])/5)))
+        return x0,bounds,ranges
 
     def getParams(self,X,i):
         items=self.items
@@ -115,3 +119,19 @@ class ParamMaker:
                     p['var']=n
                     p['init']=p[n]
                     break
+
+
+
+
+def mytestopt(qfunc,bounds,ranges,n_jobs=8) :
+    vals=list(itertools.product(*ranges))
+
+    result = [qfunc(v) for v in vals]
+    # with parallel_backend('threading'):
+    #     result = (Parallel()(delayed(qfunc)(v) for v in vals))
+
+    besti=np.argmin(result)
+    
+ 
+    
+    return {'x':vals[besti], 'q':result[besti]};

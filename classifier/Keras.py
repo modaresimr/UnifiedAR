@@ -102,11 +102,10 @@ class KerasClassifier(Classifier):
         raise NotImplementedError
     
     def _train(self, trainset, trainlabel):
-        if(np.max(trainlabel)==0):
-            # self.trained=False
-            cw = np.ones(self.outputsize)
-        else:
+        try:
             cw = compute_class_weight("balanced", range(self.outputsize), trainlabel)
+        except:
+            cw = np.ones(self.outputsize)
         return self.model.fit(trainset, trainlabel, epochs=self.epochs, 
         # validation_split=0.2,
         class_weight=cw

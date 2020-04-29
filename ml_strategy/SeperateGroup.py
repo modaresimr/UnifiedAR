@@ -37,7 +37,7 @@ class SeperateGroupStrategy(ml_strategy.abstract.MLStrategy):
 
         # intree = IntervalTree()
         for indx,tacts in enumerate(self.gacts):
-            logger.info("\n=======================working on activties "+tacts.__str__()+"=========")
+            logger.info("=======================working on activties "+tacts.__str__()+"=========")
             Tdata=self.justifySet(tacts,data,False)
             self.acts_name[indx]=datasetdscr.activities[tacts]
             self.strategies[indx]=ml_strategy.Simple.SimpleStrategy()

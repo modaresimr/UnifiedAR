@@ -46,3 +46,6 @@ if __name__ == '__main__':
     #parser.add_argument('--h5py', help='HDF5 dataset folder')
     args = parser.parse_args()
     run(int(args.dataset),args.output)
+
+
+#https://stackoverflow.com/questions/39063676/how-to-boost-a-keras-based-neural-network-using-adaboost
