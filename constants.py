@@ -139,7 +139,7 @@ methods.dataset = [
 ]
 
 methods.mlstrategy = [
-    # {'method': lambda: ml_strategy.Simple.SimpleStrategy()},
+    #{'method': lambda: ml_strategy.Simple.SimpleStrategy()},
     {'method': lambda: ml_strategy.SeperateGroup.SeperateGroupStrategy()},
     
 ]
