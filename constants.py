@@ -9,6 +9,7 @@ import datatool.a4h_handeler
 import datatool.casas_handeler
 import datatool.vankasteren_handeler
 import activity_fetcher.CookActivityFetcher
+import activity_fetcher.MaxActivityFetcher
 from classifier.sklearn import UAR_DecisionTree
 import combiner.SimpleCombiner
 import evaluation.SimpleEval
@@ -39,8 +40,8 @@ methods.segmentation = [
 #        {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 12}
 #           ], 'findopt': False},
     {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
-        {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120/2, 'range':[30,60,90,120,150,180]},
-        {'var': 'shift', 'min': 10, 'max': 7*60 , 'type': 'float', 'init': 60, 'range':[30,60,90,120,150,180]}
+        {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120/2, 'range':list(range(30,180,60))},
+        {'var': 'shift', 'min': 10, 'max': 7*60 , 'type': 'float', 'init': 60, 'range':list(range(30,180,60))}
     ], 'findopt': True}
     #   {'method': lambda:segmentation.FixedTimeWindow.FixedTimeWindow(), 'params':[
     #                  {'var':'size','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(15, unit='s').total_seconds()},
@@ -102,7 +103,10 @@ methods.event_metric = [
     #{'method': lambda: Accuracy()},
 ]
 
-methods.activity_fetcher = [{'method': lambda: activity_fetcher.CookActivityFetcher.CookActivityFetcher()}]
+methods.activity_fetcher = [
+    # {'method': lambda: activity_fetcher.CookActivityFetcher.CookActivityFetcher()}
+    {'method': lambda: activity_fetcher.MaxActivityFetcher.MaxActivityFetcher()}
+    ]
 methods.combiner = [
     # {'method':lambda: combiner.SimpleCombiner.SimpleCombiner()},
     {'method':lambda: combiner.SimpleCombiner.EmptyCombiner()}

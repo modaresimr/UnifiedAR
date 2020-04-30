@@ -55,6 +55,7 @@ class SeperateGroupStrategy(ml_strategy.abstract.MLStrategy):
     def test(self,data):
         test_results   ={}
         for indx,tacts in enumerate(self.gacts):
+            logger.info("=======================working on activties "+tacts.__str__()+"=========")
             Tdata=self.justifySet(tacts,data,False)
             result=self.strategies[indx].test(Tdata)
             test_results[indx]=result
@@ -167,14 +168,14 @@ class SeperateGroupStrategy(ml_strategy.abstract.MLStrategy):
         pred_events = pred_events.drop(['index'], axis=1)
 
         
-        result.shortrunname="fusion model" + str({r: results[r].shortrunname for r in results})
-        result.times=times
-        result.pred_events  =pred_events
-        result.real_events  =real_events
+        result.shortrunname = "fusion model" + str({r: results[r].shortrunname for r in results})
+        result.times        = times
+        result.pred_events  = pred_events
+        result.real_events  = real_events
 
-        result.event_cm     =event_confusion_matrix(result.real_events,result.pred_events,self.acts)
-        result.quality      =CMbasedMetric(result.event_cm,'macro')
-        result.functions={r: results[r].functions for r in results}
+        result.event_cm     = event_confusion_matrix(result.real_events,result.pred_events,self.acts)
+        result.quality      = CMbasedMetric(result.event_cm,'macro')
+        result.functions    = {r: results[r].functions for r in results}
         logger.debug('Evalution quality is %s'%result.quality)
 
         return result

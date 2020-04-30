@@ -30,7 +30,7 @@ def my_result_analyse(dataset,real_events,pred_events,onlyAct=None,duration=None
     remove_gaps(real_events,pred_events)
     print('visualizing real and pred')
     plotJoinAct(dataset,real_events,pred_events,onlyAct=onlyAct)
-    plotMyMetric(dataset,real_events,pred_events,onlyAct=onlyAct)
+    plotMyMetric2(dataset,real_events,pred_events,onlyAct=onlyAct)
     plotWardMetric(dataset,real_events,pred_events,onlyAct=onlyAct)
 
 def plotWardMetric(dataset,real_events,pred_events,onlyAct=None):

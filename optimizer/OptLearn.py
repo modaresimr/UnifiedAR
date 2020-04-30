@@ -51,9 +51,10 @@ class OptLearn(MyTask):
         if len(x0)>0:
             optq=mytestopt(qfunc,bounds,ranges,n_jobs=8)
             # optq=skopt.forest_minimize(qfunc,bounds,n_jobs=8,n_calls=30)
-            # optq={'x':optq['x'],'q':optq['fun']}
+            #optq={'x':optq['x'],'q':optq['fun']}
+            optq={'x':optq['x'],'q':qfunc(optq['x'])}
         else:
-            optq={'x':x0, 'q':qfunc(x0)};
+            optq={'x':x0, 'q':qfunc(x0)}
         logger.debug('%s %s', shortrunname,optq)
         
         result['optq']=optq
