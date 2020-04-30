@@ -39,9 +39,10 @@ class SeperateGroupStrategy(ml_strategy.abstract.MLStrategy):
         for indx,tacts in enumerate(self.gacts):
             logger.info("=======================working on activties "+tacts.__str__()+"=========")
             Tdata=self.justifySet(tacts,data,False)
+
             self.acts_name[indx]=datasetdscr.activities[tacts]
             self.strategies[indx]=ml_strategy.Simple.SimpleStrategy()
-            self.strategies[indx].train(datasetdscr,Tdata,tacts)
+            self.strategies[indx].train(datasetdscr,Tdata,list(range(len(tacts))))
             if('result' in self.strategies[indx].bestOpt.result):
                 result=self.strategies[indx].bestOpt.result['result']
             else:
