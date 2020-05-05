@@ -34,6 +34,17 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         return result.quality['f1'], result
         
 
+    def get_info(self):
+        func=self.functions
+        result=Data('Result')
+        result.shortrunname=func.shortrunname
+        result.functions={}
+        for f in func.__dict__:
+            obj = func.__dict__[f]
+            if isinstance(obj, MyTask):
+                result.functions[f]=(obj.shortname(),obj.params)
+        return result
+
     def pipeline(self,func,data,train):
         func.acts=self.acts
         logger.debug('Starting .... %s' % (func.shortrunname))

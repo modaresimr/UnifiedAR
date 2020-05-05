@@ -34,6 +34,7 @@ class SeperateGroupStrategy(ml_strategy.abstract.MLStrategy):
         self.train_quality={}
 
         intree=IntervalTree()
+      	
 
         # intree = IntervalTree()
         for indx,tacts in enumerate(self.gacts):
@@ -47,8 +48,12 @@ class SeperateGroupStrategy(ml_strategy.abstract.MLStrategy):
                 result=self.strategies[indx].bestOpt.result['result']
             else:
                 result=self.strategies[indx].test(Tdata)
+            
+            utils.saveState(self.strategies[indx].get_info(),'groupact',str(indx))
+            
+            
             train_results[indx]=result
-        
+        utils.saveState([self.strategies[indx].get_info() for indx in self.strategies],'groupact','all')
         return self.fusion(train_results,data.a_events,True)
         
 
