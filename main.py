@@ -16,8 +16,8 @@ import auto_profiler
 # from metric import *
 # from preprocessing import *
 # from segmentation import *
-
-
+import general.utils
+@auto_profiler.Profiler(depth=8, on_disable=general.utils.logProfile)
 def run(dataset=1,output="logs"):
     utils.configurelogger(__file__, output)
     logger = logging.getLogger(__file__)
@@ -39,7 +39,7 @@ def run(dataset=1,output="logs"):
 
 if __name__ == '__main__':
     args_ok = False
-    auto_profiler.Profiler.GlobalDisable=True
+    auto_profiler.Profiler.GlobalDisable=False
     parser = argparse.ArgumentParser(description='Run on datasets.')
     parser.add_argument('-d', '--dataset', help=' to original datasets', default=1)
     parser.add_argument('-o', '--output', help='Output folder', default='logs')

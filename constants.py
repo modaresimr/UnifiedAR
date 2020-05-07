@@ -25,6 +25,7 @@ from general.utils import Data
 from metric import *
 import ml_strategy.Simple
 import ml_strategy.SeperateGroup
+import ml_strategy.WeightedGroup
 import preprocessing.SimplePreprocessing
 import segmentation.Probabilistic
 import segmentation.FixedEventWindow
@@ -34,11 +35,11 @@ import segmentation.FixedTimeWindow
 methods = Data('methods')
 
 methods.segmentation = [
-#     {'method': lambda: segmentation.Probabilistic.Probabilistic(), 'params': [], 'findopt':False},
-#    {'method': lambda: segmentation.FixedEventWindow.FixedEventWindow(), 'params': [
-#        {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 14},
-#        {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 12}
-#           ], 'findopt': False},
+#    {'method': lambda: segmentation.Probabilistic.Probabilistic(), 'params': [], 'findopt':False},
+   {'method': lambda: segmentation.FixedEventWindow.FixedEventWindow(), 'params': [
+       {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 14, 'range':list(range(15,30,4))},
+       {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 12, 'range':list(range(10,30,5))}
+          ], 'findopt': True},
     {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
         {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120/2, 'range':list(range(30,180,60))},
         {'var': 'shift', 'min': 10, 'max': 7*60 , 'type': 'float', 'init': 60, 'range':list(range(30,180,60))}
@@ -48,9 +49,7 @@ methods.segmentation = [
     #                  {'var':'shift','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(1, unit='s').total_seconds()}
     #              ],
     #   'findopt':False},
-    
 ]
-
 
 methods.preprocessing = [
     {'method': lambda: preprocessing.SimplePreprocessing.SimplePreprocessing()},
@@ -144,6 +143,11 @@ methods.dataset = [
 
 methods.mlstrategy = [
     #{'method': lambda: ml_strategy.Simple.SimpleStrategy()},
-    {'method': lambda: ml_strategy.SeperateGroup.SeperateGroupStrategy()},
+    # {'method': lambda: ml_strategy.SeperateGroup.SeperateGroupStrategy()},
+    {'method': lambda: ml_strategy.WeightedGroup.WeightedGroupStrategy(alpha=20)},
     
+]
+
+methods.optimizer=[
+
 ]

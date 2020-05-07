@@ -93,8 +93,7 @@ class KerasClassifier(Classifier):
         loss='sparse_categorical_crossentropy'
         model = self.getmodel(inputsize, outputsize)
         model.summary()
-        model.compile(
-            optimizer='adam',loss=loss, metrics=METRICS)
+        model.compile(optimizer='adam',loss=loss, metrics=METRICS)
         self.model = model
         return model
 
@@ -106,6 +105,8 @@ class KerasClassifier(Classifier):
             cw = compute_class_weight("balanced", range(self.outputsize), trainlabel)
         except:
             cw = np.ones(self.outputsize)
+        if not(self.weight is None):
+            cw*=self.weight
         return self.model.fit(trainset, trainlabel, epochs=self.epochs, 
         # validation_split=0.2,
         class_weight=cw

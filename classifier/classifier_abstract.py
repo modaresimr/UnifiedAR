@@ -19,6 +19,9 @@ class Classifier(MyTask):
     def predict_classes(self, testset):
         return self._predict_classes(self._reshape(testset))
 
+    def setWeight(self,weight):
+        self.weight=weight
+        
     def _reshape(self, data):
         if(len(data.shape) == 2):
             return data

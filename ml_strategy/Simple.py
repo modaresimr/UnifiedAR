@@ -17,18 +17,20 @@ from segmentation.segmentation_abstract import prepare_segment,prepare_segment2
 logger = logging.getLogger(__file__)
 
 class SimpleStrategy(ml_strategy.abstract.MLStrategy):
-    def train(self, datasetdscr, data, acts):
+    def train(self, datasetdscr, data, acts,weight=None):
         self.datasetdscr=datasetdscr
         self.acts=acts
+        self.weight=weight
         self.traindata=self.justifySet(self.acts,data)
         bestOpt=method_param_selector(self.learning)
         self.functions=bestOpt.functions
         self.bestOpt=bestOpt
         
+        
 
 
 
-    @auto_profiler.Profiler(depth=5, on_disable=general.utils.logProfile)
+    
     def learning(self,func):
         result=self.pipeline(func,self.traindata,train=True)
         return result.quality['f1'], result
@@ -56,6 +58,7 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         logger.debug('FeatureExtraction Finished shape %s , %s' % (str(Sdata.set.shape), func.featureExtractor.shortname()))
         if(train):
             func.classifier.createmodel(Sdata.set[0].shape,len(self.acts))
+            func.classifier.setWeight(self.weight)
             logger.debug('Classifier model created  %s' % (func.classifier.shortname()))
             func.classifier.train(Sdata.set, Sdata.label) 
             logger.debug('Classifier model trained  %s' % (func.classifier.shortname()))
@@ -81,7 +84,7 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         result.real_events  =data.a_events
 
         result.event_cm     =event_confusion_matrix(data.a_events,pred_events,self.acts)
-        result.quality      =CMbasedMetric(result.event_cm,'macro')
+        result.quality      =CMbasedMetric(result.event_cm,'macro',self.weight)
         #eventeval=EventBasedMetric(Sdata.a_events,pred_events,self.acts)
         
         logger.debug('Evalution quality is %s'%result.quality)
