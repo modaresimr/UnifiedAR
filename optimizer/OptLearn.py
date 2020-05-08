@@ -30,6 +30,7 @@ class OptLearn(MyTask):
         result={}
         tmp={}
         def qfunc(param): 
+            
             segparams=params.getParams(param,0)
             feaparams=params.getParams(param,1)
             claparams=params.getParams(param,2)
@@ -39,19 +40,21 @@ class OptLearn(MyTask):
                 return 100000
             if not func.classifier.applyParams(claparams):
                 return 100000
-            logger.debug('%s',func.segmentor.params)
-            logger.debug('%s segparam: %s feaparam: %s claparam: %s', shortrunname,segparams,feaparams,claparams)
+            
+            logger.debug('start segparam: %s feaparam: %s claparam: %s -----%s', segparams,feaparams,claparams,shortrunname)
             q,res=self.callback(func)
             # if no_memory_limit:
             #     result['last']=result['history'][str(param)]={'q':q}
             q=-q if ~np.isnan(q) else 100000
             tmp[q]=res
+            logger.debug('quality: %f segparam: %s feaparam: %s claparam: %s -----%s',q, segparams,feaparams,claparams,shortrunname)
             return q
         
         if len(x0)>0:
             optq=mytestopt(qfunc,bounds,ranges,n_jobs=8)
             # optq=skopt.forest_minimize(qfunc,bounds,n_jobs=8,n_calls=30)
             #optq={'x':optq['x'],'q':optq['fun']}
+            logger.info("running again+++++++++++++ to fix parameter of classifers on %s last quality was %f"%(str(optq['x']),optq['q']))
             optq={'x':optq['x'],'q':qfunc(optq['x'])}
         else:
             optq={'x':x0, 'q':qfunc(x0)}

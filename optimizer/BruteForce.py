@@ -43,7 +43,7 @@ def method_param_selector(callback):
     bestJobscore = success[0].result['optq']['q']
     bestJob=success[0]
     for job in success:
-        if(bestJobscore < job.result['optq']['q']):
+        if(bestJobscore > job.result['optq']['q']):
             bestJobscore = job.result['optq']['q']
             bestJob = job
 
