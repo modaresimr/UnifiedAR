@@ -7,7 +7,6 @@ def CMbasedMetric(cm, average=None,weight=None):
     TP, FP, FN, TN = get_tp_fp_fn_tn(cm)
 
     accuracy = TP.sum()/cm.sum()
-    accuracy = TP.sum()/cm.sum()
     precision = TP/(TP+FP+epsilon)
     recall = TP/(TP+FN+epsilon)
     f1 = 2*recall*precision/(recall+precision+epsilon)
@@ -32,9 +31,9 @@ def CMbasedMetric(cm, average=None,weight=None):
     result['precision'] = round(np.average(precision,weights=weight),2)
     result['recall'] = round(np.average(recall,weights=weight),2)
         
-    
-    result['f1'] = round(2*result['precision']*result['recall'] / \
-            (result['precision']+result['recall']+epsilon),2)  # np.average(f1[validres])
+    result['f1'] = round(np.average(f1,weights=weight),2)
+    # result['f1'] = round(2*result['precision']*result['recall'] / \
+    #         (result['precision']+result['recall']+epsilon),2)  # np.average(f1[validres])
     return result
 
 
