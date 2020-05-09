@@ -43,6 +43,7 @@ class WeightedGroupStrategy(ml_strategy.abstract.MLStrategy):
             logger.info("=======================working on activties "+tacts.__str__()+"=========")
             weight=np.ones(len(acts))
             for a in tacts:weight[a]=self.alpha
+            datasetdscr.indx=indx
             self.strategies[indx]=ml_strategy.Simple.SimpleStrategy()
             self.strategies[indx].train(datasetdscr,data,acts,weight)
             if('result' in self.strategies[indx].bestOpt.result):
@@ -115,7 +116,7 @@ class WeightedGroupStrategy(ml_strategy.abstract.MLStrategy):
             b=seg['begin']
             e=seg['end']
             times.append({'begin':b,'end':e})
-            for indx in range(len(self.gacts)):
+            for indx in range(len(self.acts)):
                 if(indx in seg):
                     label[iseg]=seg[indx].real
                     start=indx*len(self.acts)

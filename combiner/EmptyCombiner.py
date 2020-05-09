@@ -22,9 +22,9 @@ class EmptyCombiner(Combiner):
             end     = s_event_list[idx[-1],1]
             #pclass = np.argmax(predicted[i])
             pclass  = predicted[i]
-            if not(old is None) :
-                old['EndTime']=min(old['EndTime'],start)
-                if(old['StartTime']>=old['EndTime']):
+            if not(old is None):
+                old['EndTime']      =   min(old['EndTime'],start)
+                if old['StartTime'] >=  old['EndTime']:
                     events.pop()
             old={'Activity': pclass, 'StartTime': start, 'EndTime': end}
             events.append(old)
