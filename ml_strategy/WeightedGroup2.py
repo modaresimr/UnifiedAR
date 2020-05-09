@@ -19,8 +19,9 @@ from metric.event_confusion_matrix import event_confusion_matrix
 
 
 class WeightedGroup2Strategy(ml_strategy.abstract.MLStrategy):
-    def __init__(self,alpha):
+    def __init__(self,alpha,mode):
         self.alpha=alpha
+        self.mode=mode
     def groupize(self,datasetdscr,acts):
         #gacts=[[a] for a in datasetdscr.activities_map]
         #gacts.append([a for a in datasetdscr.activities_map])
@@ -122,7 +123,12 @@ class WeightedGroup2Strategy(ml_strategy.abstract.MLStrategy):
             for indx in range(len(self.gacts)):
                 if(indx in seg):
                     label[iseg]=seg[indx].real
-                    probs[iseg,:]+=np.array(seg[indx].pred_prob) *self.train_quality[indx]['f1']/len(self.gacts)
+                    if(self.mode==1):
+                        probs[iseg,:]+=np.array(seg[indx].pred_prob) *self.train_quality[indx]['f1']/len(self.gacts)
+                    else:
+                        p=np.zeros(len(self.acts))
+                        p[np.argmax(seg[indx].pred_prob)]=self.train_quality[indx]['f1']
+                        probs[iseg,:]+=p
             iseg+=1
         plabel=np.argmax(probs,1)
         
