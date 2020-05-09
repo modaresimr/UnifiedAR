@@ -124,7 +124,7 @@ class WeightedGroup2Strategy(ml_strategy.abstract.MLStrategy):
                     label[iseg]=seg[indx].real
                     probs[iseg,:]+=np.array(seg[indx].pred_prob) *self.train_quality[indx]['f1']/len(self.gacts)
             iseg+=1
-        plabel=np.argmax(ps,1)
+        plabel=np.argmax(probs,1)
         
 
         
