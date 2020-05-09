@@ -125,6 +125,10 @@ class WeightedGroup2Strategy(ml_strategy.abstract.MLStrategy):
                     label[iseg]=seg[indx].real
                     if(self.mode==1):
                         probs[iseg,:]+=np.array(seg[indx].pred_prob) *self.train_quality[indx]['f1']/len(self.gacts)
+                    elif self.mode==2:
+                        p=np.zeros(len(self.acts))
+                        p[np.argmax(seg[indx].pred_prob)]=1
+                        probs[iseg,:]+=p
                     else:
                         p=np.zeros(len(self.acts))
                         p[np.argmax(seg[indx].pred_prob)]=self.train_quality[indx]['f1']
