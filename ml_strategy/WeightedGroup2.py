@@ -17,6 +17,7 @@ from collections import defaultdict
 from metric.CMbasedMetric import CMbasedMetric
 from metric.event_confusion_matrix import event_confusion_matrix
 
+
 class WeightedGroup2Strategy(ml_strategy.abstract.MLStrategy):
     def __init__(self,alpha):
         self.alpha=alpha
@@ -121,7 +122,7 @@ class WeightedGroup2Strategy(ml_strategy.abstract.MLStrategy):
             for indx in range(len(self.gacts)):
                 if(indx in seg):
                     label[iseg]=seg[indx].real
-                    probs[iseg,:]+=np.array(s   eg[indx].pred_prob) *self.train_quality[indx]['f1']/len(self.gacts)
+                    probs[iseg,:]+=np.array(seg[indx].pred_prob) *self.train_quality[indx]['f1']/len(self.gacts)
             iseg+=1
         plabel=np.argmax(ps,1)
         
