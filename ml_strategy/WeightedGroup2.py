@@ -17,7 +17,7 @@ from collections import defaultdict
 from metric.CMbasedMetric import CMbasedMetric
 from metric.event_confusion_matrix import event_confusion_matrix
 
-class WeightedGroupStrategy(ml_strategy.abstract.MLStrategy):
+class WeightedGroup2Strategy(ml_strategy.abstract.MLStrategy):
     def __init__(self,alpha):
         self.alpha=alpha
     def groupize(self,datasetdscr,acts):
@@ -106,8 +106,10 @@ class WeightedGroupStrategy(ml_strategy.abstract.MLStrategy):
             segments[item.begin.value<<64|item.end.value]['end']=item.end
             segments[item.begin.value<<64|item.end.value][item.data.gindx]=item.data
 
+        probs=np.zeros((len(segments),len(self.acts)))
+
         # Feature Extraction ###########################
-        f=np.zeros((len(segments),len(self.gacts)*len(self.acts)))
+        
         label=np.zeros(len(segments))
         times=[]
         iseg=0
@@ -119,42 +121,18 @@ class WeightedGroupStrategy(ml_strategy.abstract.MLStrategy):
             for indx in range(len(self.gacts)):
                 if(indx in seg):
                     label[iseg]=seg[indx].real
-                    start=indx*len(self.acts)
-                    end=(indx+1)*len(self.acts)
-                    if(np.isnan(self.train_quality[indx]['f1'])):
-                        continue
-                    f[iseg,start:end]=seg[indx].pred_prob
+                    probs[iseg,:]+=np.array(s   eg[indx].pred_prob) *self.train_quality[indx]['f1']/len(self.gacts)
             iseg+=1
+        plabel=np.argmax(ps,1)
         
+
         
-
-        #TRAIN #######################    
-
-        if(isTrain):
-            inputsize=(len(f[0]),)
-            outputsize=len(self.acts)
-            self.fusion_model=tf.keras.models.Sequential([
-                    tf.keras.layers.Dense(128, input_shape=inputsize),
-                    tf.keras.layers.Dense(512, activation=tf.nn.relu),
-                    tf.keras.layers.Dropout(0.2),
-                    tf.keras.layers.Dense(outputsize, activation=tf.nn.softmax)
-                ], name='fusion')
-            if(np.max(label)==0):
-                # self.trained=False
-                cw = np.ones(len(self.acts))
-            else:
-                cw = compute_class_weight("balanced", self.acts, label)
-
-            self.fusion_model.summary()
-            self.fusion_model.compile(optimizer='adam',loss='sparse_categorical_crossentropy', metrics=[tf.keras.metrics.SparseCategoricalAccuracy(name='acc')])
-            self.fusion_model.fit(f, label, epochs=3,class_weight=cw)
-
 
         #EVALUATE #######################
         result=Data('result')
         result.results=results
-        result.predicted        =self.fusion_model.predict(f)
-        result.predicted_classes=self.fusion_model.predict_classes(f)
+        result.predicted        =probs
+        result.predicted_classes=plabel
         # predicted   = np.argmax(model.predict(f), axis=1) 
         pred_events      = []
         ptree       = {}
