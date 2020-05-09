@@ -29,7 +29,7 @@ class WeightedGroup2Strategy(ml_strategy.abstract.MLStrategy):
         gacts.append([a for a in acts])
         return gacts
 
-    def train(self,datasetdscr,data,acts):        
+    def train(self,datasetdscr,data,acts):
         self.gacts=self.groupize(datasetdscr,acts)
         self.acts=acts
         self.strategies ={}
@@ -53,11 +53,11 @@ class WeightedGroup2Strategy(ml_strategy.abstract.MLStrategy):
             else:
                 result=self.strategies[indx].test(data)
             
-            utils.saveState(self.strategies[indx].get_info(),'wgroupact',str(indx))
+            utils.saveState(self.strategies[indx].get_info(),'wgroupact','%d-%d'%(self.mode,indx))
             
             
             train_results[indx]=result
-        utils.saveState([self.strategies[indx].get_info() for indx in self.strategies],'wgroupact','all')
+        utils.saveState([self.strategies[indx].get_info() for indx in self.strategies],'wgroupact','%d-all'%self.mode)
         return self.fusion(train_results,data.a_events,True)
         
 

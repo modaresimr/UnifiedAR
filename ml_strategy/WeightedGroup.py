@@ -51,11 +51,11 @@ class WeightedGroupStrategy(ml_strategy.abstract.MLStrategy):
             else:
                 result=self.strategies[indx].test(data)
             
-            utils.saveState(self.strategies[indx].get_info(),'wgroupact',str(indx))
+            utils.saveState(self.strategies[indx].get_info(),'wgroupact','n-%d'%(indx))
             
             
             train_results[indx]=result
-        utils.saveState([self.strategies[indx].get_info() for indx in self.strategies],'wgroupact','all')
+        utils.saveState([self.strategies[indx].get_info() for indx in self.strategies],'wgroupact','n-all')
         return self.fusion(train_results,data.a_events,True)
         
 
@@ -121,7 +121,7 @@ class WeightedGroupStrategy(ml_strategy.abstract.MLStrategy):
                     label[iseg]=seg[indx].real
                     start=indx*len(self.acts)
                     end=(indx+1)*len(self.acts)
-                    if(np.isnan(self.train_quality[indx]['f1'])):
+                    if(self.train_quality[indx]['f1']<0.1):
                         continue
                     f[iseg,start:end]=seg[indx].pred_prob
             iseg+=1
