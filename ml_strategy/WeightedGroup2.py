@@ -145,7 +145,7 @@ class WeightedGroup2Strategy(ml_strategy.abstract.MLStrategy):
         ptree       = {}
         epsilon=pd.to_timedelta('1s')
 
-        for i in range(len(f)): 
+        for i in range(len(segments)): 
             start   = times[i]['begin']
             end     = times[i]['end']
             pclass  = result.predicted_classes[i]
