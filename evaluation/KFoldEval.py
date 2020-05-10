@@ -17,8 +17,9 @@ class KFoldEval(Evaluation):
         for f, (Train, Test) in enumerate(ttmaker):
             logger.debug('=========Fold %d ============', f)
             acts=[a for a in dataset.activities_map]
-            strategy.train(dataset, Train, acts)
-            models[f] = strategy.test(Test)
+            trainres=strategy.train(dataset, Train, acts)
+            testres=strategy.test(Test)
+            models[f] = {'test':testres,'train':trainres}
 
         return models
 

@@ -147,7 +147,7 @@ class WeightedGroupStrategy(ml_strategy.abstract.MLStrategy):
 
             self.fusion_model.summary()
             self.fusion_model.compile(optimizer='adam',loss='sparse_categorical_crossentropy', metrics=[tf.keras.metrics.SparseCategoricalAccuracy(name='acc')])
-            self.fusion_model.fit(f, label, epochs=3,class_weight=cw)
+            self.fusion_model.fit(f, label, epochs=10,class_weight=cw)
 
 
         #EVALUATE #######################

@@ -38,12 +38,12 @@ methods = Data('methods')
 methods.segmentation = [
 #    {'method': lambda: segmentation.Probabilistic.Probabilistic(), 'params': [], 'findopt':False},
    {'method': lambda: segmentation.FixedEventWindow.FixedEventWindow(), 'params': [
-       {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 14, 'range':list(range(10,30,5))},
-       {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 12, 'range':list(range(10,30,5))}
+       {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 14, 'range':list(range(10,20,5))},
+       {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 12, 'range':list(range(10,20,5))}
           ], 'findopt': True},
     {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
-        {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120/2, 'range':list(range(15,90,15))},
-        {'var': 'shift', 'min': 10, 'max': 7*60 , 'type': 'float', 'init': 60, 'range':list(range(15,90,15))}
+        {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120/2, 'range':list(range(15,45,15))},
+        {'var': 'shift', 'min': 10, 'max': 7*60 , 'type': 'float', 'init': 60, 'range':list(range(15,45,15))}
     ], 'findopt': True}
     #   {'method': lambda:segmentation.FixedTimeWindow.FixedTimeWindow(), 'params':[
     #                  {'var':'size','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(15, unit='s').total_seconds()},
@@ -62,7 +62,7 @@ methods.classifier = [
     #     {'var': 'epochs', 'init': 3}
     # ]},
     {'method': lambda: classifier.Keras.LSTMTest(), 'params': [
-        {'var': 'epochs', 'init': 3}
+        {'var': 'epochs', 'init': 10}
     ]},
     # {'method': lambda: classifier.PyActLearn.PAL_LSTM_Legacy(), 'params': [
     #     {'var': 'epochs', 'init': 3}
