@@ -8,8 +8,7 @@ from general.utils import saveFunctions
 class SimpleEval(Evaluation):
     
     def evaluate(self, dataset, strategy):
-        Train, Test = self.makeTrainTest(
-            dataset.sensor_events, dataset.activity_events)
+        Train, Test = self.makeTrainTest(dataset.sensor_events, dataset.activity_events)
         acts=[a for a in dataset.activities_map]
         trainres=strategy.train(dataset, Train, acts)
         testres = strategy.test(Test)

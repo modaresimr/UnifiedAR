@@ -10,16 +10,15 @@ logger = logging.getLogger(__file__)
 
 
 class SimpleCombiner(Combiner):
-    def combine(self, s_event_list,set_window, act_data):
+    def combine2(self, times, act_data):
         predicted   = np.argmax(act_data, axis=1) 
         events      = []
         ptree       = {}
         epsilon=pd.to_timedelta('1s')
         
-        for i in range(0, len(set_window)):
-            idx     = set_window[i]
-            start   = s_event_list[idx[0],1]
-            end     = s_event_list[idx[-1],1]
+        for i in range(len(times)):   
+            start   = times[i][0]
+            end     = times[i][1]
             #pclass = np.argmax(predicted[i])
             pclass  = predicted[i]
 
@@ -28,10 +27,10 @@ class SimpleCombiner(Combiner):
             ptree[pclass][start:end+epsilon] = {
                 'Activity': pclass, 'StartTime': start, 'EndTime': end
             }
-            if(i>0 and pclass>0 and predicted[i-1]==predicted[i] and set_window[i-1][-1]==idx[0]-1):
+            if(i>0 and pclass>0 and predicted[i-1]==predicted[i] and False):
                 #fix gap
-                start   = s_event_list[set_window[i-1][-1],1]
-                end     = s_event_list[idx[0],1]
+                start   = times[i-1][1]
+                end     = times[i][0]
                 if(end>start):
                 #pclass = np.argmax(predicted[i])
                     ptree[pclass][start:end] = {
@@ -74,16 +73,19 @@ class SimpleCombiner(Combiner):
 
 
 class EmptyCombiner(Combiner):
-    def combine(self, s_event_list,set_window, act_data):
+
+
+
+    def combine2(self, times, act_data):
         predicted   = np.argmax(act_data, axis=1) 
         events      = []
         ptree       = {}
         epsilon     = pd.to_timedelta('1s')
         
-        for i in range(0, len(set_window)):
-            idx     = set_window[i]
-            start   = s_event_list[idx[0],1]
-            end     = s_event_list[idx[-1],1]
+        for i in range(len(times)):
+            
+            start   = times[i][0]
+            end     = times[i][1]
             #pclass = np.argmax(predicted[i])
             pclass  = predicted[i]
             if(pclass==0):
@@ -97,15 +99,6 @@ class EmptyCombiner(Combiner):
             #     events.append({'Activity': pclass, 'StartTime': events[-1]['EndTime'], 'EndTime': newe['StartTime']})
             events.append(newe)
             
-
-            # if(i>0 and pclass>0 and predicted[i-1]==predicted[i]):
-                
-            #     #fix gap
-            #     start   = s_event_list[set_window[i-1][-1],1]
-            #     end     = s_event_list[set_window[ i ][0 ],1]
-            #     if(end>start):
-            #     #pclass = np.argmax(predicted[i])
-            #         events.append({'Activity': pclass, 'StartTime': start, 'EndTime': end})
 
         events = pd.DataFrame(events)
         events = events.sort_values(['StartTime'])
