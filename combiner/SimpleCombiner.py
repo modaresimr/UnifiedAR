@@ -88,7 +88,8 @@ class EmptyCombiner(Combiner):
             pclass  = predicted[i]
 
             events.append({'Activity': pclass, 'StartTime': start, 'EndTime': end})
-            if(i>0 and pclass>0 and predicted[i-1]==predicted[i] and set_window[i-1][-1]==idx[0]-1):
+            if(i>0 and pclass>0 and predicted[i-1]==predicted[i] and set_window[i-1][-1]<=set_window[i][0]):
+                
                 #fix gap
                 start   = s_event_list[set_window[i-1][-1],1]
                 end     = s_event_list[idx[0],1]
