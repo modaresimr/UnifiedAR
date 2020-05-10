@@ -84,8 +84,8 @@ class EmptyCombiner(Combiner):
         
         for i in range(len(times)):
             
-            start   = times[i][0]
-            end     = times[i][1]
+            start   = times[i]['begin']
+            end     = times[i]['end']
             #pclass = np.argmax(predicted[i])
             pclass  = predicted[i]
             if(pclass==0):
