@@ -86,16 +86,26 @@ class EmptyCombiner(Combiner):
             end     = s_event_list[idx[-1],1]
             #pclass = np.argmax(predicted[i])
             pclass  = predicted[i]
+            if(pclass==0):
+                continue
+            if len(events)>0:
+                events[-1]['EndTime']      =   min(events[-1]['EndTime'],start)
+                if events[-1]['StartTime'] >=  events[-1]['EndTime']:
+                    events.pop()
+            newe={'Activity': pclass, 'StartTime': start, 'EndTime': end}
+            if(len(events)>0 and events[-1]['Actvitiy']==newe['Activity'] and events[-1]['EndTime']<newe['StartTime']):
+                events.append({'Activity': pclass, 'StartTime': events[-1]['EndTime'], 'EndTime': newe['StartTime']})
+            events.append(newe)
+            
 
-            events.append({'Activity': pclass, 'StartTime': start, 'EndTime': end})
-            if(i>0 and pclass>0 and predicted[i-1]==predicted[i]):
+            # if(i>0 and pclass>0 and predicted[i-1]==predicted[i]):
                 
-                #fix gap
-                start   = s_event_list[set_window[i-1][-1],1]
-                end     = s_event_list[set_window[ i ][0 ],1]
-                if(end>start):
-                #pclass = np.argmax(predicted[i])
-                    events.append({'Activity': pclass, 'StartTime': start, 'EndTime': end})
+            #     #fix gap
+            #     start   = s_event_list[set_window[i-1][-1],1]
+            #     end     = s_event_list[set_window[ i ][0 ],1]
+            #     if(end>start):
+            #     #pclass = np.argmax(predicted[i])
+            #         events.append({'Activity': pclass, 'StartTime': start, 'EndTime': end})
 
         events = pd.DataFrame(events)
         events = events.sort_values(['StartTime'])
