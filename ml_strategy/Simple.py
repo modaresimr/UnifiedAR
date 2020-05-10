@@ -76,7 +76,7 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         
         result.predicted        =func.classifier.predict(Sdata.set)
         result.predicted_classes=func.classifier.predict_classes(Sdata.set)    
-        pred_events =func.combiner.combine(Sdata.s_event_list,Sdata.set_window,result.predicted)
+        pred_events             =func.combiner.combine(Sdata.s_event_list,Sdata.set_window,result.predicted)
         logger.debug('events merged  %s' % (func.combiner.shortname()))
         
         

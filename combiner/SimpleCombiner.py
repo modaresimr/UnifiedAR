@@ -93,8 +93,8 @@ class EmptyCombiner(Combiner):
                 if events[-1]['StartTime'] >=  events[-1]['EndTime']:
                     events.pop()
             newe={'Activity': pclass, 'StartTime': start, 'EndTime': end}
-            if(len(events)>0 and events[-1]['Activity']==newe['Activity'] and events[-1]['EndTime']<newe['StartTime']):
-                events.append({'Activity': pclass, 'StartTime': events[-1]['EndTime'], 'EndTime': newe['StartTime']})
+            # if(len(events)>0 and events[-1]['Activity']==newe['Activity'] and events[-1]['EndTime']<newe['StartTime']):
+            #     events.append({'Activity': pclass, 'StartTime': events[-1]['EndTime'], 'EndTime': newe['StartTime']})
             events.append(newe)
             
 

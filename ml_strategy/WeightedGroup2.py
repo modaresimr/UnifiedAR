@@ -173,5 +173,6 @@ class WeightedGroup2Strategy(ml_strategy.abstract.MLStrategy):
 
         return result
 
-        
+    def shortname(self):
+        return f'{super().shortname} mode={self.mode}'
     
