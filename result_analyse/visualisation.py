@@ -236,7 +236,7 @@ def remove_gaps_old(real_events,pred_events,onlyAct=None):
 def plotMyMetric2(dataset,real_events,pred_events,onlyAct=None,ax=None,debug=1,calcne=1):
     acts=[i for i in dataset.activities_map] if onlyAct==None else [onlyAct]
     res=MyMetric.eval(real_events,pred_events,acts,debug=debug,calcne=calcne)
-    if ~(onlyAct is None ):
+    if not(onlyAct is None ):
         res2=res
         res={}
         res[onlyAct]=res2
@@ -455,6 +455,115 @@ def _plotActs(ax, x, s, e, **kwargs):
                ax.add_patch(patches.Rectangle((s[i],x[i]-size/2), e[i]-s[i],size, **kwargs))
 
                # 
+def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None, ax=None):
+  from pandas.plotting import register_matplotlib_converters
+  register_matplotlib_converters()
+  size=0.45
+  acts=dataset.activities if onlyAct is None else [onlyAct]
+  if not(onlyAct is None):
+      real_acts=real_acts.loc[real_acts.Activity==onlyAct]
+      pred_acts=pred_acts.loc[pred_acts.Activity==onlyAct]
+  
+  if(len(real_acts)==0):
+        print('not enough data of this type',onlyAct)
+        return
+  if(len(pred_acts)==0):
+        pred_acts=pred_acts.append({'StartTime':real_acts.StartTime.iloc[0],'EndTime':real_acts.EndTime.iloc[0],'Activity':real_acts.Activity.iloc[0]},ignore_index=True)
+        print('not enough p data of this type',onlyAct)
+        print(pred_acts)
+        return
+
+    
+#   ft=real_acts.StartTime.iloc[0]
+#   dur=ft+pd.to_timedelta('12h')
+#   real_acts=real_acts.loc[real_acts.StartTime<dur]
+#   pred_acts=pred_acts.loc[pred_acts.StartTime<dur]
+  # apply(lambda x:dataset.activities_map[x.Activity], axis=1).tolist()
+  ract = (real_acts.Activity+(size/2)).tolist()
+  rstart = real_acts.StartTime.tolist()
+  rend = real_acts.EndTime.tolist()
+  # .apply(lambda x:dataset.activities_map[x.Activity], axis=1).tolist()
+  pact = (pred_acts.Activity-(size/2)).tolist()
+  pstart = pred_acts.StartTime.tolist()
+  pend = pred_acts.EndTime.tolist()
+  if ax == None:
+    if(onlyAct):
+        fig, ax = plt.subplots(figsize=(10, 0.5))
+    else:
+        fig, ax = plt.subplots(figsize=(10, len(acts)/5))
+  ax.set_title(label)
+  if(len(real_acts)==0):
+    print('no r activity of this type',label)
+  else:
+      _plotActs(ax,ract, rstart, rend,
+                      linewidth=1,edgecolor='k',facecolor='g', size=size, alpha=.6)
+  if(len(pred_acts)==0):
+    print('no p activity of this type',label)
+  else:
+      _plotActs(ax,pact, pstart, pend,
+                      linewidth=1,edgecolor='k',facecolor='r', size=size, alpha=.6)
+#   data_linewidth_plot(pact, pstart, pend, ax=ax,
+#                       colors="red", alpha=1, linewidth=.3)
+  # plt.hlines(ract, rstart, rend, colors=(0,.5,0,.2), linewidth=1)
+  # plt.hlines(pact, pstart, pend, colors="red", lw=2)
+#   loc = mdates.AutoDateLocator()
+#   ax.xaxis.set_major_locator(loc)
+#   ax.xaxis.set_major_formatter(mdates.AutoDateFormatter(loc))
+  ax.set_xticks([])
+  ax.set_xlim(min(pstart+rstart),max(pend+rend))
+  ax.set_yticks([i for i in dataset.activities_map])
+  ax.yaxis.grid(True)
+
+  ax.set_yticklabels([l for l in dataset.activities_map_inverse])
+  if(onlyAct):
+    ax.set_ylim(onlyAct-size,onlyAct+size)
+  else:
+    ax.set_ylim(0+size,len(dataset.activities)-size)
+  plt.margins(0.1)
+  #plt.show()
+
+def plotJoinTree(real_acts, pred_acts):
+  from pandas.plotting import register_matplotlib_converters
+  register_matplotlib_converters()
+  size=0.45
+  
+  if(len(real_acts)==0):
+        print('real not enough data of this type')
+        print(real_acts)
+        return
+  if(len(pred_acts)==0):
+        #pred_acts=pred_acts.append({'StartTime':real_acts.StartTime.iloc[0],'EndTime':real_acts.EndTime.iloc[0],'Activity':real_acts.Activity.iloc[0]},ignore_index=True)
+        print('pred not enough p data of this type')
+        print(pred_acts)
+        return
+
+    
+  
+  rstart = [r.begin for r in real_acts]
+  rend = [r.end for r in real_acts]
+  ract = [1+(size/2) for r in real_acts]
+  # .apply(lambda x:dataset.activities_map[x.Activity], axis=1).tolist()
+  
+  pstart = [r.begin for r in pred_acts]
+  pend = [r.end for r in pred_acts]
+  pact = [1-(size/2) for r in pred_acts]
+  ax = plt.gca()
+
+  _plotActs(ax,ract, rstart, rend,
+                      linewidth=1,edgecolor='k',facecolor='g', size=size, alpha=.6)
+
+  _plotActs(ax,pact, pstart, pend,
+                      linewidth=1,edgecolor='k',facecolor='r', size=size, alpha=.6)
+
+  ax.set_xticks([])
+  ax.set_xlim(min(pstart+rstart),max(pend+rend))
+  ax.set_yticks([i for i in [1]])
+  ax.yaxis.grid(True)
+
+#   ax.set_yticklabels([l for l in labels])
+  ax.set_ylim(1-size,1+size)
+  plt.margins(0.1)
+  plt.show()
 
 
 

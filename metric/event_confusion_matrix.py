@@ -40,8 +40,6 @@ def column_index(df, query_cols):
 
 def merge_split_overlap_IntervalTree(p_acts,r_acts):
     tree=IntervalTree()
-    ptree=IntervalTree()
-    rtree=IntervalTree()
     from result_analyse.visualisation import plotJoinTree
     PACT    =   column_index(p_acts,'Activity')
     PSTIME  =   column_index(p_acts,'StartTime')
@@ -61,7 +59,7 @@ def merge_split_overlap_IntervalTree(p_acts,r_acts):
         d.P={'Activity':row[PACT],'StartTime':start,'EndTime':end}
         d.R=None
         tree[startv:endv]=d
-        ptree[startv:endv]=d
+
 
 
     RACT    =column_index(r_acts,'Activity')
@@ -82,11 +80,9 @@ def merge_split_overlap_IntervalTree(p_acts,r_acts):
         d.P=None
         d.R={'Activity':row[RACT],'StartTime':start,'EndTime':end}
         tree[startv:endv]=d
-        rtree[startv:endv]=d
-    plotJoinTree(rtree,ptree)
-    cmTreePlot(tree)
+    # cmTreePlot(tree)
     tree.split_overlaps()
-    cmTreePlot(tree)
+    # cmTreePlot(tree)
     def data_reducer(x,y):
         res=Data('merge')
         res.R=x.R
