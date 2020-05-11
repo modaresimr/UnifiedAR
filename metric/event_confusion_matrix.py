@@ -3,6 +3,7 @@ import pandas as pd
 from intervaltree.intervaltree import IntervalTree
 from general.utils import Data
 
+
 def event_confusion_matrix(r_activities,p_activities,labels):
     cm=np.zeros((len(labels),len(labels)))
     # begin=real0.StartTime.min()
@@ -39,18 +40,20 @@ def column_index(df, query_cols):
 
 def merge_split_overlap_IntervalTree(p_acts,r_acts):
     tree=IntervalTree()
-
-    PACT=column_index(p_acts,'Activity')
-    PSTIME=column_index(p_acts,'StartTime')
-    PETIME=column_index(p_acts,'EndTime')
+    ptree=IntervalTree()
+    rtree=IntervalTree()
+    from result_analyse.visualisation import plotJoinTree
+    PACT    =   column_index(p_acts,'Activity')
+    PSTIME  =   column_index(p_acts,'StartTime')
+    PETIME  =   column_index(p_acts,'EndTime')
     
     for row in p_acts.values:
         if(row[PACT]==0):
             continue
-        start=row[PSTIME]
-        end=row[PETIME]
-        startv=start.value
-        endv=end.value
+        start   =row[PSTIME]
+        end     =row[PETIME]
+        startv  =start.value
+        endv    =end.value
         if(startv==endv):
             startv=startv-1
         #tree[start:end]={'P':{'Activitiy':act.Activity,'Type':'P','Data':act}]
@@ -58,30 +61,36 @@ def merge_split_overlap_IntervalTree(p_acts,r_acts):
         d.P={'Activity':row[PACT],'StartTime':start,'EndTime':end}
         d.R=None
         tree[startv:endv]=d
+        ptree[startv:endv]=d
 
 
-    RACT=column_index(r_acts,'Activity')
-    RSTIME=column_index(r_acts,'StartTime')
-    RETIME=column_index(r_acts,'EndTime')
+    RACT    =column_index(r_acts,'Activity')
+    RSTIME  =column_index(r_acts,'StartTime')
+    RETIME  =column_index(r_acts,'EndTime')
 
     for row in r_acts.values:
         if(row[RACT]==0):
             continue
-        start=row[RSTIME]
-        end=row[RETIME]
-        startv=start.value
-        endv=end.value
+        start   =row[RSTIME]
+        end     =row[RETIME]
+        startv  =start.value
+        endv    =end.value
         if(startv==endv):
             startv=startv-1
         #tree[start:end]=[{'Activitiy':act.Activity,'Type':'R','Data':act}]
-        d=Data('P-act')
+        d=Data('R-act')
         d.P=None
         d.R={'Activity':row[RACT],'StartTime':start,'EndTime':end}
         tree[startv:endv]=d
-
+        rtree[startv:endv]=d
+    plotJoinTree(rtree,ptree)
+    cmTreePlot(tree)
     tree.split_overlaps()
+    cmTreePlot(tree)
     def data_reducer(x,y):
-        res=x
+        res=Data('merge')
+        res.R=x.R
+        res.P=x.P
         if not(y.P is None):
             if (res.P is None) or y.P['EndTime']<res.P['EndTime']:
                 res.P=y.P
@@ -93,3 +102,30 @@ def merge_split_overlap_IntervalTree(p_acts,r_acts):
     tree.merge_equals(data_reducer=data_reducer)
             
     return tree
+
+def cmTreePlot(tree):
+    ptree=IntervalTree()
+    rtree=IntervalTree()
+    for item in tree:
+        if not(item.data.R is None):
+            rtree[item.begin:item.end]=item
+        if not(item.data.P is None):
+            ptree[item.begin:item.end]=item
+    from result_analyse.visualisation import plotJoinTree
+    plotJoinTree(rtree,ptree)
+
+if __name__ == '__main__':
+    import result_analyse.visualisation as vs
+    import metric.CMbasedMetric as CMbasedMetric 
+    # gt = vs.convert2event(np.array([(65,75), (157,187)])) 
+    # a  = vs.convert2event(np.array([(66,73), (78,126)]))
+    import general.utils as utils
+    r,p=utils.loadState('ali')
+    cm=event_confusion_matrix(r,p,range(11))
+
+
+    print(cm)
+    print(CMbasedMetric(cm,average='macro'))
+    print(CMbasedMetric(cm))
+    
+

@@ -10,13 +10,7 @@ def CMbasedMetric(cm, average=None,weight=None):
     precision = TP/(TP+FP+epsilon)
     recall = TP/(TP+FN+epsilon)
     f1 = 2*recall*precision/(recall+precision+epsilon)
-    for i in range(len(precision)):
-        if(np.isnan(precision[i])):
-            precision[i] = 0
-        if(np.isnan(recall[i])):
-            recall[i] = 0
-        if(np.isnan(f1[i])):
-            f1[i] = 0
+    
     result = {}
 
     result['accuracy'] = round(accuracy,2)
@@ -27,7 +21,12 @@ def CMbasedMetric(cm, average=None,weight=None):
         return result
 
     
-    
+    s=TP+FN
+    weight=np.array(np.ones(len(s)) if weight ==None else weight)
+    weight[0]=0
+    for i in range(len(s)):
+        if(s[i]==0):weight[i]=0
+
     result['precision'] = round(np.average(precision,weights=weight),2)
     result['recall'] = round(np.average(recall,weights=weight),2)
         
