@@ -8,9 +8,9 @@ class Combiner(MyTask):
             idx     = set_window[i]
             start   = s_event_list[idx[0],1]
             end     = s_event_list[idx[-1],1]
-            times.append({'St':start,'end':end})
+            times.append({'end':end,'begin':start})
             
-        return self.combine2(times,act_data)
+        return  self.combine2(times,act_data)
 
     def combine2(self,times,act_data):
         pass
