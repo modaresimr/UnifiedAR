@@ -143,10 +143,13 @@ methods.dataset = [
 ]
 
 methods.mlstrategy = [
-    #{'method': lambda: ml_strategy.Simple.SimpleStrategy()},
-    # {'method': lambda: ml_strategy.SeperateGroup.SeperateGroupStrategy()},
+    {'method': lambda: ml_strategy.Simple.SimpleStrategy()},
+    {'method': lambda: ml_strategy.WeightedGroup2.WeightedGroup2Strategy(alpha=20,mode=1)},
+    {'method': lambda: ml_strategy.WeightedGroup2.WeightedGroup2Strategy(alpha=20,mode=2)},
+    {'method': lambda: ml_strategy.WeightedGroup2.WeightedGroup2Strategy(alpha=20,mode=3)},
     {'method': lambda: ml_strategy.WeightedGroup.WeightedGroupStrategy(alpha=20)},
-       {'method': lambda: ml_strategy.WeightedGroup2.WeightedGroup2Strategy(alpha=20,mode=2)},
+    {'method': lambda: ml_strategy.SeperateGroup.SeperateGroupStrategy()},
+    
     
 ]
 

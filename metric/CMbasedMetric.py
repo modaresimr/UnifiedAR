@@ -22,7 +22,7 @@ def CMbasedMetric(cm, average=None,weight=None):
 
     
     s=TP+FN
-    weight=np.array(np.ones(len(s)) if weight ==None else weight)
+    weight=np.array(np.ones(len(s)) if weight is None else weight)
     weight[0]=0
     for i in range(len(s)):
         if(s[i]==0):weight[i]=0

@@ -18,13 +18,12 @@ from constants import methods
 # from segmentation import *
 import general.utils
 @auto_profiler.Profiler(depth=8, on_disable=general.utils.logProfile)
-def run(dataset=1,output="logs"):
-    utils.configurelogger(__file__, output)
-    logger = logging.getLogger(__file__)
+def run(args):
     
-    datasetdscr = methods.dataset[dataset]['method']().load()
+    logger.debug(f'args={args}')
+    datasetdscr = methods.dataset[args.dataset]['method']().load()
  
-    strategy = methods.mlstrategy[0]['method']()
+    strategy = methods.mlstrategy[args.strategy]['method']()
     evaluation=methods.evaluation[0]['method']()
     evalres = evaluation.evaluate(datasetdscr, strategy)
 
@@ -36,17 +35,22 @@ def run(dataset=1,output="logs"):
     for i in range(len(evalres)):
         quality=evalres[i].quality
         logger.debug('Evalution quality fold=%d is %s' % (i, quality))
+        
+    logger.debug(f'args={args}')
 
 
 if __name__ == '__main__':
     args_ok = False
     auto_profiler.Profiler.GlobalDisable=False
     parser = argparse.ArgumentParser(description='Run on datasets.')
-    parser.add_argument('-d', '--dataset', help=' to original datasets', default=1)
+    parser.add_argument('-d', '--dataset', help=' to original datasets',type=int, default=1)
     parser.add_argument('-o', '--output', help='Output folder', default='logs')
+    parser.add_argument('-s', '--strategy', help='Strategy',type=int, default=0)
     #parser.add_argument('--h5py', help='HDF5 dataset folder')
     args = parser.parse_args()
-    run(int(args.dataset),args.output)
+    utils.configurelogger(__file__, args.output)
+    logger = logging.getLogger(__file__)
+    run(args)
 
 
 #https://stackoverflow.com/questions/39063676/how-to-boost-a-keras-based-neural-network-using-adaboost

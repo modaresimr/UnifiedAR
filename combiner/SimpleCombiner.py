@@ -101,7 +101,8 @@ class EmptyCombiner(Combiner):
             
 
         events = pd.DataFrame(events)
-        events = events.sort_values(['StartTime'])
+        if(len(events)>0):
+            events = events.sort_values(['StartTime'])
         events = events.reset_index()
         events = events.drop(['index'], axis=1)
         return events
