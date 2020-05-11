@@ -6,8 +6,8 @@ import logging
 
 import general.utils as utils
 # from activity_fetcher import *
-from constants import methods
 import auto_profiler
+from constants import methods
 
 # from datatool import *
 # from evaluation import *
@@ -31,6 +31,7 @@ def run(dataset=1,output="logs"):
     run_date=datetime.now().strftime('%y%m%d_%H-%M-%S')
     run_info={'dataset':datasetdscr.shortname(),'run_date':run_date,'dataset_path':datasetdscr.data_path, 'strategy':strategy.shortname(),'evalution':evaluation.shortname()}
     compressdata={'run_info':run_info, 'folds':{k:{'quality':evalres[k].quality,'runname':evalres[k].shortrunname} for k in evalres}}
+    utils.saveState([run_info],'%s-%s/' % (run_date,datasetdscr.shortname()),'info')
     utils.saveState([run_info,datasetdscr, evalres],'%s-%s/' % (run_date,datasetdscr.shortname()))
     for i in range(len(evalres)):
         quality=evalres[i].quality
