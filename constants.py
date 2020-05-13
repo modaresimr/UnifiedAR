@@ -3,14 +3,14 @@ import pandas as pd
 
 import classifier.Keras
 import classifier.PyActLearn
-import classifier.sklearn
+import classifier.sklearn1
 import classifier.libsvm
 import datatool.a4h_handeler
 import datatool.casas_handeler
 import datatool.vankasteren_handeler
 import activity_fetcher.CookActivityFetcher
 import activity_fetcher.MaxActivityFetcher
-from classifier.sklearn import UAR_DecisionTree
+from classifier.sklearn1 import UAR_DecisionTree
 import combiner.SimpleCombiner
 import evaluation.SimpleEval
 import evaluation.KFoldEval
@@ -40,11 +40,11 @@ methods.segmentation = [
    {'method': lambda: segmentation.FixedEventWindow.FixedEventWindow(), 'params': [
        {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 14, 'range':list(range(10,20,5))},
        {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 12, 'range':list(range(10,20,5))}
-          ], 'findopt': True},
+          ], 'findopt': False},
     {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
         {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120/2, 'range':list(range(15,45,15))},
         {'var': 'shift', 'min': 10, 'max': 7*60 , 'type': 'float', 'init': 60, 'range':list(range(15,45,15))}
-    ], 'findopt': True}
+    ], 'findopt': False}
     #   {'method': lambda:segmentation.FixedTimeWindow.FixedTimeWindow(), 'params':[
     #                  {'var':'size','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(15, unit='s').total_seconds()},
     #                  {'var':'shift','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(1, unit='s').total_seconds()}

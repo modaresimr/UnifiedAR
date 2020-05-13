@@ -95,8 +95,8 @@ class EmptyCombiner(Combiner):
                 if events[-1]['StartTime'] >=  events[-1]['EndTime']:
                     events.pop()
             newe={'Activity': pclass, 'StartTime': start, 'EndTime': end}
-            # if(len(events)>0 and events[-1]['Activity']==newe['Activity'] and events[-1]['EndTime']<newe['StartTime']):
-            #     events.append({'Activity': pclass, 'StartTime': events[-1]['EndTime'], 'EndTime': newe['StartTime']})
+            if(len(events)>0 and events[-1]['Activity']==newe['Activity'] and events[-1]['EndTime']<newe['StartTime']):
+                events.append({'Activity': pclass, 'StartTime': events[-1]['EndTime'], 'EndTime': newe['StartTime']})
             events.append(newe)
             
 
@@ -107,3 +107,31 @@ class EmptyCombiner(Combiner):
         events = events.drop(['index'], axis=1)
         return events
 
+
+
+if __name__ == '__main__':
+    import result_analyse.visualisation as vs
+    import metric.CMbasedMetric as CMbasedMetric 
+    # gt = vs.convert2event(np.array([(65,75), (157,187)])) 
+    # a  = vs.convert2event(np.array([(66,73), (78,126)]))
+    import general.utils as utils
+    import result_analyse.visualisation as vs
+    r,p=utils.loadState('ali')
+    a=utils.loadState('200506_17-08-41-Home1')
+    
+    # r=a[2][0].real_events
+    # p=a[2][0].pred_events
+    vs.plotJoinAct(a[1], r, p)
+    times=[]
+    act_data=np.zeros((len(p),12))
+    for i in range(len(p)):
+        times.append({'begin':p.iloc[i]['StartTime'],'end':p.iloc[i]['EndTime']})
+        act_data[i,p.iloc[i]['Activity']]=1
+
+    com=EmptyCombiner()
+    p2=com.combine2(times,act_data)
+    vs.plotJoinAct(a[1], p, p2)
+    vs.plotJoinAct(a[1], r, p2)
+    from matplotlib.pylab import plt
+    plt.show()
+    

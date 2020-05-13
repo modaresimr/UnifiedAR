@@ -381,7 +381,7 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None, ax=None):
   else:
     ax.set_ylim(0+size,len(dataset.activities)-size)
   plt.margins(0.1)
-  #plt.show()
+  plt.show()
 
 def plotJoinAct2(real_acts, pred_acts,acts,labels, ax=None):
   from pandas.plotting import register_matplotlib_converters

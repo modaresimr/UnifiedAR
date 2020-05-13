@@ -26,6 +26,11 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         self.functions=bestOpt.functions
         self.bestOpt=bestOpt
         
+        if('result' in bestOpt.result):
+            result=bestOpt.result['result']
+        else:
+            result=test(data)
+        return result
         
 
 
