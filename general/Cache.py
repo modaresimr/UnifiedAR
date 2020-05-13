@@ -23,7 +23,7 @@ def get(key,valf):
       
       val=valf()
       utils.saveState(val,cachefolder,hkey)
-      with open(f'{hkey}.txt', 'w') as f:
+      with open(f'save_data/{hkey}.txt', 'w') as f:
          print(key,file=f)
          f.close()
 
