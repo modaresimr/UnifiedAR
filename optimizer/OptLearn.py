@@ -55,7 +55,7 @@ class OptLearn(MyTask):
             return q
         
         if len(x0)>0:
-            cachedqfunc=lambda params: Cache.get(str(params)+shortrunname,lambda:qfunc(params))    
+            cachedqfunc=lambda params: Cache.get(str(params)+str(func.uniquekey)+shortrunname,lambda:qfunc(params))    
             optq=mytestopt(cachedqfunc,bounds,ranges)
             # optq=skopt.forest_minimize(qfunc,bounds,n_jobs=8,n_calls=30)
             #optq={'x':optq['x'],'q':optq['fun']}

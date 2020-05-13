@@ -22,7 +22,8 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         self.acts=acts
         self.weight=weight
         self.traindata=self.justifySet(self.acts,data)
-        bestOpt=method_param_selector(self.learning)
+        uniqueKey={'strategy':'simple','acts':acts,'weight':weight, 'dataset':datasetdscr.shortname()}
+        bestOpt=method_param_selector(self.learning,uniqueKey)
         self.functions=bestOpt.functions
         self.bestOpt=bestOpt
         

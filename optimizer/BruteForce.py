@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__file__)
 
 
-def method_param_selector(callback):
+def method_param_selector(callback,uniquekey):
     import itertools
     from constants import methods
     s = [methods.preprocessing, methods.segmentation,
@@ -17,12 +17,13 @@ def method_param_selector(callback):
     allpool = []
     for item in permut:
         func = Data('Functions')
-
+        func.uniquekey=uniquekey
         func.preprocessor = createFunction(item[0])
         func.segmentor = createFunction(item[1])
         func.activityFetcher = createFunction(item[2])
         func.featureExtractor = createFunction(item[3])
         func.classifier = createFunction(item[4])
+        
         func.combiner = createFunction(methods.combiner[0])
         func.classifier_metric = createFunction(methods.classifier_metric[0])
         func.event_metric = createFunction(methods.classifier_metric[0])
