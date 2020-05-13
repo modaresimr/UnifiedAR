@@ -5,17 +5,10 @@ from datetime import datetime
 import logging
 
 import general.utils as utils
-# from activity_fetcher import *
+
 import auto_profiler
 from constants import methods
 
-# from datatool import *
-# from evaluation import *
-# from feature_extraction import *
-# from general import *
-# from metric import *
-# from preprocessing import *
-# from segmentation import *
 import general.utils
 @auto_profiler.Profiler(depth=8, on_disable=general.utils.logProfile)
 def run(args):
@@ -33,8 +26,7 @@ def run(args):
     utils.saveState([compressdata],'%s-%s/' % (run_date,datasetdscr.shortname()),'info')
     utils.saveState([run_info,datasetdscr, evalres],'%s-%s/' % (run_date,datasetdscr.shortname()))
     for i in range(len(evalres)):
-        quality=evalres[i].quality
-        logger.debug('Evalution quality fold=%d is %s' % (i, quality))
+        logger.debug(f'Evalution quality fold={i} is {evalres[i]["test"].quality}')
 
     logger.debug(f'args={args}')
 

@@ -7,6 +7,7 @@ logger = logging.getLogger(__file__)
 import numpy as np
 import itertools
 from joblib import delayed, Parallel,parallel_backend
+import general.Cache as Cache
 class OptLearn(MyTask):
     no_memory_limit=False
     def __init__(self,functions,callback):
@@ -29,11 +30,14 @@ class OptLearn(MyTask):
 
         result={}
         tmp={}
+        
+        
+
         def qfunc(param): 
-            
             segparams=params.getParams(param,0)
             feaparams=params.getParams(param,1)
             claparams=params.getParams(param,2)
+            
             if not func.featureExtractor.applyParams(feaparams):
                 return 100000
             if not func.segmentor.applyParams(segparams):
@@ -45,13 +49,14 @@ class OptLearn(MyTask):
             q,res=self.callback(func)
             # if no_memory_limit:
             #     result['last']=result['history'][str(param)]={'q':q}
-            q=-q if ~np.isnan(q) else 100000
+            q=-q if not(np.isnan(q)) else 100000
             tmp[q]=res
             logger.debug('quality: %f segparam: %s feaparam: %s claparam: %s -----%s',q, segparams,feaparams,claparams,shortrunname)
             return q
         
         if len(x0)>0:
-            optq=mytestopt(qfunc,bounds,ranges,n_jobs=8)
+            cachedqfunc=lambda params: Cache.get(str(params)+shortrunname,lambda:qfunc(params))    
+            optq=mytestopt(cachedqfunc,bounds,ranges)
             # optq=skopt.forest_minimize(qfunc,bounds,n_jobs=8,n_calls=30)
             #optq={'x':optq['x'],'q':optq['fun']}
             logger.info("running again+++++++++++++ to fix parameter of classifers on %s last quality was %f"%(str(optq['x']),optq['q']))
@@ -127,15 +132,10 @@ class ParamMaker:
 
 
 
-def mytestopt(qfunc,bounds,ranges,n_jobs=8) :
+def mytestopt(qfunc,bounds,ranges) :
     vals=list(itertools.product(*ranges))
-
     result = [qfunc(v) for v in vals]
     # with parallel_backend('threading'):
     #     result = (Parallel()(delayed(qfunc)(v) for v in vals))
-
     besti=np.argmin(result)
-    
- 
-    
     return {'x':vals[besti], 'q':result[besti]};
