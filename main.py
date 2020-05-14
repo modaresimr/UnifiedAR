@@ -14,6 +14,8 @@ import general.utils
 def run(args):
     
     logger.debug(f'args={args}')
+    if(args.segmentation>=0):
+       methods.segmentation=[methods.segmentation[args.segmentation]]
     datasetdscr = methods.dataset[args.dataset]['method']().load()
  
     strategy = methods.mlstrategy[args.strategy]['method']()
@@ -37,7 +39,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run on datasets.')
     parser.add_argument('-d', '--dataset', help=' to original datasets',type=int, default=0)
     parser.add_argument('-o', '--output', help='Output folder', default='logs')
-    parser.add_argument('-s', '--strategy', help='Strategy',type=int, default=0)
+    parser.add_argument('-st', '--strategy', help='Strategy',type=int, default=0)
+    parser.add_argument('-s', '--segmentation', help='segmentation',type=int, default=-1)
     #parser.add_argument('--h5py', help='HDF5 dataset folder')
     args = parser.parse_args()
     utils.configurelogger(__file__, args.output)
