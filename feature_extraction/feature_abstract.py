@@ -12,9 +12,11 @@ def featureExtraction(feat, datasetdscr, Sdata, istrain):
     
     filename=tempfile.mktemp('featureExtract') 
     if(len(shape)==1):
-        result= np.memmap(filename,shape=(len(Sdata.set_window),shape[0]),mode='w+',dtype=np.float)
+        # result= np.memmap(filename,shape=(len(Sdata.set_window),shape[0]),mode='w+',dtype=np.float)
+        result= np.zeros(shape=(len(Sdata.set_window),shape[0]),dtype=np.float)
     else:
-        result= np.memmap(filename,shape=(len(Sdata.set_window),shape[0],shape[1]),mode='w+', dtype=np.float)
+        # result= np.memmap(filename,shape=(len(Sdata.set_window),shape[0],shape[1]),mode='w+', dtype=np.float)
+        result= np.zeros(shape=(len(Sdata.set_window),shape[0],shape[1]),dtype=np.float)
         # result= np.zeros((len(windows),shape[0],shape[1]), dtype=np.float)
         #result=np.zeros((len(windows),fw.shape[0],fw.shape[1]))
     
