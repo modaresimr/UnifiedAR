@@ -35,7 +35,7 @@ def run(args):
 
 if __name__ == '__main__':
     args_ok = False
-    auto_profiler.Profiler.GlobalDisable=False
+    auto_profiler.Profiler.GlobalDisable=True
     parser = argparse.ArgumentParser(description='Run on datasets.')
     parser.add_argument('-d', '--dataset', help=' to original datasets',type=int, default=0)
     parser.add_argument('-o', '--output', help='Output folder', default='logs')
