@@ -6,42 +6,43 @@ import os
 import pandas as pd
 import sklearn.metrics
 from metric.CMbasedMetric import CMbasedMetric
-from combiner.SimpleCombiner import SimpleCombiner
+import combiner.SimpleCombiner 
 def getRunTable(run_info,dataset,evalres):
     df=pd.DataFrame(columns=['fold','type','accuracy','precision','recall','f1','runname'])
-    combiner=SimpleCombiner()
+    combiner=combiner.SimpleCombiner.EmptyCombiner()
     for i in range(len(evalres)):
-        Sdata=evalres[i].Sdata
-       # pred_events=combiner.combine(Sdata.s_event_list,Sdata.set_window,evalres[i].predicted)
+        evaldata=evalres[i]['test']
+        Sdata=evaldata.Sdata
+       # pred_events=combiner.combine(Sdata.s_event_list,Sdata.set_window,evaldata.predicted)
         
-        quality=evalres[i].quality
+        quality=evaldata.quality
         #print('Evalution quality fold=%d is %s' % (i, quality))
         df=df.append({
             'dataset':run_info['dataset'],
             'date':run_info['run_date'], 
-            'runname':evalres[i].shortrunname,
+            'runname':evaldata.shortrunname,
             'fold':i,
             'type':'event',
             'accuracy':quality['accuracy'],
             'precision':quality['precision'],
             'recall':quality['recall'],
             'f1':quality['f1'],
-            'params':str(evalres[i].params['segmentor'])
+            'params':str(evaldata.params['segmentor'])
         }, ignore_index=True)
-        cm=sklearn.metrics.confusion_matrix(evalres[i].Sdata.label, evalres[i]. predicted_classes,labels=range(len(dataset.activities)))
+        cm=sklearn.metrics.confusion_matrix(evaldata.Sdata.label, evaldata. predicted_classes,labels=range(len(dataset.activities)))
         quality=CMbasedMetric(cm,'macro')
         #print('classical quality:%s'%(quality))
         df=df.append({
             'dataset':run_info['dataset'],
             'date':run_info['run_date'], 
-            'runname':evalres[i].shortrunname,
+            'runname':evaldata.shortrunname,
             'fold':i,
             'type':'classic',
             'accuracy':quality['accuracy'],
             'precision':quality['precision'],
             'recall':quality['recall'],
             'f1':quality['f1'],
-            'params':str(evalres[i].params['segmentor'])
+            'params':str(evaldata.params['segmentor'])
         }, ignore_index=True)
     return df
 
@@ -149,7 +150,8 @@ def get_runs_summary2(dataset=''):
 def display_result(file):
     [run_info,datasetdscr,evalres]=utils.loadState(file)
     for i in range(len(evalres)):
-        quality=evalres[i].quality
+        evaldata=evalres[i]['test']
+        quality=evaldata.quality
         logger.debug('Evalution quality fold=%d is f1=%.2f acc=%.2f precision=%.2f recall=%.2f' % (i, quality.f1,quality.accuracy,quality.precision,quality.recall))
 
 if __name__ == '__main__':
