@@ -138,20 +138,28 @@ def instantiate(method):
 
 
 def saveState(vars, file,name='data'):
-    import pickle
+    import compress_pickle
 
-    file = 'save_data/'+file+'/'
-    if not (os.path.exists(file)):
-        os.makedirs(file)
-    with open(file+name+'.pkl', 'wb') as f:
-        pickle.dump(vars, f)
+    if not (os.path.exists(f'save_data/{file}/')):
+        os.makedirs(f'save_data/{file}/')
+    pklfile=f'save_data/{file}/{name}.pkl' 
+    # with open(file+name+'.pkl', 'wb') as f:
+        # pickle.dump(vars, f)
+    compress_pickle.dump(vars,pklfile+'.lz4')
 
 
 def loadState(file,name='data'):
-    import pickle
-    file = 'save_data/'+file+'/'
-    with open(file+name+'.pkl', 'rb') as f:
-        return pickle.load(f)
+    import compress_pickle
+    pklfile=f'save_data/{file}/{name}.pkl'
+    
+    if (os.path.exists(pklfile)):
+        # with open(pklfile, 'rb') as f:
+            res=compress_pickle.load(pklfile)
+            # f.close()
+            saveState(res,file,name)
+            os.remove(pklfile)
+            return res
+    return compress_pickle.load(pklfile+'.lz4')
 
 
 def saveFunctions(func, file):

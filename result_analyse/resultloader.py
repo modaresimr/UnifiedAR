@@ -9,41 +9,42 @@ from metric.CMbasedMetric import CMbasedMetric
 import combiner.SimpleCombiner 
 def getRunTable(run_info,dataset,evalres):
     df=pd.DataFrame(columns=['fold','type','accuracy','precision','recall','f1','runname'])
-    combin=combiner.SimpleCombiner.EmptyCombiner()
+    # combin=combiner.SimpleCombiner.EmptyCombiner()
     for i in range(len(evalres)):
         evaldata=evalres[i]['test']
-        Sdata=evaldata.Sdata
+        # Sdata=evaldata.Sdata
        # pred_events=combin.combine(Sdata.s_event_list,Sdata.set_window,evaldata.predicted)
         
         quality=evaldata.quality
         #print('Evalution quality fold=%d is %s' % (i, quality))
-        df=df.append({
+        item={
             'dataset':run_info['dataset'],
             'date':run_info['run_date'], 
             'runname':evaldata.shortrunname,
-            'fold':i,
-            'type':'event',
+            'fold':i,  
             'accuracy':quality['accuracy'],
             'precision':quality['precision'],
             'recall':quality['recall'],
             'f1':quality['f1'],
-            'params':str(evaldata.params['segmentor'])
-        }, ignore_index=True)
-        cm=sklearn.metrics.confusion_matrix(evaldata.Sdata.label, evaldata. predicted_classes,labels=range(len(dataset.activities)))
+        }
+        for f in evaldata.functions:
+            item[f]=evaldata.functions[f][0]
+            item[f+'_params']=evaldata.functions[f][1]
+        
+        item['type']='event'
+        df=df.append(item, ignore_index=True)
+        item=item.copy()
+        cm=sklearn.metrics.confusion_matrix(evaldata.Sdata.label, evaldata.predicted_classes,labels=range(len(dataset.activities)))
         quality=CMbasedMetric(cm,'macro')
         #print('classical quality:%s'%(quality))
-        df=df.append({
-            'dataset':run_info['dataset'],
-            'date':run_info['run_date'], 
-            'runname':evaldata.shortrunname,
-            'fold':i,
-            'type':'classic',
-            'accuracy':quality['accuracy'],
-            'precision':quality['precision'],
-            'recall':quality['recall'],
-            'f1':quality['f1'],
-            'params':str(evaldata.params['segmentor'])
-        }, ignore_index=True)
+        item['accuracy']=quality['accuracy']
+        item['precision']=quality['precision']
+        item['recall']=quality['recall']
+        item['f1']=quality['f1']
+        item['type']='classic'
+
+        df=df.append(item, ignore_index=True)
+
     return df
 
 def get_all_runs_table():
