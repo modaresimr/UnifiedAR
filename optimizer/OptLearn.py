@@ -32,7 +32,8 @@ class OptLearn(MyTask):
         tmp={}
         
         
-
+        
+        @Cache.cachefunc(key=str(func.uniquekey)+shortrunname)
         def qfunc(param): 
             segparams=params.getParams(param,0)
             feaparams=params.getParams(param,1)
@@ -55,14 +56,14 @@ class OptLearn(MyTask):
             return q
         
         if len(x0)>0:
-            cachedqfunc=lambda params: Cache.get(str(params)+str(func.uniquekey)+shortrunname,lambda:qfunc(params))    
-            optq=mytestopt(cachedqfunc,bounds,ranges)
+            
+            optq=mytestopt(qfunc,bounds,ranges)
             # optq=skopt.forest_minimize(qfunc,bounds,n_jobs=8,n_calls=30)
             #optq={'x':optq['x'],'q':optq['fun']}
             logger.info("running again+++++++++++++ to fix parameter of classifers on %s last quality was %f"%(str(optq['x']),optq['q']))
-            optq={'x':optq['x'],'q':qfunc(optq['x'])}
+            optq={'x':optq['x'],'q':qfunc(optq['x'],cache=False)}
         else:
-            optq={'x':x0, 'q':qfunc(x0)}
+            optq={'x':x0, 'q':qfunc(x0,cache=False)}
         logger.debug('%s %s', shortrunname,optq)
         
         result['optq']=optq
