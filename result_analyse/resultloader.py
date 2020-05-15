@@ -9,11 +9,11 @@ from metric.CMbasedMetric import CMbasedMetric
 import combiner.SimpleCombiner 
 def getRunTable(run_info,dataset,evalres):
     df=pd.DataFrame(columns=['fold','type','accuracy','precision','recall','f1','runname'])
-    combiner=combiner.SimpleCombiner.EmptyCombiner()
+    combin=combiner.SimpleCombiner.EmptyCombiner()
     for i in range(len(evalres)):
         evaldata=evalres[i]['test']
         Sdata=evaldata.Sdata
-       # pred_events=combiner.combine(Sdata.s_event_list,Sdata.set_window,evaldata.predicted)
+       # pred_events=combin.combine(Sdata.s_event_list,Sdata.set_window,evaldata.predicted)
         
         quality=evaldata.quality
         #print('Evalution quality fold=%d is %s' % (i, quality))
