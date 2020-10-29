@@ -4,22 +4,27 @@ from sklearn.model_selection import KFold
 import logging
 logger = logging.getLogger(__file__)
 
+
 class KFoldEval(Evaluation):
     def __init__(self, fold):
         self.fold=fold
     def precompute(self, dataset):
         pass
 
+    def process(self,dataset,strategy,fold,d):
+        Train, Test=d 
+        logger.debug(f'=========Fold{fold} ============')
+        acts=[a for a in dataset.activities_map]
+        trainres=strategy.train(dataset, Train, acts)
+        testres=strategy.test(Test)
+        return {'test':testres,'train':trainres}
     def evaluate(self, dataset, strategy):
         ttmaker = self.makeFoldTrainTest(
             dataset.sensor_events, dataset.activity_events, self.fold)
         models = {}
-        for f, (Train, Test) in enumerate(ttmaker):
-            logger.debug('=========Fold %d ============', f)
-            acts=[a for a in dataset.activities_map]
-            trainres=strategy.train(dataset, Train, acts)
-            testres=strategy.test(Test)
-            models[f] = {'test':testres,'train':trainres}
+        for f, d in enumerate(ttmaker):
+            
+            models[f] = self.process(dataset,strategy,f,d)
 
         return models
 
@@ -42,3 +47,24 @@ class KFoldEval(Evaluation):
             Test0.s_event_list=Test0.s_events.values
 
             yield Train0, Test0
+
+
+
+class PKFoldEval(KFoldEval):
+    def __init__(self, fold):
+        super().__init__(fold)
+    
+    
+    def evaluate(self, dataset, strategy):
+        ttmaker = list(self.makeFoldTrainTest(
+            dataset.sensor_events, dataset.activity_events, self.fold))
+        models = {}
+        
+        import concurrent.futures
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            result=executor.map(lambda x:self.process(dataset,strategy,-1,x), ttmaker)
+            return {i:r for i,r in result}
+
+        return models
+
+

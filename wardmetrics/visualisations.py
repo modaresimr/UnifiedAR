@@ -86,8 +86,11 @@ def plot_twoset_metrics(results, startangle=120):
         results["fr"],
         results["dr"]
     ]
+    
+    cmap=plt.cm.get_cmap('Set3')(range(8))
+    axarr[0].pie(values_1, labels=labels_1, autopct='%1.0f%%',pctdistance=0.8, startangle=startangle,colors=cmap)
 
-    axarr[0].pie(values_1, labels=labels_1, autopct='%1.0f%%', startangle=startangle)
+
     axarr[0].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
     # TODO: add title
 
@@ -101,7 +104,7 @@ def plot_twoset_metrics(results, startangle=120):
         results["ir"]
     ]
 
-    axarr[1].pie(values_2, labels=labels_2, autopct='%1.0f%%', startangle=startangle)
+    axarr[1].pie(values_2, labels=labels_2, autopct='%1.0f%%',pctdistance=0.8, startangle=startangle,colors=cmap)
     axarr[1].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
     # TODO: add title
 

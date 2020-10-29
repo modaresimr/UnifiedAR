@@ -94,16 +94,16 @@ def eval_my_metric(real,pred,alpha=2,debug=0,calcne=1):
         
         
         metric['existance']=_Existence(rcalc,pcalc)
-        metric['length']=_Length(rcalc,pcalc)
-        metric['overlap_rate']=_OverlapRate(rcalc,pcalc)
-        metric['positional']=_Positional(rcalc,pcalc,alpha,calcne=calcne)
+        metric['total dur.']=_Length(rcalc,pcalc)
+        metric['relative dur.']=_OverlapRate(rcalc,pcalc)
+        metric['alignment']=_Positional(rcalc,pcalc,alpha,calcne=calcne)
         # metric['positional start']=_Positional(rcalc,pcalc,alpha,calcne=calcne,positional=-1)
         # metric['positional end']=_Positional(rcalc,pcalc,alpha,calcne=calcne,positional=1)
         if (len(real)==0 or len(pred)==0):
             metric['cardinality']={'tp':0,'fp':0,'fn':0}    
         else:
             real_scores, pred_scores, event_scores, standard_score_statistics=eval_events(real,pred)
-            metric['cardinality']=_Cardinality(event_scores,calcne=calcne)
+            metric['cardinality']=_Cardinality(rcalc,pcalc,event_scores,calcne=calcne)
             if(debug):
                 print(event_scores)
                 plot_events_with_event_scores(real_scores, pred_scores, real, pred, 'event score')
@@ -144,7 +144,7 @@ def plot_events_with_event_scores(gt_event_scores, detected_event_scores, ground
     # ax.xaxis.set_major_formatter(mdates.AutoDateFormatter(loc))
     # plt.tight_layout()
 
-    
+
     #plt.show()
 
 
@@ -217,14 +217,14 @@ def _Positional(rcalc,pcalc,alpha,calcne=1,positional=0):
             m['fp']+=p['nexist'] * (1-math.exp(-alpha))
     return m
 
-def _Cardinality(event_scores,calcne=1):
+def _Cardinality(rcalc,pcalc,event_scores,calcne=1):
     m={'tp':0,'fp':0,'fn':0}        
-    m['tp']=2*event_scores['C']
-    m['fp']=event_scores['M']+event_scores["M'"]+(event_scores["FM'"]+event_scores["FM"])/2
-    m['fn']=event_scores['F']+event_scores["F'"]+(event_scores["FM'"]+event_scores["FM"])/2
-    if calcne:
-        m['fp']+=event_scores["I'"]
-        m['fn']+=event_scores['D']
+    m['tp']=event_scores['C']
+    m['fp']=len(pcalc)-m['tp']; #event_scores['M']+event_scores["M'"]+(event_scores["FM'"]+event_scores["FM"])/2
+    m['fn']=len(rcalc)-m['tp']; #event_scores['F']+event_scores["F'"]+(event_scores["FM'"]+event_scores["FM"])/2
+#     if calcne:
+#         m['fp']+=event_scores["I'"]
+#         m['fn']+=event_scores['D']
     return m
 
 def testMyMetric(real,pred):

@@ -18,8 +18,6 @@ def getRunTable(run_info,dataset,evalres):
         quality=evaldata.quality
         #print('Evalution quality fold=%d is %s' % (i, quality))
         item={
-            'dataset':run_info['dataset'],
-            'date':run_info['run_date'], 
             'runname':evaldata.shortrunname,
             'fold':i,  
             'accuracy':quality['accuracy'],
@@ -27,6 +25,8 @@ def getRunTable(run_info,dataset,evalres):
             'recall':quality['recall'],
             'f1':quality['f1'],
         }
+        for f in run_info:
+            item[f]=run_info[f]
         for f in evaldata.functions:
             item[f]=evaldata.functions[f][0]
             item[f+'_params']=evaldata.functions[f][1]
@@ -47,6 +47,43 @@ def getRunTable(run_info,dataset,evalres):
 
     return df
 
+def load_run_table(file):
+    runtable=utils.loadState(file,'runtable1',raiseException=False)
+    if(runtable is None):
+        res=utils.loadState(file)
+        if(len(res)!=3):
+            #raise Error
+            logger.warn('File %s can not import'%file)
+            return
+        [run_info,datasetdscr,evalres]=res
+        runtable=getRunTable(run_info,datasetdscr,evalres)
+        utils.saveState(runtable,file,'runtable1')
+    return runtable
+
+def getRunInfo(run_info,datasetdscr,evalres):
+    # run_info={'dataset':datasetdscr.shortname(),'run_date':run_date,'dataset_path':datasetdscr.data_path, 'strategy':strategy.shortname(),'evalution':evaluation.shortname()}
+    compressdata={'run_info':run_info, 'folds':{k:{'quality':evalres[k]['test'].quality,'runname':evalres[k]['test'].shortrunname} for k in evalres}}
+    return compressdata
+    
+def load_run_info(file):
+    runinfo=utils.loadState(file,'info',raiseException=False)
+    if(runinfo is None):
+        try:
+            res=utils.loadState(file)
+            if(len(res)!=3):
+                #raise Error
+                logger.warn('File %s can not import'%file)
+                return
+            [run_info,datasetdscr,evalres]=res
+            runinfo=getRunInfo(run_info,datasetdscr,evalres)
+            utils.saveState(runinfo,file,'info')
+            return runinfo
+        except:
+            logger.warn('File %s can not import'%file)
+            return
+    return runinfo[0]
+
+
 def get_all_runs_table():
     list=os.listdir('save_data/')
     list.sort(key=lambda f:os.path.getmtime('save_data/'+f),reverse=True)
@@ -55,13 +92,9 @@ def get_all_runs_table():
     for item in list:
         # if not ('A4H' in item):continue
         try:
-            res=utils.loadState(item)
-            if(len(res)!=3):
-                #raise Error
-                logger.warn('File %s can not import'%item)
-                continue
-            [run_info,datasetdscr,evalres]=res
-            result.append(getRunTable(run_info,datasetdscr,evalres))
+            runtable=load_run_table(item)
+            if(runtable is None):continue
+            result.append(runtable)
         except Exception as e:
             logger.warn('File %s can not import error '%item)
             import sys
@@ -88,6 +121,7 @@ def get_runs():
             result.append((disp_name,item))
         except:
             logger.warn('File %s can not import'%item)
+            
     return result
 
 # +
@@ -98,17 +132,54 @@ def get_runs_summary(dataset=''):
     def loader(file):
         if dataset not in file:
                return
+        
+        res=load_run_info(file)
+        if res is None:return
+        
+        f1=res['folds'][0]['quality']['f1']
+        disp_name=file+":f1="+str(f1)+"=="+res['folds'][0]['runname']+"===="+str(res['folds'])
+        return(disp_name,file)
+
+    from joblib import Parallel, delayed
+    import multiprocessing
+    num_cores = multiprocessing.cpu_count()
+#     results = Parallel(n_jobs=num_cores)(delayed(loader)(file) for file in list)
+    results = [loader(file) for file in list]
+    for item in results:
+        if(item is None):continue
+        result.append(item)    
+    result.sort(key=lambda x: (x[0].split('_')[2],x[0].split('=')[1]))    
+    return result
+
+
+def get_runs_summary3(dataset=''):
+    list=os.listdir('save_data/')
+    list.sort(key=lambda f:os.path.getmtime('save_data/'+f),reverse=True)
+    result=[]
+    def loader(file):
+        if dataset not in file:
+               return
+        
         try:
-            res=utils.loadState(file,'summary')
-            # if(len(res)!=3):
-            #     raise Error
-            # [run_info,datasetdscr,evalres]=res
-            # disp_name='dataset:%s date:%s %s'%(run_info['dataset'],run_info['run_date'], evalres[0].shortrunname)
-            f1=res['folds'][0]['quality']['f1']
-            disp_name=file+":f1="+str(f1)+"=="+res['folds'][0]['shortrunname']+"===="+str(res['folds'])
+            res=utils.load_run_info(file)
+            f1=res['folds'][0]['test']['quality']['f1']
+            disp_name=file+":f1="+str(f1)+"=="+res['folds'][0]['test']['shortrunname']+"===="+str(res['folds'])
             return(disp_name,file)
         except:
-            logger.warn('File %s can not import'%file)
+            try:
+                res=utils.loadState(file)
+                if(len(res)!=3):
+                    raise Error
+                [run_info,datasetdscr,evalres]=res
+                disp_name='dataset:%s date:%s %s'%(run_info['dataset'],run_info['run_date'], evalres[0]['test'].shortrunname)
+                return(disp_name,file)
+            except Exception as e:
+                logger.warn('File %s can not import'%file)
+                import sys
+                import traceback
+                print(e, file=sys.stderr)
+                traceback.print_exc()
+
 #            raise
 
 
@@ -116,7 +187,8 @@ def get_runs_summary(dataset=''):
     from joblib import Parallel, delayed
     import multiprocessing
     num_cores = multiprocessing.cpu_count()
-    results = Parallel(n_jobs=num_cores)(delayed(loader)(file) for file in list)
+#     results = Parallel(n_jobs=num_cores)(delayed(loader)(file) for file in list)
+    results = [loader(file) for file in list]
     for item in results:
         if(item is None):continue
         result.append(item)
@@ -132,7 +204,7 @@ def get_runs_summary2(dataset=''):
         if dataset not in item:
                	continue
         try:
-            res=utils.loadState(item,'summary')
+            res=utils.loadState(item,'info')
             # if(len(res)!=3):
             #     raise Error
             # [run_info,datasetdscr,evalres]=res
@@ -156,5 +228,5 @@ def display_result(file):
         logger.debug('Evalution quality fold=%d is f1=%.2f acc=%.2f precision=%.2f recall=%.2f' % (i, quality.f1,quality.accuracy,quality.precision,quality.recall))
 
 if __name__ == '__main__':
-    get_all_runs_table()
+    get_runs_summary()
 

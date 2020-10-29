@@ -106,7 +106,7 @@ def plotWardMetric(dataset,real_events,pred_events,onlyAct=None):
         # Visualisations:
         plot_events_with_segment_scores(segments_with_scores, ground_truth_test, detection_test)
         plot_segment_counts(segment_counts)
-        plot_twoset_metrics(twoset_results)
+        plot_twoset_metrics(twoset_results,startangle=45)
 
 
         # Run event-based evaluation:
@@ -569,9 +569,9 @@ def plotJoinTree(real_acts, pred_acts):
 
 
 def plot_CM(dataset,evalres):
-    sumcm=evalres[0].event_cm
+    sumcm=evalres[0]['test'].event_cm
     for i in range(1,len(evalres)):
-        cm=evalres[i].event_cm
+        cm=evalres[i]['test'].event_cm
         sumcm+=cm
     #plot_confusion_matrix(sumcm,evalres[0].Sdata.acts,figsize=[25,12])
     tmp2(sumcm,dataset.activities)
@@ -601,7 +601,7 @@ def tmp2(cm,acts):
 			tmp_arr.append(0 if a==0 else float(j)/float(a))
 		norm_conf.append(tmp_arr)
 
-	fig = plt.figure()
+	fig = plt.figure(figsize=(8,8))
 	plt.clf()
 	ax = fig.add_subplot(111)
 	ax.set_aspect(1)
@@ -617,26 +617,37 @@ def tmp2(cm,acts):
 	# 					verticalalignment='center')
 
 	cb = fig.colorbar(res)
+	ax.set_xlim(-.5,len(acts)-.5)
+	ax.set_ylim(-.5,len(acts)-.5)
+
 	# alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 	plt.xticks(range(width), acts,rotation=-90)
 	plt.yticks(range(height), acts)
 	# plt.show()
 
 def plot_per_act(dataset,myevalres):
+    # myevalres=sorted(myevalres)
     activities=dataset.activities
     summycm={}
     sumcm={}
+    
     for p in myevalres:
         evalres=myevalres[p]
-        summycm[p]=np.zeros((len(activities),len(activities)))
-        for i in range(len(evalres)):
-            cm=evalres[i].event_cm
-            summycm[p]+=cm
+    # for p in ['test','train']:
+    
 
+        summycm[p]=np.zeros((len(activities),len(activities)))
         sumcm[p]=np.zeros((len(activities),len(activities)))
-        for i in range(0,len(myevalres)):
-            cm=sklearn.metrics.confusion_matrix(evalres[i].Sdata.label, evalres[i]. predicted_classes,labels=range(len(activities)))
+        # from result_analyse.metric import calc_cm_per_s_event
+        # summycm[p]=calc_cm_per_s_event(dataset,evalres)
+        for i in range(len(evalres)):
+            cm=evalres[i]['test'].event_cm
+            
+            summycm[p]+=cm
+            cm=sklearn.metrics.confusion_matrix(evalres[i]['test'].Sdata.label, evalres[i]['test'].predicted_classes,labels=range(len(activities)))
             sumcm[p]+=cm
+        
+            
     import matplotlib.pyplot as plt
     def get_new_fig(fn, figsize=[12,9]):
         """ Init graphics """
@@ -652,18 +663,45 @@ def plot_per_act(dataset,myevalres):
     fig, ax = get_new_fig(',',[20,5])#plt.subplots()
     rects=[]
     width=.7/(bar_count*2)
-    for i,p in enumerate(myevalres):
+    colors=['coral', 'cornflowerblue', 'darkgray', 'darkgoldenrod']
+
+    def mylabel(rects,cm):
+        for idx,rect in enumerate(rects):
+            height = rect.get_height()
+            ax.text(rect.get_x() + rect.get_width()/2., 1.05*height,
+                    'c=%d'%cm[idx],
+                    ha='center', va='bottom', rotation=90)
+
+    
+
+    for i,p in enumerate(sorted(myevalres)):
         e2=(100*CMbasedMetric(sumcm[p],average=None)['f1']).round()
-        rects.append(ax.bar(x - 1.2*width*(i+.5), e2, width, label=p))
+        x1=x - 1.2*width*(len(myevalres)-i-.5)
+        # print(x1 + width/2.,1.05*e2,)
+        # +(" total=%e"%np.sum(sumcm[p])
+        rect=ax.bar(x1, e2, width, label=p ,color=colors[i])
+        rects.append(rect)
+        # rects.append(ax.text(x1 + width/2., 1.05*e2,np.sum(sumcm[p],0),ha='center', va='bottom', rotation=0))
+        mylabel(rect,np.sum(sumcm[p],1))
         e3=(100*CMbasedMetric(summycm[p],average=None)['f1']).round()        
-        rects.append(ax.bar(x + (1.2*width*(i+.5)), e3, width, label='MY '+p))
+        rects.append(ax.bar(x, 30, .1/(bar_count*2), label=None))
+        x2=x + (1.2*width*(i+.5))
+        # +(" total=%d"%np.sum(summycm[p])
+        rect2=ax.bar(x2, e3, width, label='TS-'+p,color=colors[i],hatch='//')
+        # print('x:%f y:%f'%(x2 + width/2.,1.05*e3))
+        # rects.append(ax.text(x2 + width/2., 1.05*e3,np.sum(summycm[p],0),ha='center', va='bottom', rotation=0))
+        mylabel(rect2,np.sum(summycm[p],1))
+        rects.append(rect2)
+
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
     name='F1 score'
     ax.set_ylabel(name)
     ax.set_title(dataset.data_dscr)
     ax.set_xticks(x)
-    ax.set_xticklabels(dataset.activities_map_inverse,rotation=-60)
+    acts=dataset.activities_map_inverse
+    a={x.replace('Not_in_Bed','Not in Bed').replace('in_Bed','in Bed').replace('_','\n'):acts[x] for x in acts}
+    ax.set_xticklabels(a,rotation=-60)
 
     ax.legend()
 

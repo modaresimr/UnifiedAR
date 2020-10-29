@@ -7,16 +7,17 @@ def create(real,pred,filename):
 
 
 
-    evalres=[Data('result')]
-    evalres[0].real_events=vs.convert2event(real)
-    evalres[0].pred_events=vs.convert2event(pred)
-    evalres[0].quality={}
+    evalres=[{}]
+    evalres[0]['test']=Data('test res')
+    evalres[0]['test'].real_events=vs.convert2event(real)
+    evalres[0]['test'].pred_events=vs.convert2event(pred)
+    evalres[0]['test'].quality={}
 
     dataset=Data('MyDataset')
-    activities = ['None','Act']
-    dataset.activity_events=evalres[0].real_events
-    dataset.activities_map_inverse = {k: v for v, k in enumerate(activities)}
-    dataset.activities_map = {v: k for v, k in enumerate(activities)}
+    dataset.activities = ['None','Act']
+    dataset.activity_events=evalres[0]['test'].real_events
+    dataset.activities_map_inverse = {k: v for v, k in enumerate(dataset.activities)}
+    dataset.activities_map = {v: k for v, k in enumerate(dataset.activities)}
     dataset.sensor_events=pd.DataFrame()
     runinfo=filename
 

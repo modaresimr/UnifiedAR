@@ -1,6 +1,6 @@
 from classifier.classifier_abstract import Classifier
 import tensorflow as tf
-import tensorflow_addons as tfa
+# import tensorflow_addons as tfa
 from sklearn.utils.class_weight import compute_class_weight
 
 
@@ -71,8 +71,8 @@ class KerasClassifier(Classifier):
     #     return K.mean(f1)
     def _createmodel(self, inputsize, outputsize):
         self.outputsize = outputsize
-        a=tfa.metrics.F1Score(num_classes=outputsize,average='micro')
-        a.average ='macro'
+        # a=tfa.metrics.F1Score(num_classes=outputsize,average='micro')
+        # a.average ='macro'
         METRICS = [
             #   tf.keras.metrics.TruePositives(name='tp'),
             #   tf.keras.metrics.FalsePositives(name='fp'),
@@ -88,8 +88,8 @@ class KerasClassifier(Classifier):
             # tf.keras.metrics.AUC(name='auc'),
         ]
         
-        loss=tfa.losses.sparsemax_loss
-        loss=tfa.losses.sigmoid_focal_crossentropy
+        # loss=tfa.losses.sparsemax_loss
+        # loss=tfa.losses.sigmoid_focal_crossentropy
         loss='sparse_categorical_crossentropy'
         model = self.getmodel(inputsize, outputsize)
         model.summary()
@@ -101,12 +101,16 @@ class KerasClassifier(Classifier):
         raise NotImplementedError
     
     def _train(self, trainset, trainlabel):
+        classes=np.unique(trainlabel);
         try:
-            cw = compute_class_weight("balanced", range(self.outputsize), trainlabel)
+            cw = compute_class_weight("balanced", classes, trainlabel)
         except:
             cw = np.ones(self.outputsize)
         if not(self.weight is None):
             cw*=self.weight
+        cw={c:cw[i] for i,c in enumerate(classes)}
+        for i in range(self.outputsize): 
+            if not (i in cw): cw[i]=0
         return self.model.fit(trainset, trainlabel, epochs=self.epochs, 
         # validation_split=0.2,
         class_weight=cw

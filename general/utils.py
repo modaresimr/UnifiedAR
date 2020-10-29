@@ -148,18 +148,35 @@ def saveState(vars, file,name='data'):
     compress_pickle.dump(vars,pklfile+'.lz4')
 
 
-def loadState(file,name='data'):
+def loadState(file,name='data',raiseException=True):
     import compress_pickle
     pklfile=f'save_data/{file}/{name}.pkl'
-    
-    if (os.path.exists(pklfile)):
-        # with open(pklfile, 'rb') as f:
-            res=compress_pickle.load(pklfile)
-            # f.close()
-            saveState(res,file,name)
-            os.remove(pklfile)
-            return res
-    return compress_pickle.load(pklfile+'.lz4')
+    try:
+        if (os.path.exists(pklfile)):
+            # with open(pklfile, 'rb') as f:
+                res=compress_pickle.load(pklfile)
+                # f.close()
+                saveState(res,file,name)
+                os.remove(pklfile)
+                return res
+        # if(name=='data'):
+            # from metric.CMbasedMetric import CMbasedMetric
+            # from metric.event_confusion_matrix import event_confusion_matrix
+        #     [run_info,datasetdscr,evalres]=compress_pickle.load(pklfile+'.lz4')
+        #     for i in evalres:
+        #         data=evalres[i]['test']
+        #         Sdata=data.Sdata
+        #         import combiner.SimpleCombiner
+        #         com=combiner.SimpleCombiner.EmptyCombiner2()
+        #         evalres[i]['test'].Sdata.pred_events =com.combine(Sdata.s_event_list,Sdata.set_window,data.predicted)
+        #         evalres[i]['test'].event_cm     =event_confusion_matrix(Sdata.a_events,Sdata.pred_events,datasetdscr.activities)
+        #         evalres[i]['test'].quality      =CMbasedMetric(data.event_cm,'macro',None)
+        #     return [run_info,datasetdscr,evalres]
+        return compress_pickle.load(pklfile+'.lz4')
+    except:
+        if(raiseException):
+            raise
+        return None
 
 
 def saveFunctions(func, file):
@@ -208,11 +225,11 @@ def loadall(file):
     return [data, func]
 
 
-def configurelogger(file, dir):
+def configurelogger(file, dir,logparam=''):
     from datetime import datetime
     # Default parameters
     log_filename = os.path.basename(__file__).split('.')[0] + \
-        '-%s.log' % datetime.now().strftime('%y%m%d_%H-%M-%S')
+        '-%s-%s.log' % (datetime.now().strftime('%y%m%d_%H-%M-%S'),logparam)
     # Setup output directory
     output_dir = dir
     if output_dir is not None:
@@ -242,3 +259,5 @@ def logProfile(p):
     title=  'Time   [Hits * PerHit] Function name [Called from] [Function Location]\n'+\
             '-----------------------------------------------------------------------\n'
     logger.debug("TimeProfiling\n%s%s"%(title,auto_profiler.Tree(p.root,threshold=1)))
+if __name__ == '__main__':
+    loadState('200515_10-31-57-Home1')

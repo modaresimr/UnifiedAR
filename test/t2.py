@@ -26,7 +26,7 @@ def fact(i):
 
 def show(p):
     print(Tree(p.root, threshold=0.5))
-    
+
 @Profiler(depth=4, on_disable=show)
 def main():
     f1()

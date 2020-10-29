@@ -8,7 +8,7 @@ from general.utils import Data
 from general import utils
 logger = logging.getLogger(__file__)
 import tensorflow as tf
-import tensorflow_addons as tfa
+
 from sklearn.utils.class_weight import compute_class_weight
 from combiner.SimpleCombiner import EmptyCombiner
 import pandas as pd

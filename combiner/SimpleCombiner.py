@@ -109,6 +109,44 @@ class EmptyCombiner(Combiner):
 
 
 
+class EmptyCombiner2(Combiner):
+
+
+
+    def combine2(self, times, act_data):
+        predicted   = np.argmax(act_data, axis=1) 
+        events      = []
+        ptree       = {}
+        epsilon     = pd.to_timedelta('1s')
+        
+        for i in range(len(times)):
+            
+            start   = times[i]['begin']
+            end     = times[i]['end']
+            #pclass = np.argmax(predicted[i])
+            pclass  = predicted[i]
+            if(pclass==0):
+                continue
+
+            if len(events)>0:
+                # events[-1]['EndTime']      =   min(events[-1]['EndTime'],start)
+                start=max(events[-1]['EndTime'],start)
+                if start >= end:
+                    continue
+            newe={'Activity': pclass, 'StartTime': start, 'EndTime': end}
+            if(len(events)>0 and events[-1]['Activity']==newe['Activity'] and events[-1]['EndTime']<newe['StartTime']):
+                events.append({'Activity': pclass, 'StartTime': events[-1]['EndTime'], 'EndTime': newe['StartTime']})
+            events.append(newe)
+            
+
+        events = pd.DataFrame(events)
+        if(len(events)>0):
+            events = events.sort_values(['StartTime'])
+        events = events.reset_index()
+        events = events.drop(['index'], axis=1)
+        return events
+
+
 if __name__ == '__main__':
     import result_analyse.visualisation as vs
     import metric.CMbasedMetric as CMbasedMetric 

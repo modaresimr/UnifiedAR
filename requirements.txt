@@ -3,9 +3,13 @@ numpy
 pandas
 wget
 intervaltree
-tensorflow>=2.0.0
+tensorflow==2.2.0
 tensorflow-plot
 scikit-optimize
 matplotlib
 seaborn
 plotly>=4.3.0
+compress_pickle[lz4]
+auto_profiler
+tensorflow_addons
+libsvm

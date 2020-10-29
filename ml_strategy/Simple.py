@@ -54,6 +54,9 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         return result
 
     def pipeline(self,func,data,train):
+        import os
+        os.system("taskset -p 0xff %d" % os.getpid())
+        
         func.acts=self.acts
         logger.debug('Starting .... %s' % (func.shortrunname))
         Tdata=func.preprocessor.process(self.datasetdscr, data)

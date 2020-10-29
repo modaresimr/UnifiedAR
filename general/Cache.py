@@ -42,6 +42,7 @@ def cachefunc(_func=None,*,key='',params2key=True,disable=False):
    def wrapper2(func):
       @functools.wraps(func)
       def wrapper(*args, **kwargs):
+         
          if(('cache' in kwargs and kwargs.pop('cache')==False) or GlobalDisable or disable ):
             return func(*args, **kwargs)
          else:
