@@ -12,14 +12,28 @@ from constants import methods
 import general.utils
 @auto_profiler.Profiler(depth=8, on_disable=general.utils.logProfile)
 def run(args):
-    
+    logger = logging.getLogger(__file__)
     logger.debug(f'args={args}')
-    if(args.segmentation>=0):
-       methods.segmentation=[methods.segmentation[args.segmentation]]
+    
+    if(args.dataset<0):
+        logger.error('Invalid dataset argument')
+        return
+    
+    if(args.mlstrategy<0):
+        logger.error('Invalid mlstrategy argument')
+        return
+        
+    if(args.evaluation<0):
+        logger.error('Invalid evaluation argument')
+        return
     datasetdscr = methods.dataset[args.dataset]['method']().load()
- 
-    strategy = methods.mlstrategy[args.strategy]['method']()
-    evaluation=methods.evaluation[0]['method']()
+    strategy = methods.mlstrategy[args.mlstrategy]['method']()
+    evaluation=methods.evaluation[args.evaluation]['method']()
+    
+    if(args.feature_extraction>=0): methods.feature_extraction=[methods.feature_extraction[args.feature_extraction]]
+    if(args.segmentation>=0): methods.segmentation=[methods.segmentation[args.segmentation]]
+    if(args.classifier>=0): methods.classifier=[methods.classifier[args.classifier]]
+    
     evalres = evaluation.evaluate(datasetdscr, strategy)
 
     run_date=datetime.now().strftime('%y%m%d_%H-%M-%S')
@@ -31,29 +45,33 @@ def run(args):
     for i in range(len(evalres)):
         logger.debug(f'Evalution quality fold={i} is {evalres[i]["test"].quality}')
 
-    logger.debug(f'args={args}')
+    logger.debug(f'run finished args={args}')
 
 
-if __name__ == '__main__':
-    import sys
-    strargs=str(sys.argv[1:])
+def Main(argv):
+    strargs=str(argv)
 
     auto_profiler.Profiler.GlobalDisable=True
     parser = argparse.ArgumentParser(description='Run on datasets.')
-    parser.add_argument('-d', '--dataset', help=' to original datasets',type=int, default=0)
-    parser.add_argument('-o', '--output', help='Output folder', default='logs')
-    parser.add_argument('-st', '--strategy', help='Strategy',type=int, default=0)
-    parser.add_argument('-s', '--segmentation', help='segmentation',type=int, default=-1)
-    parser.add_argument('-c','--comment',help='comment',default='')
+    parser.add_argument( '--dataset','-d', help=' to original datasets',type=int, default=0)
+    parser.add_argument( '--output','-o', help='Output folder', default='logs')
+    parser.add_argument( '--mlstrategy','-st', help='Strategy',type=int, default=0)
+    parser.add_argument( '--segmentation','-s', help='segmentation',type=int, default=-1)
+    parser.add_argument( '--feature_extraction','-f',type=int, default=0)
+    parser.add_argument( '--classifier',type=int,default=0)
+    parser.add_argument('--evaluation', help='evaluation',type=int, default=0)
+    parser.add_argument('--comment','-c',help='comment',default='')
     #parser.add_argument('--h5py', help='HDF5 dataset folder')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     
     utils.configurelogger(__file__, args.output,strargs)
-    logger = logging.getLogger(__file__)
     import numpy
     import os
     os.system("taskset -p 0xff %d" % os.getpid())
     run(args)
 
-
-#https://stackoverflow.com/questions/39063676/how-to-boost-a-keras-based-neural-network-using-adaboost
+if __name__ == '__main__':
+    import sys
+    strargs=str(sys.argv[1:])
+    Main(sys.argv[1:])
+# https://stackoverflow.com/questions/39063676/how-to-boost-a-keras-based-neural-network-using-adaboost

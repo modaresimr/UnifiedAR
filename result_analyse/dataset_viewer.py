@@ -127,6 +127,6 @@ def plotAct(dataset, acts):
             visible=True,
             range=[firstacts['StartTime'], lastact['EndTime']],
         )))
-  fig.show()
+#   fig.show()
 
 

@@ -1,0 +1,12 @@
+Collecting scikit-learn
+  Downloading https://files.pythonhosted.org/packages/5c/a1/273def87037a7fb010512bbc5901c31cfddfca8080bc63b42b26e3cc55b3/scikit_learn-0.23.2-cp36-cp36m-manylinux1_x86_64.whl (6.8MB)
+Requirement already satisfied, skipping upgrade: scipy>=0.19.1 in /opt/conda/lib/python3.6/site-packages (from scikit-learn) (1.4.1)
+Collecting threadpoolctl>=2.0.0
+  Downloading https://files.pythonhosted.org/packages/f7/12/ec3f2e203afa394a149911729357aa48affc59c20e2c1c8297a60f33f133/threadpoolctl-2.1.0-py3-none-any.whl
+Requirement already satisfied, skipping upgrade: numpy>=1.13.3 in /opt/conda/lib/python3.6/site-packages (from scikit-learn) (1.17.4)
+Requirement already satisfied, skipping upgrade: joblib>=0.11 in /opt/conda/lib/python3.6/site-packages (from scikit-learn) (0.14.0)
+Installing collected packages: threadpoolctl, scikit-learn
+  Found existing installation: scikit-learn 0.21.3
+    Uninstalling scikit-learn-0.21.3:
+      Successfully uninstalled scikit-learn-0.21.3
+Successfully installed scikit-learn-0.23.2 threadpoolctl-2.1.0

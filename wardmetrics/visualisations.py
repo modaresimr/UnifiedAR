@@ -49,7 +49,8 @@ def plot_events_with_segment_scores(segment_results, ground_truth_events, detect
     plt.tight_layout()
 
     if show:
-        plt.show()
+        # plt.show()
+        pass
     else:
         plt.draw()
 
@@ -69,7 +70,8 @@ def plot_events_with_event_scores(gt_event_scores, detected_event_scores, ground
     plt.tight_layout()
 
     if show:
-        plt.show()
+        # plt.show()
+        pass
     else:
         plt.draw()
 
@@ -108,7 +110,7 @@ def plot_twoset_metrics(results, startangle=120):
     axarr[1].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
     # TODO: add title
 
-    plt.show()
+    # plt.show()
 
 
 def plot_segment_counts(results):
@@ -125,7 +127,7 @@ def plot_segment_counts(results):
     fig1, ax1 = plt.subplots()
     ax1.pie(values, labels=labels, autopct=lambda p: '{:.0f}'.format(p * total / 100), startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-    plt.show()
+    # plt.show()
 
 
 def plot_event_analysis_diagram(event_results, **kwargs):
@@ -337,7 +339,8 @@ def plot_event_analysis_diagram(event_results, **kwargs):
 
     plt.tight_layout()
     if kwargs.pop('show', True):
-        plt.show()
+        # plt.show()
+        pass
     else:
         plt.draw()
     return fig

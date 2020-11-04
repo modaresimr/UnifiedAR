@@ -41,6 +41,9 @@ class MyTask:
     def __str__(self):
         return '<'+self.__class__.__name__+'> '+str(self.__dict__)
 
+    def __repr__(self):
+        return self.__str__()
+
     def shortname(self):
         return self.__class__.__name__
 
@@ -128,8 +131,6 @@ class Buffer:
                     R = m
             return L if L < n else None
 
-
-print('Utils loaded successfully!!')
 
 
 def instantiate(method):
@@ -261,3 +262,44 @@ def logProfile(p):
     logger.debug("TimeProfiling\n%s%s"%(title,auto_profiler.Tree(p.root,threshold=1)))
 if __name__ == '__main__':
     loadState('200515_10-31-57-Home1')
+
+
+
+
+def convertAsghari():
+    import pandas as pd
+    pred=pd.read_csv('save_data/asghari/b1/output1.csv', header=0, names=["StartTime", "EndTime", "Activity"])
+    st = pd.to_datetime(pred['StartTime'], format='%Y-%m-%d %H:%M:%S')
+    et = pd.to_datetime(pred['EndTime'], format='%Y-%m-%d %H:%M:%S')
+    pred['StartTime'] = st
+
+    pred['EndTime'] = et
+    pred['Activity'] =pred.Activity.apply(lambda x: dataset.activities_map_inverse[x])
+    evalres[0].pred_events=pred
+    ######
+    run_info,dataset,evalres=utils.loadState('200211_12-39-09-Home1')
+    ######
+    evalres[0].pred_events=pred
+    stime=evalres[0].pred_events.iloc[0].StartTime
+    etime=evalres[0].pred_events.iloc[-1].EndTime
+    rstime=evalres[0].real_events.iloc[0].StartTime
+    retime=evalres[0].real_events.iloc[-1].EndTime
+
+    stime,etime,rstime,retime
+
+    #######
+    evalres[0].real_events=evalres[0].real_events.loc[evalres[0].real_events.EndTime>=stime].loc[evalres[0].real_events.StartTime<=etime]
+    #######
+    evalres[0]=evalres[4]
+    #######
+    
+    evalres[0].Sdata=None
+    evalres[0].predicted=None
+    evalres[0].shortrunname="Asghari_b1"
+    evalres[0].predicted_classes=None
+    evalres[0].event_cm=None
+    evalres[0].quality={'accuracy': 0, 'precision': .45, 'recall': 0.61, 'f1': 0.52}
+    evalres[0].pred_events=pred
+
+    #######
+    utils.saveState([run_info,dataset,{0:evalres[0]}],'asghari-Home1')

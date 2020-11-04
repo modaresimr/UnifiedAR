@@ -43,3 +43,6 @@ class FeatureExtraction(MyTask):
         pass
     def featureExtract(self, window):
         pass
+
+    def __str__(self):
+        return self.shortname()

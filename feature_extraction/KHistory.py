@@ -18,4 +18,5 @@ class KHistory(FeatureExtraction):
             f[k,:]=self.method.featureExtract2(s_event_list,idx)
 
         return f
-        
+    # def shortname(self):
+    #     return f'{super().shortname()} k={self.k} {self.method}'

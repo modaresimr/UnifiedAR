@@ -57,6 +57,7 @@ def plotWardMetric(dataset,real_events,pred_events,onlyAct=None):
         detection_test=pevent[act]
         print(dataset.activities_map[act],"==================================")
         if(len(ground_truth_test)==0 or len(detection_test)==0):
+            print("No Prediction or Ground Truth -> Ward metric can not be ploted")
             continue
 
         twoset_results, segments_with_scores, segment_counts, normed_segment_counts = eval_segments(ground_truth_test, detection_test)
@@ -381,11 +382,17 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None, ax=None):
   else:
     ax.set_ylim(0+size,len(dataset.activities)-size)
   plt.margins(0.1)
-  plt.show()
+#   plt.show()
 
-def plotJoinAct2(real_acts, pred_acts,acts,labels, ax=None):
+def plotJoinAct2(real_acts, pred_acts, acts, labels, ax=None,duration=None):
   from pandas.plotting import register_matplotlib_converters
   register_matplotlib_converters()
+
+  
+  if not(filterTime==None):
+    real_acts=filterTime(real_acts,duration)
+    pred_acts=filterTime(pred_acts,duration)
+
   size=0.45
   rcond=real_acts.Activity==-1
   pcond=pred_acts.Activity==-1
@@ -445,7 +452,7 @@ def plotJoinAct2(real_acts, pred_acts,acts,labels, ax=None):
   ax.set_yticklabels([l for l in labels])
   ax.set_ylim(min(acts)-size,max(acts)+size)
   plt.margins(0.1)
-  plt.show()
+#   plt.show()
 
 # -
 
@@ -563,7 +570,7 @@ def plotJoinTree(real_acts, pred_acts):
 #   ax.set_yticklabels([l for l in labels])
   ax.set_ylim(1-size,1+size)
   plt.margins(0.1)
-  plt.show()
+#   plt.show()
 
 
 

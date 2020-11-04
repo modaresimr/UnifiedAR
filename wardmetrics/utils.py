@@ -61,7 +61,7 @@ def print_standard_event_metrics(standard_event_results):
             precision:\t0.8888888\tWeighted by length:	0.9186991
             recall:\t0.3333333\tWeighted by length:	0.2230576
     """
-    print("Standard event results:")
+    print("Standard event results:",standard_event_results)
     print("\tprecision:\t" + str(standard_event_results["precision"]) + "\tWeighted by length:\t" + str(standard_event_results["precision (weighted)"]))
     print("\trecall:\t\t" + str(standard_event_results["recall"]) + "\tWeighted by length:\t" + str(standard_event_results["recall (weighted)"]))
 
