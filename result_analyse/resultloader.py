@@ -76,7 +76,7 @@ def load_run_info(file):
                 return
             [run_info,datasetdscr,evalres]=res
             runinfo=getRunInfo(run_info,datasetdscr,evalres)
-            utils.saveState(runinfo,file,'info')
+            utils.saveState([runinfo],file,'info')
             return runinfo
         except:
             logger.warn('File %s can not import'%file)

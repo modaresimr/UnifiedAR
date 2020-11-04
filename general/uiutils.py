@@ -1,7 +1,10 @@
+methods=None
 def runPipelineUI():
+    global methods
     from ipywidgets import interact, interactive, fixed, interact_manual
-    from constants import methods
-
+    import constants
+    from copy import deepcopy
+    if (methods==None): methods=deepcopy(constants.methods)
     def res(**args):    
         largs=[]
         for a in args:
@@ -217,12 +220,16 @@ def loadGemMultiUI():
     def datasets(dataset=['Home1','Home2','A4H','VanKasteren']):
         @interact_manual
         def compare(files=widgets.SelectMultiple(options=result_analyse.resultloader.get_runs_summary(dataset), description='Files',           layout=Layout(width='100%', height='180px')),titles="comma seperated"):
-            print(files)
+            
             run_info={}
             dataset={}
             evalres={}
             res={}
             titles=titles.split(',')
+            if(len(titles)!=len(files)):
+                print('Titles are not correct. use files names instead')
+                titles=files
+            print(files)
             for i, file in enumerate(files):
                 print(i,file)
                 t=titles[i]
