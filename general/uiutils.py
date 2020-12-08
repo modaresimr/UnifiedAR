@@ -113,7 +113,7 @@ def loadGemMetricUI():
                 # a_fig.show()
                 m_fig.tight_layout(pad=0,h_pad=-20.0, w_pad=3.0)
                 # m_fig.show()
-                    
+
     #             @interact
     #             def view2(onlyAct=[(str(i)+" : "+dataset.activities[i],i)for i in dataset.activities_map]):
     #                 print(onlyAct)
@@ -190,10 +190,10 @@ def loadWardMetricUI():
                     #    print('error in ',i)
                     #vs.plotWardMetric(dataset,real_events,pred_events,onlyAct=i)
     #             vs.plotJoinMyMetric(dataset,real_events2,pred_events2,calcne=0)
-                
+
                 # m_fig.tight_layout(pad=0,h_pad=-20.0, w_pad=3.0)
                 # m_fig.show()
-                    
+
     #             @interact
     #             def view2(onlyAct=[(str(i)+" : "+dataset.activities[i],i)for i in dataset.activities_map]):
     #                 print(onlyAct)
@@ -211,15 +211,22 @@ def loadGemMultiUI():
     from ipywidgets import interact, interactive, fixed, interact_manual,widgets
     import result_analyse.resultloader
     import result_analyse.kfold_analyse as an
-    import metric.MyMetric as mymetric
+    import metric.MyMetric
+    import metric.Metrics
+    metrics={'GEM':metric.Metrics.GEM(),
+    'Tatbul':metric.Metrics.Tatbul(),
+    'Classical':metric.Metrics.Classical(),
+    }
+    # import metric.MyMetric as mymetric
+    import metric.TatbulMetric as mymetric
     import general.utils as utils
     import result_analyse.visualisation as vs
     from ipywidgets import Button, Layout
 
     @interact
-    def datasets(dataset=['Home1','Home2','A4H','VanKasteren']):
+    def datasets(dataset=['Home1','Home2','A4H','ward','VanKasteren']):
         @interact_manual
-        def compare(files=widgets.SelectMultiple(options=result_analyse.resultloader.get_runs_summary(dataset), description='Files',           layout=Layout(width='100%', height='180px')),titles="comma seperated"):
+        def compare(files=widgets.SelectMultiple(options=result_analyse.resultloader.get_runs_summary(dataset), description='Files',           layout=Layout(width='100%', height='180px')),metric=metrics,titles="title1,title2"):
             
             run_info={}
             dataset={}
@@ -235,10 +242,25 @@ def loadGemMultiUI():
                 t=titles[i]
                 run_info[t],dataset[t],evalres[t]=utils.loadState(file)
     #             print(evalres[t])
-                for i in evalres[t]:
-                    evalres[t][i]['test'].Sdata=None
+#                 for i in evalres[t]:
+#                     evalres[t][i]['test'].Sdata=None
                     
                 dataset[t].sensor_events=None
-                res[t]=an.mergeEvals(dataset[t],evalres[t],mymetric)
+                res[t]=an.mergeEvals(dataset[t],evalres[t],metric)
             res={t:res[t] for t in sorted(res.keys())}
+            import pandas as pd
+            from IPython.display import display, HTML
+
+            
+            actres={}
+            for k in dataset[t].activities_map:
+                if(k==0):continue
+                actres[k]={(m,e):res[m][k]['avg'][e]  for m in res for e in res[m][k]['avg']}    
+                print('act=',k,'==============================')
+#                 print(actres[k])
+                if(len(actres[k])==0):
+                    print('No Eval')
+                else:
+                    df2=pd.DataFrame(actres[k]).round(2)
+                    display(HTML(df2.to_html()))
             vs.plotJoinMetric(res,[k for k in res[t]],dataset[t].activities_map)

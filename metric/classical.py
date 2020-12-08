@@ -128,6 +128,22 @@ class F1Evaluator(ClassicalMetric):
 
 
 
+class All(ClassicalMetric):
+     def evaluate(self, rset, rlabel,plabel,pprob,labels,average='macro'):
+        p,r,f,s=sklearn.metrics.precision_recall_fscore_support(rlabel,plabel,1,labels ,average=average)
+        return {'precision':p,'recall':r,'f1':f}
+
+     def eval_cm(self,cm,average=None):
+        TP,FP,FN,TN = self.get_tp_fp_fn_tn(np.array(cm))
+        #print(np.array(TP).shape,np.array(FP).shape,np.array(FN).shape,np.array(TN).shape)
+        #print(TP,FP,FN,TN)
+        p = TP/(TP+FP)
+        r = TP/(TP+FN)
+        f=2*r*p/(r+p)
+        if(average is None):
+            return f
+        return np.average(f[~np.isnan(f)])
+
 
 
 

@@ -63,8 +63,9 @@ def load_run_table(file):
 def getRunInfo(run_info,datasetdscr,evalres):
     # run_info={'dataset':datasetdscr.shortname(),'run_date':run_date,'dataset_path':datasetdscr.data_path, 'strategy':strategy.shortname(),'evalution':evaluation.shortname()}
     compressdata={'run_info':run_info, 'folds':{k:{'quality':evalres[k]['test'].quality,'runname':evalres[k]['test'].shortrunname} for k in evalres}}
+    # compressdata={'run_info':run_info, 'folds':{0:{'quality':{'f1':0},'runname':run_info}}}
     return compressdata
-    
+
 def load_run_info(file):
     runinfo=utils.loadState(file,'info',raiseException=False)
     if(runinfo is None):
@@ -228,5 +229,5 @@ def display_result(file):
         logger.debug('Evalution quality fold=%d is f1=%.2f acc=%.2f precision=%.2f recall=%.2f' % (i, quality.f1,quality.accuracy,quality.precision,quality.recall))
 
 if __name__ == '__main__':
-    get_runs_summary()
+    get_runs_summary('ward')
 
