@@ -3,7 +3,7 @@ numpy
 pandas
 wget
 intervaltree
-tensorflow==2.2.1
+tensorflow==2.5.0
 tensorflow-plot
 scikit-optimize
 matplotlib
