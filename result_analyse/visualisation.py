@@ -13,7 +13,7 @@ import result_analyse.dataset_viewer as dv
 import result_analyse.SpiderChart as spiderchart
 from metric.CMbasedMetric import CMbasedMetric
 from metric.EventBasedMetric import time2int
-
+import general.utils
 def filterTime(events,duration=None):
     if(duration is not None):
         events=events.loc[duration[0]<=events.EndTime]
@@ -291,39 +291,48 @@ def plotJoinMetric(joinmetrics,acts,actmap={}):
     
     
     for i, act in enumerate(acts):
-        all=0
-        name=actmap[act] if act in actmap else act
-        print(name,"========")
-        # actres[act]={(m,e):joinmetrics[m][act]['avg'][e]  for m in joinmetrics for e in joinmetrics[m][act]['avg']}    
-      
-        # import pandas as pd
-        # from IPython.display import display, HTML
-        # if(len(actres[act])==0):
-        #     print('No Eval')
-        # else:
-        #     df2=pd.DataFrame(actres[act]).round(2)
-        #     display(HTML(df2.to_html()))
+        try:
+            all=None
+            name=actmap[act] if act in actmap else act
+            print(name,"========")
+            # actres[act]={(m,e):joinmetrics[m][act]['avg'][e]  for m in joinmetrics for e in joinmetrics[m][act]['avg']}    
+        
+            # import pandas as pd
+            # from IPython.display import display, HTML
+            # if(len(actres[act])==0):
+            #     print('No Eval')
+            # else:
+            #     df2=pd.DataFrame(actres[act]).round(2)
+            #     display(HTML(df2.to_html()))
 
-        for item in joinmetrics:
-            metrics=joinmetrics[item][act]
-            if('avg' in metrics):metrics=metrics['avg']
-            #plotJoinAct(dataset,real_events,pred_events,onlyAct=i)
-            df=pd.DataFrame(metrics)
-            print(df)
-            if not('f1' in df.index):
-                print('f1 is not exist')
-                continue
+            for item in joinmetrics:
+                metrics=joinmetrics[item][act]
+                if('avg' in metrics):metrics=metrics['avg']
+                #plotJoinAct(dataset,real_events,pred_events,onlyAct=i)
+                df=pd.DataFrame(metrics)
+                print(f'df={df}')
+                if not('f1' in df.index):
+                    print('f1 is not exist')
+                    continue
 
-            print('average=',np.average(list(df.loc['f1'])))
-            # df=df.drop(['tp','fp','fn','recall','precision'])
-            # df=df.loc[['f1']]
-            df.loc[['f1']]=2*df.loc[['recall']]*df.loc[['precision']]/(df.loc[['recall']]+df.loc[['precision']])
-            df=df.loc[['f1']]
-            if type(all)==type(0):
-                all=df.drop(['f1'])
-            all.loc[item]=df.loc['f1']
-        if type(all)!=type(0):
-            spiderchart.plot(all,[0.25,.5,.75],title=name,ax=m_ax[i])
+                print('average=',np.average(list(df.loc['f1'])))
+                # df=df.drop(['tp','fp','fn','recall','precision'])
+                # df=df.loc[['f1']]
+                
+                calcf1=2*df.loc['recall']*df.loc['precision']/(df.loc['recall']+df.loc['precision'])
+                df.loc['f1']=calcf1
+                df=df.loc[['f1']]
+                if all is None:
+                    all=df.drop(['f1'])
+                all.loc[item]=df.loc['f1']
+                
+            if not(all is None):
+                #print(f'all={all} title={name}, ax={m_ax[i]}')
+                spiderchart.plot(all,[0.25,.5,.75],title=name,ax=m_ax[i])
+        except  Exception as e:
+            console.log(e)
+            traceback.print_exception(*sys.exc_info()) 
+
     m_fig.tight_layout(pad=0,h_pad=-10.0, w_pad=3.0)
 
 

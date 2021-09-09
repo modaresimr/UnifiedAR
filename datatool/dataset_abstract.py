@@ -30,6 +30,7 @@ class Dataset(MyTask):
 
     def _calculate_activity(self):
         self.activity_events = self.activity_events.sort_values(['StartTime', 'EndTime'])
+        print(self.activities)
         self.activities.sort()
         self.activities = np.insert(self.activities, 0, 'None')
         self.activities_map_inverse = {k: v for v, k in enumerate(self.activities)}
@@ -41,9 +42,9 @@ class Dataset(MyTask):
         self.activity_events_tree = IntervalTree()
         for i, act in self.activity_events.iterrows():
             if(act.StartTime.value == act.EndTime.value):
-                self.activity_events_tree[act.StartTime.value] = act
+                self.activity_events_tree[act.StartTime.value:act.StartTime.value+1] = {'StartTime':act.StartTime,'EndTime':act.EndTime,'Activity':act.Activity}
             else:
-                self.activity_events_tree[act.StartTime.value:act.EndTime.value] = act
+                self.activity_events_tree[act.StartTime.value:act.EndTime.value] = {'StartTime':act.StartTime,'EndTime':act.EndTime,'Activity':act.Activity}
 
     def _caclculate_sensor(self):
         self.sensor_events = self.sensor_events.sort_values(['time'])

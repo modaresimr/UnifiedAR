@@ -132,7 +132,8 @@ class KerasClassifier(Classifier):
 
     def _predict_classes(self, testset):
         # if(self.trained):
-            return self.model.predict_classes(testset)
+            return np.argmax(self._predict(testset), axis=-1)
+            # return self.model.predict_classes(testset)
         # else:
         #     return self.model.predict_classes(testset)*0
 

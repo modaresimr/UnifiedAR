@@ -153,7 +153,8 @@ def _makeIntervalTree(evnt,label):
     
     tree = intervaltree.IntervalTree()
     for e in evnt:
-        tree[e[0]:e[1]] = e
+        if(e[0]==e[1]):tree[e[0]:e[1]+1] = e
+        else: tree[e[0]:e[1]] = e
     return tree
 
 

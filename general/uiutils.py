@@ -224,7 +224,7 @@ def loadGemMultiUI():
     from ipywidgets import Button, Layout
 
     @interact
-    def datasets(dataset=['Home1','Home2','A4H','ward','VanKasteren']):
+    def datasets(dataset=['one_event_eval_gen','Home1','Home2','A4H','ward','VanKasteren']):
         @interact_manual
         def compare(files=widgets.SelectMultiple(options=result_analyse.resultloader.get_runs_summary(dataset), description='Files',           layout=Layout(width='100%', height='180px')),metric=metrics,titles="title1,title2"):
             

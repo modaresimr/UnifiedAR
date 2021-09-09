@@ -5,7 +5,17 @@ class GEM:
         import metric.MyMetric as mymetric
         return mymetric.eval(real_a_event, pred_a_event, acts,debug)
     def __str__():
+        return 'GEM OLD'
+
+
+class GEM_NEW:
+    classical=False
+    def eval(self,real_a_event, pred_a_event, acts,debug=0):
+        import metric.GEM_NEW as mymetric
+        return mymetric.eval(real_a_event, pred_a_event, acts,debug)
+    def __str__():
         return 'GEM'
+
 
 class Classical:
     classical=True

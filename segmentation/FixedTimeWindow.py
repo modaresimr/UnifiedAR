@@ -1,4 +1,5 @@
 from segmentation.segmentation_abstract import Segmentation
+import pandas as pd
 class FixedTimeWindow(Segmentation):
     def applyParams(self,params):
         if not super().applyParams(params): return False

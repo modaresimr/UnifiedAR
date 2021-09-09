@@ -303,3 +303,42 @@ def convertAsghari():
 
     #######
     utils.saveState([run_info,dataset,{0:evalres[0]}],'asghari-Home1')
+
+
+
+
+
+
+
+import general.utils 
+import pandas as pd
+import datatool.seddata
+    
+def convertSED(name,dataset,pe):
+    
+    
+    ######
+    from datetime import datetime
+    run_date=datetime.now().strftime('%y%m%d_%H-%M-%S')
+    run_info={'dataset':'SED2020','run_date':run_date,'dataset_path':'', 'strategy':'EIN','evalution':'-'}
+    ######
+    pred=datatool.seddata.SED(pe,name,dataset)
+    pred.load()
+    
+    ########
+    evalres={0:{'test':general.utils.Data('SED')}}
+    
+    evalres[0]['test'].real_events=dataset.activity_events
+    evalres[0]['test'].Sdata=None
+    evalres[0]['test'].predicted=None
+    evalres[0]['test'].shortrunname=name
+    evalres[0]['test'].predicted_classes=None
+    evalres[0]['test'].event_cm=None
+    evalres[0]['test'].quality={'accuracy': 0, 'precision': 0, 'recall': 0, 'f1': 0}
+    evalres[0]['test'].pred_events=pred.activity_events
+
+    #######
+    general.utils.saveState([run_info,dataset,{0:evalres[0]}],name)
+    return pred
+
+    

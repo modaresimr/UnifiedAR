@@ -1,9 +1,9 @@
-grpcio>=1.24.3
+grpcio
 numpy
 pandas
 wget
 intervaltree
-tensorflow==2.2.1
+tensorflow
 tensorflow-plot
 scikit-optimize
 matplotlib
