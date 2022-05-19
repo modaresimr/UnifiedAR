@@ -16,10 +16,11 @@ from segmentation.segmentation_abstract import prepare_segment,prepare_segment2
 
 logger = logging.getLogger(__file__)
 
-class SimpleStrategy(ml_strategy.abstract.MLStrategy):
-    def train(self, datasetdscr, data, acts,weight=None):
+class NormalStrategy(ml_strategy.abstract.MLStrategy):
+    def train(self, datasetdscr, data, acts,weight=None,update_model=True):
         self.datasetdscr=datasetdscr
         self.acts=acts
+        self.update_model=update_model
         self.weight=weight
         self.traindata=self.justifySet(self.acts,data)
         uniqueKey={'strategy':'simple','acts':acts,'weight':weight, 'dataset':datasetdscr.shortname()}
@@ -38,7 +39,7 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
 
     
     def learning(self,func):
-        result=self.pipeline(func,self.traindata,train=True)
+        result=self.pipeline(func,self.traindata,train=True,update_model=self.update_model)
         return result.quality['f1'], result
         
 
@@ -53,7 +54,7 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
                 result.functions[f]=(obj.shortname(),obj.params)
         return result
 
-    def pipeline(self,func,data,train):
+    def pipeline(self,func,data,train,update_model=False):
         import os
         os.system("taskset -p 0xff %d" % os.getpid())
         
@@ -61,12 +62,12 @@ class SimpleStrategy(ml_strategy.abstract.MLStrategy):
         logger.debug('Starting .... %s' % (func.shortrunname))
         Tdata=func.preprocessor.process(self.datasetdscr, data)
         logger.debug('Preprocessing Finished %s' % (func.preprocessor.shortname()))
-        Sdata=prepare_segment2(func,Tdata,self.datasetdscr)
+        Sdata=prepare_segment2(func,Tdata,self.datasetdscr,train)
         logger.debug('Segmentation Finished %d segment created %s' % (len(Sdata.set_window), func.segmentor.shortname()))
         Sdata.set=featureExtraction(func.featureExtractor,self.datasetdscr,Sdata,True)
         logger.debug('FeatureExtraction Finished shape %s , %s' % (str(Sdata.set.shape), func.featureExtractor.shortname()))
-        if(train):
-            func.classifier.createmodel(Sdata.set[0].shape,len(self.acts))
+        if(train): 
+            func.classifier.createmodel(Sdata.set[0].shape,len(self.acts),update_model=update_model)
             func.classifier.setWeight(self.weight)
             logger.debug('Classifier model created  %s' % (func.classifier.shortname()))
             func.classifier.train(Sdata.set, Sdata.label) 

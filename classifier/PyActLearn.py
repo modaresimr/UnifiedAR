@@ -35,7 +35,10 @@ class PAL_NN(Classifier):
     def getmodel(self, inputsize, outputsize):
         raise NotImplementedError
 
-    def _createmodel(self, inputsize, outputsize):
+    def _createmodel(self, inputsize, outputsize,update_model=False):
+        if update_model:
+            try:return self.model
+            except:pass
         self.outputsize=outputsize
         self.model=self.getmodel(inputsize,outputsize)
         return self.model

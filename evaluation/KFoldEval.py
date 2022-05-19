@@ -38,8 +38,7 @@ class KFoldEval(Evaluation):
         for j, (train_index, test_index) in enumerate(kf.split(days)):
             Train0 = Data('train_fold_'+str(j))
             Train0.s_events = sensor_events.loc[sdate.isin(days[train_index])]
-            Train0.a_events = activity_events.loc[adate.isin(
-                days[train_index])]
+            Train0.a_events = activity_events.loc[adate.isin(days[train_index])]
             Train0.s_event_list=Train0.s_events.values
             Test0 = Data('test_fold_'+str(j))
             Test0.s_events = sensor_events.loc[sdate.isin(days[test_index])]

@@ -11,13 +11,15 @@ import activity_fetcher.CookActivityFetcher
 import activity_fetcher.MaxActivityFetcher
 import classifier.MySKLearn 
 import combiner.SimpleCombiner
-import evaluation.SimpleEval
+import evaluation.SplitEval
 import evaluation.KFoldEval
 
 import feature_extraction.Simple
 import feature_extraction.KHistory
 import feature_extraction.DeepLearningFeatureExtraction
 import feature_extraction.Cook
+import feature_extraction.Context
+
 # import feature_extraction.PAL_Features
 import feature_extraction.Raw
 # from general.libimport import *
@@ -27,17 +29,41 @@ import ml_strategy.Simple
 import ml_strategy.FastFinder
 import ml_strategy.SeperateGroup
 import ml_strategy.WeightedGroup
+
 import ml_strategy.WeightedGroup2
 import preprocessing.SimplePreprocessing
 import segmentation.Probabilistic
 import segmentation.FixedEventWindow
 import segmentation.FixedSlidingWindow
 import segmentation.FixedTimeWindow
-
+import segmentation.MetaDecomposition
 methods = Data('methods')
 
-methods.segmentation = [
+methods.meta_segmentation_sub_tasks = [
    
+#    {'method': lambda: segmentation.FixedEventWindow.FixedEventWindow(), 'params': [
+#        {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 10, 'range':list(range(10,26,5))},
+#        {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 10, 'range':list(range(10,16,5))}
+#           ], 'findopt': True},
+    {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
+        {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120/4, 'range':list(range(15,120,15))},
+        {'var': 'shift', 'min': 10, 'max': 7*60 , 'type': 'float', 'init': 60/2, 'range':list(range(15,120,15))}
+    ], 'findopt': True},
+    # {'method': lambda: segmentation.Probabilistic.Probabilistic(), 'params': [], 'findopt':False},
+    # {'method': lambda:segmentation.FixedTimeWindow.FixedTimeWindow(), 'params':[
+    #                  {'var':'size','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(15, unit='s').total_seconds()},
+    #                  {'var':'shift','min':pd.Timedelta(1, unit='s').total_seconds(), 'max': pd.Timedelta(30, unit='m').total_seconds(), 'type':'float','init':pd.Timedelta(1, unit='s').total_seconds()}
+    # ],'findopt':False},
+]
+
+
+methods.segmentation = [
+   {'method': lambda: segmentation.MetaDecomposition.SWMeta(), 'params': [
+            {'meta_size':'8h'},
+            {'meta_overlap_rate':1},
+            {'meta_mode':'keras'}
+        ], 'findopt': False
+    },
    {'method': lambda: segmentation.FixedEventWindow.FixedEventWindow(), 'params': [
        {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 10, 'range':list(range(10,26,5))},
        {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 10, 'range':list(range(10,16,5))}
@@ -57,13 +83,14 @@ methods.preprocessing = [
     {'method': lambda: preprocessing.SimplePreprocessing.SimplePreprocessing()},
     ]
 methods.classifier = [
+    {'method': lambda: classifier.Keras.SimpleKeras(), 'params': [
+        {'epochs': 10}
+    ]}, 
     {'method': lambda: classifier.Keras.LSTMTest(), 'params': [
         {'epochs': 10}
     ]},
     {'method': lambda:classifier.libsvm.LibSVM()},
-    {'method': lambda: classifier.Keras.SimpleKeras(), 'params': [
-        {'epochs': 3}
-    ]},
+    
     # {'method': lambda: classifier.PyActLearn.PAL_LSTM_Legacy(), 'params': [
     #     {'var': 'epochs', 'init': 3}
     # ]},
@@ -110,13 +137,16 @@ methods.combiner = [
     # {'method':lambda: combiner.SimpleCombiner.EmptyCombiner()},
     ]
 methods.evaluation = [
+    {'method': lambda: evaluation.SplitEval.SplitEval()},
      {'method': lambda: evaluation.KFoldEval.KFoldEval(5)},
      {'method': lambda: evaluation.KFoldEval.PKFoldEval(5)},
-     {'method': lambda: evaluation.SimpleEval.SimpleEval()},
+     
 ]
 
 
 methods.feature_extraction = [
+    {'method': lambda: feature_extraction.Cook.Cook1(), 'params': [],     'findopt':False},
+    {'method': lambda: feature_extraction.Context.Diff(), 'params': [],     'findopt':False},
     {'method': lambda:feature_extraction.KHistory.KHistory(), 'params':[{'k':2},{'method':feature_extraction.Simple.Simple()}],'findopt':False},
     {'method': lambda:feature_extraction.KHistory.KHistory(), 'params':[{'k':1},{'method':feature_extraction.Cook.Cook1()}],'findopt':False},
     {'method': lambda:feature_extraction.KHistory.KHistory(), 'params':[{'k':1},{'method':feature_extraction.Simple.Simple()}],'findopt':False},
@@ -126,7 +156,7 @@ methods.feature_extraction = [
                 {'var':'layers','min':1, 'max': 3, 'type':'int','init':pd.Timedelta(20, unit='s').total_seconds()}
             ],
      'findopt':False},
-    {'method': lambda: feature_extraction.Cook.Cook1(), 'params': [],     'findopt':False},
+    
     #  {'method': lambda: feature_extraction.PAL_Features.PAL_Features(), 'params': [],  'findopt':False},
      {'method': lambda:feature_extraction.Raw.Classic(), 'params': [ {'normalized':True}]},
     {'method': lambda:feature_extraction.Raw.Sequence(), 'params': [ {'normalized':True},{'per_sensor':True}]},
@@ -143,7 +173,8 @@ methods.dataset = [
 ]
 
 methods.mlstrategy = [
-    {'method': lambda: ml_strategy.Simple.SimpleStrategy()},
+    {'method': lambda: ml_strategy.Simple.NormalStrategy()},
+
     {'method': lambda: ml_strategy.WeightedGroup2.WeightedGroup2Strategy(alpha=20,mode=1)},
     {'method': lambda: ml_strategy.WeightedGroup2.WeightedGroup2Strategy(alpha=20,mode=2)},
     {'method': lambda: ml_strategy.WeightedGroup2.WeightedGroup2Strategy(alpha=20,mode=3)},

@@ -6,7 +6,8 @@ class AbstractActivityFetcher(MyTask):
         self.a_events_tree=IntervalTree()
         for i,act in dataset.a_events.iterrows():
             self.a_events_tree[act.StartTime.value:act.EndTime.value]=act  
-            
+
+
         self.acts=list(range(dataset.a_events.Activity.max()+1))
     def getActivity(self,dataset,window):
         pass

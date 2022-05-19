@@ -6,7 +6,10 @@ logger = logging.getLogger(__file__)
 
 class LibSVM(Classifier):
 
-    def createmodel(self, inputsize, outputsize):
+    def createmodel(self, inputsize, outputsize,update_model=False):
+        if update_model:
+            try:return self.model
+            except:pass
         self.outputsize = outputsize
         pass
 

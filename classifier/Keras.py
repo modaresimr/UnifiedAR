@@ -69,8 +69,12 @@ class KerasClassifier(Classifier):
     #     f1 = 2*p*r / (p+r+K.epsilon())
     #     f1 = tf.where(tf.math.is_nan(f1), tf.zeros_like(f1), f1)
     #     return K.mean(f1)
-    def _createmodel(self, inputsize, outputsize):
+    def _createmodel(self, inputsize, outputsize,update_model=False):
+        if update_model:
+            try:return self.model
+            except:pass
         self.outputsize = outputsize
+        
         # a=tfa.metrics.F1Score(num_classes=outputsize,average='micro')
         # a.average ='macro'
         METRICS = [

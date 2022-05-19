@@ -53,14 +53,14 @@ def prepare_segment(func,dtype,datasetdscr):
     return procdata
 
 
-def prepare_segment2(func,dtype,datasetdscr):
+def prepare_segment2(func,dtype,datasetdscr,train):
     segmentor = func.segmentor
     
     
     func.activityFetcher.precompute(dtype)
 
     procdata = Data(segmentor.__str__())
-    procdata.generator  = segment2(dtype,datasetdscr, segmentor)
+    procdata.generator  = segment2(dtype,datasetdscr, segmentor,train)
     procdata.set        = []
     procdata.label      = []
     procdata.set_window = []
@@ -82,11 +82,12 @@ def prepare_segment2(func,dtype,datasetdscr):
     return procdata
 
 # Define segmentation
-def segment2(dtype,datasetdscr, segment_method):
+def segment2(dtype,datasetdscr, segment_method, train):
     buffer = Buffer(dtype.s_events, 0, 0)
     w_history = []
     segment_method.reset()
-    segment_method.precompute(datasetdscr,dtype.s_events,dtype.a_events,dtype.acts)
+    if train:
+        segment_method.precompute(datasetdscr,dtype.s_events,dtype.a_events,dtype.acts)
     while(1):
         window = segment_method.segment2(w_history, buffer)
         if window is None:

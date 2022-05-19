@@ -2,10 +2,10 @@ from general.utils import MyTask
 import numpy as np
 
 class Classifier(MyTask):
-    def createmodel(self, inputsize, outputsize):
+    def createmodel(self, inputsize, outputsize, update_model=False):
         tmpsample=np.array([np.zeros(inputsize)])
         newshape=self._reshape(tmpsample).shape[1:]
-        return self._createmodel(newshape, outputsize)
+        return self._createmodel(newshape, outputsize,update_model=update_model)
 
     def train(self, trainset, trainlabel):
         return self._train(self._reshape(trainset), trainlabel)
@@ -31,7 +31,7 @@ class Classifier(MyTask):
 
         return np.reshape(data, (data.shape[0], data.shape[1]*data.shape[2]))
     
-    def _createmodel(self, inputsize, outputsize):
+    def _createmodel(self, inputsize, outputsize, update_model=False):
         raise NotImplementedError
 
     def _train(self, trainset, trainlabel):

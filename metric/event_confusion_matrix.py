@@ -41,24 +41,25 @@ def column_index(df, query_cols):
 def merge_split_overlap_IntervalTree(p_acts,r_acts):
     tree=IntervalTree()
     from result_analyse.visualisation import plotJoinTree
-    PACT    =   column_index(p_acts,'Activity')
-    PSTIME  =   column_index(p_acts,'StartTime')
-    PETIME  =   column_index(p_acts,'EndTime')
-    
-    for row in p_acts.values:
-        if(row[PACT]==0):
-            continue
-        start   =row[PSTIME]
-        end     =row[PETIME]
-        startv  =start.value
-        endv    =end.value
-        if(startv==endv):
-            startv=startv-1
-        #tree[start:end]={'P':{'Activitiy':act.Activity,'Type':'P','Data':act}]
-        d=Data('P-act')
-        d.P={'Activity':row[PACT],'StartTime':start,'EndTime':end}
-        d.R=None
-        tree[startv:endv]=d
+    if len(p_acts)>0:
+        PACT    =   column_index(p_acts,'Activity')
+        PSTIME  =   column_index(p_acts,'StartTime')
+        PETIME  =   column_index(p_acts,'EndTime')
+        
+        for row in p_acts.values:
+            if(row[PACT]==0):
+                continue
+            start   =row[PSTIME]
+            end     =row[PETIME]
+            startv  =start.value
+            endv    =end.value
+            if(startv==endv):
+                startv=startv-1
+            #tree[start:end]={'P':{'Activitiy':act.Activity,'Type':'P','Data':act}]
+            d=Data('P-act')
+            d.P={'Activity':row[PACT],'StartTime':start,'EndTime':end}
+            d.R=None
+            tree[startv:endv]=d
 
 
 

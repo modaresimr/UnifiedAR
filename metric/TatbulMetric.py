@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import math
 
 import pandas as pd
@@ -52,7 +53,7 @@ def call(real, pred, debug, beta, alpha, gamma, delta):
                 result[terms[term]]=float(x[len(term)+3:])
        
     return result
-    
+
 def eval_my_metric(real,pred,debug=0):
     result={}
     result['Tatbul(a=0)']=call(real,pred,0,beta=1,alpha=0,gamma='one',delta='flat')

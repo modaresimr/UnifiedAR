@@ -9,7 +9,10 @@ import numpy as np
 
 class sklearnClassifier(Classifier):
 
-    def _createmodel(self, inputsize, outputsize):
+    def _createmodel(self, inputsize, outputsize,update_model=False):
+        if update_model:
+            try:return self.model
+            except:pass
         self.outputsize = outputsize
         self.inputsize = inputsize
         self.model = self.getmodel(inputsize, outputsize)

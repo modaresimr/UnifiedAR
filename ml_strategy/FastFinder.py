@@ -35,7 +35,7 @@ class FastFinder(ml_strategy.abstract.MLStrategy):
         import general.Cache as Cache
         Cache.GlobalDisable=True
         data2=self.fewDaysSplit(data,10)
-        fast_strategy=ml_strategy.Simple.SimpleStrategy()
+        fast_strategy=ml_strategy.Simple.NormalStrategy()
         fast_strategy.train(datasetdscr,data2,acts,weight)
         logger.debug(fast_strategy.get_info().functions)
         result=fast_strategy.pipeline(fast_strategy.functions,self.traindata,train=True)

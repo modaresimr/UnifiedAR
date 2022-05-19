@@ -1,4 +1,7 @@
 methods=None
+import logging
+logging.getLogger('matplotlib.font_manager').disabled = True
+
 def runPipelineUI():
     global methods
     from ipywidgets import interact, interactive, fixed, interact_manual
@@ -20,10 +23,11 @@ def runPipelineUI():
         
         if(len(args)<=1):continue
         if(par=='name'):continue
+        if par== 'meta_segmentation_sub_tasks':continue
         params[par]={v['method']().shortname()+' '+(str(v['params']) if 'params' in v and len(v['params'])>0 else ''):k for k,v in enumerate(args)}
         if not(par=='mlstrategy' or par=='evaluation' or par=='dataset'):
             params[par]['All -> Find Best']=-1
-        
+    
     w=interact_manual(res,**params)
 
 

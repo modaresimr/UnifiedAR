@@ -1,3 +1,7 @@
+import general.utils
+
+import pandas as pd
+import auto_profiler
 import os
 from os.path import exists
 import logging
@@ -28,11 +32,12 @@ def argmaxdic(dic):
 
 
 class MyTask:
-    params={}
+    params = {}
+
     def applyParams(self, params):
         self.params = params
         for p in params:
-            self.__dict__[p]=params[p]
+            self.__dict__[p] = params[p]
         return True
 
     def reset(self):
@@ -132,34 +137,33 @@ class Buffer:
             return L if L < n else None
 
 
-
 def instantiate(method):
     m = method['method']()
     m.applyParams(method['params'])
 
 
-def saveState(vars, file,name='data'):
+def saveState(vars, file, name='data'):
     import compress_pickle
 
     if not (os.path.exists(f'save_data/{file}/')):
         os.makedirs(f'save_data/{file}/')
-    pklfile=f'save_data/{file}/{name}.pkl' 
+    pklfile = f'save_data/{file}/{name}.pkl'
     # with open(file+name+'.pkl', 'wb') as f:
-        # pickle.dump(vars, f)
-    compress_pickle.dump(vars,pklfile+'.lz4')
+    # pickle.dump(vars, f)
+    compress_pickle.dump(vars, pklfile+'.lz4')
 
 
-def loadState(file,name='data',raiseException=True):
+def loadState(file, name='data', raiseException=True):
     import compress_pickle
-    pklfile=f'save_data/{file}/{name}.pkl'
+    pklfile = f'save_data/{file}/{name}.pkl'
     try:
         if (os.path.exists(pklfile)):
             # with open(pklfile, 'rb') as f:
-                res=compress_pickle.load(pklfile)
-                # f.close()
-                saveState(res,file,name)
-                os.remove(pklfile)
-                return res
+            res = compress_pickle.load(pklfile)
+            # f.close()
+            saveState(res, file, name)
+            os.remove(pklfile)
+            return res
         # if(name=='data'):
             # from metric.CMbasedMetric import CMbasedMetric
             # from metric.event_confusion_matrix import event_confusion_matrix
@@ -204,7 +208,7 @@ def loadall(file):
     onlyfiles = [f for f in listdir(file) if isfile(join(file, f))]
     for f in onlyfiles:
         x = f.split('_')
-        if('data.pkl'in f):
+        if('data.pkl' in f):
             continue
 
         if('.pkl' in f):
@@ -226,11 +230,11 @@ def loadall(file):
     return [data, func]
 
 
-def configurelogger(file, dir,logparam=''):
+def configurelogger(file, dir, logparam=''):
     from datetime import datetime
     # Default parameters
     log_filename = os.path.basename(__file__).split('.')[0] + \
-        '-%s-%s.log' % (datetime.now().strftime('%y%m%d_%H-%M-%S'),logparam)
+        '-%s-%s.log' % (datetime.now().strftime('%y%m%d_%H-%M-%S'), logparam)
     # Setup output directory
     output_dir = dir
     if output_dir is not None:
@@ -255,90 +259,202 @@ def configurelogger(file, dir,logparam=''):
     logging.getLogger().setLevel(logging.DEBUG)
 
 
-import auto_profiler
 def logProfile(p):
-    title=  'Time   [Hits * PerHit] Function name [Called from] [Function Location]\n'+\
-            '-----------------------------------------------------------------------\n'
-    logger.debug("TimeProfiling\n%s%s"%(title,auto_profiler.Tree(p.root,threshold=1)))
+    title = 'Time   [Hits * PerHit] Function name [Called from] [Function Location]\n' +\
+        '-----------------------------------------------------------------------\n'
+    logger.debug("TimeProfiling\n%s%s" % (title, auto_profiler.Tree(p.root, threshold=1)))
+
+
 if __name__ == '__main__':
     loadState('200515_10-31-57-Home1')
 
 
-
-
 def convertAsghari():
     import pandas as pd
-    pred=pd.read_csv('save_data/asghari/b1/output1.csv', header=0, names=["StartTime", "EndTime", "Activity"])
+    pred = pd.read_csv('save_data/asghari/b1/output1.csv', header=0, names=["StartTime", "EndTime", "Activity"])
     st = pd.to_datetime(pred['StartTime'], format='%Y-%m-%d %H:%M:%S')
     et = pd.to_datetime(pred['EndTime'], format='%Y-%m-%d %H:%M:%S')
     pred['StartTime'] = st
 
     pred['EndTime'] = et
-    pred['Activity'] =pred.Activity.apply(lambda x: dataset.activities_map_inverse[x])
-    evalres[0].pred_events=pred
+    pred['Activity'] = pred.Activity.apply(lambda x: dataset.activities_map_inverse[x])
+    evalres[0].pred_events = pred
     ######
-    run_info,dataset,evalres=utils.loadState('200211_12-39-09-Home1')
+    run_info, dataset, evalres = utils.loadState('200211_12-39-09-Home1')
     ######
-    evalres[0].pred_events=pred
-    stime=evalres[0].pred_events.iloc[0].StartTime
-    etime=evalres[0].pred_events.iloc[-1].EndTime
-    rstime=evalres[0].real_events.iloc[0].StartTime
-    retime=evalres[0].real_events.iloc[-1].EndTime
+    evalres[0].pred_events = pred
+    stime = evalres[0].pred_events.iloc[0].StartTime
+    etime = evalres[0].pred_events.iloc[-1].EndTime
+    rstime = evalres[0].real_events.iloc[0].StartTime
+    retime = evalres[0].real_events.iloc[-1].EndTime
 
-    stime,etime,rstime,retime
-
-    #######
-    evalres[0].real_events=evalres[0].real_events.loc[evalres[0].real_events.EndTime>=stime].loc[evalres[0].real_events.StartTime<=etime]
-    #######
-    evalres[0]=evalres[4]
-    #######
-    
-    evalres[0].Sdata=None
-    evalres[0].predicted=None
-    evalres[0].shortrunname="Asghari_b1"
-    evalres[0].predicted_classes=None
-    evalres[0].event_cm=None
-    evalres[0].quality={'accuracy': 0, 'precision': .45, 'recall': 0.61, 'f1': 0.52}
-    evalres[0].pred_events=pred
+    stime, etime, rstime, retime
 
     #######
-    utils.saveState([run_info,dataset,{0:evalres[0]}],'asghari-Home1')
+    evalres[0].real_events = evalres[0].real_events.loc[evalres[0].real_events.EndTime >= stime].loc[evalres[0].real_events.StartTime <= etime]
+    #######
+    evalres[0] = evalres[4]
+    #######
+
+    evalres[0].Sdata = None
+    evalres[0].predicted = None
+    evalres[0].shortrunname = "Asghari_b1"
+    evalres[0].predicted_classes = None
+    evalres[0].event_cm = None
+    evalres[0].quality = {'accuracy': 0, 'precision': .45, 'recall': 0.61, 'f1': 0.52}
+    evalres[0].pred_events = pred
+
+    #######
+    utils.saveState([run_info, dataset, {0: evalres[0]}], 'asghari-Home1')
 
 
-
-
-
-
-
-import general.utils 
-import pandas as pd
-import datatool.seddata
-    
-def convertSED(name,dataset,pe):
-    
-    
+def convertSED(name, dataset, pe):
+    import datatool.seddata
     ######
     from datetime import datetime
-    run_date=datetime.now().strftime('%y%m%d_%H-%M-%S')
-    run_info={'dataset':'SED2020','run_date':run_date,'dataset_path':'', 'strategy':'EIN','evalution':'-'}
+    run_date = datetime.now().strftime('%y%m%d_%H-%M-%S')
+    run_info = {'dataset': 'SED2020', 'run_date': run_date, 'dataset_path': '', 'strategy': 'EIN', 'evalution': '-'}
     ######
-    pred=datatool.seddata.SED(pe,name,dataset)
+    pred = datatool.seddata.SED(pe, name, dataset)
     pred.load()
-    
+
     ########
-    evalres={0:{'test':general.utils.Data('SED')}}
-    
-    evalres[0]['test'].real_events=dataset.activity_events
-    evalres[0]['test'].Sdata=None
-    evalres[0]['test'].predicted=None
-    evalres[0]['test'].shortrunname=name
-    evalres[0]['test'].predicted_classes=None
-    evalres[0]['test'].event_cm=None
-    evalres[0]['test'].quality={'accuracy': 0, 'precision': 0, 'recall': 0, 'f1': 0}
-    evalres[0]['test'].pred_events=pred.activity_events
+    evalres = {0: {'test': general.utils.Data('SED')}}
+
+    evalres[0]['test'].real_events = dataset.activity_events
+    evalres[0]['test'].Sdata = None
+    evalres[0]['test'].predicted = None
+    evalres[0]['test'].shortrunname = name
+    evalres[0]['test'].predicted_classes = None
+    evalres[0]['test'].event_cm = None
+    evalres[0]['test'].quality = {'accuracy': 0, 'precision': 0, 'recall': 0, 'f1': 0}
+    evalres[0]['test'].pred_events = pred.activity_events
 
     #######
-    general.utils.saveState([run_info,dataset,{0:evalres[0]}],name)
+    general.utils.saveState([run_info, dataset, {0: evalres[0]}], name)
     return pred
 
-    
+
+def convert2SED(filename):
+    import numpy as np
+    [run_info, dataset, evalres] = general.utils.loadState(filename)
+    real = []
+    pred = []
+
+    for i in evalres:
+        pred_events = fastcombine(evalres[i]['test'].pred_events)
+        real_events = evalres[i]['test'].real_events
+        pred_events['StartTime'] = (pred_events['StartTime'].astype(np.int64)/1000000000).astype(np.int64)
+        pred_events['EndTime'] = (pred_events['EndTime'].astype(np.int64)/1000000000).astype(np.int64)
+        real_events['StartTime'] = (real_events['StartTime'].astype(np.int64)/1000000000).astype(np.int64)
+        real_events['EndTime'] = (real_events['EndTime'].astype(np.int64)/1000000000).astype(np.int64)
+
+        for k, p in pred_events.iterrows():
+            pred.append({"filename": i, "onset": p['StartTime'], "offset": p['EndTime'], "event_label": dataset.activities[p['Activity']]})
+        for k, r in real_events.iterrows():
+            real.append({"filename": i, "onset": r['StartTime'], "offset": r['EndTime'], "event_label": dataset.activities[r['Activity']]})
+    df_real = pd.DataFrame(data=real, columns=["filename", "onset", "offset", "event_label"])
+    df_pred = pd.DataFrame(data=pred, columns=["filename", "onset", "offset", "event_label"])
+    df_real = df_real.sort_values(by=['onset', 'offset']).drop_duplicates(subset=["filename", "onset", "offset", "event_label"], keep='last')
+    df_pred = df_pred.sort_values(by=['onset', 'offset']).drop_duplicates(subset=["filename", "onset", "offset", "event_label"], keep='last')
+
+    #######
+    folder = f"{run_info['dataset']}-{run_info['strategy']}-{run_info['evalution']}"
+    dir = f'/workspace/AR-MME-eval/saved/{folder}'
+    if not (os.path.exists(dir)):
+        os.makedirs(dir)
+    gte_file = f'{dir}/real.tsv'
+    if(os.path.exists(gte_file)):
+
+        old_gte = pd.read_csv(gte_file, sep='\t', comment='#')
+        # from IPython.display import display
+        # display(old_gte['event_label'])
+        # display(old_gte['event_label'] == df_real['event_label'])
+        if(sum(old_gte['event_label'] == df_real['event_label']) != len(df_real['event_label'])):
+            print('error---- GTE is different-cancel converting to sed format')
+            return
+
+    df_real.to_csv(path_or_buf=f'{dir}/real.tsv', sep='\t', index=False, header=True)
+    try:
+        pes_file = f'{dir}/{evalres[0]["test"].functions["segmentor"]}-{run_info["run_date"]}.tsv'
+    except:
+        pes_file = f'{dir}/HHMM-{run_info["run_date"]}.tsv'
+
+    with open(pes_file, 'w') as f:
+        f.write(f'# {run_info!r}\n')
+        short = {e: evalres[e]['test'].shortrunname for e in evalres}
+        # funcs = {e: {
+        #     f: evalres[e]['test'].functions[f] for f in evalres[e]['test'].functions if f not in ['classifier_metric', 'event_metric']
+        #     } for e in evalres}
+        # print(funcs)
+        # f.write(f'# {short}\n')
+
+        try:
+            for func in evalres[0]['test'].functions:
+                if func in ['classifier_metric', 'event_metric']:
+                    continue
+                f.write(f"# {func}: {evalres[0]['test'].functions[func]}\n")
+        except:
+            pass
+
+        # f.write(f'# {funcs}\n')
+        df_pred.to_csv(f, sep='\t', index=False, header=True)
+
+
+# convert2SED('210909_12-53-32-Home1')
+
+def fastcombine(predicted):
+    from intervaltree.intervaltree import IntervalTree
+    events = []
+    ptree = {}
+    epsilon = pd.to_timedelta('1s')
+
+    for i, p in predicted.iterrows():
+        start = p['StartTime']
+        end = p['EndTime']
+        #pclass = np.argmax(predicted[i])
+        pclass = p['Activity']
+
+        if not(pclass in ptree):
+            ptree[pclass] = IntervalTree()
+        ptree[pclass][start:end+epsilon] = {
+            'Activity': pclass, 'StartTime': start, 'EndTime': end
+        }
+        # if(i>0 and pclass>0 and predicted[i-1]==predicted[i] and False):
+        #     #fix gap
+        #     start   = times[i-1][1]
+        #     end     = times[i][0]
+        #     if(end>start):
+        #     #pclass = np.argmax(predicted[i])
+        #         ptree[pclass][start:end] = {
+        #             'Activity': pclass, 'StartTime': start, 'EndTime': end
+        #         }
+
+    tree = IntervalTree()
+
+    def datamerger(x, y):
+        start = min(x['StartTime'], y['StartTime'])
+        end = max(x['EndTime'], y['EndTime'])
+        return {'Activity': x['Activity'], 'StartTime': start, 'EndTime': end}
+
+    for a in ptree:
+        ptree[a].merge_overlaps(data_reducer=datamerger)
+        tree |= ptree[a]
+
+    tree.split_overlaps()
+
+    def data_reducer(x, y):
+        if(x['EndTime'] > y['EndTime']):
+            return y
+        return x
+
+    tree.merge_equals(data_reducer=data_reducer)
+    for inv in tree:
+        if(inv.end-inv.begin > epsilon):
+            events.append({'Activity': inv.data['Activity'], 'StartTime': inv.begin, 'EndTime': inv.end})
+
+    events = pd.DataFrame(events)
+    events = events.sort_values(['StartTime'])
+    events = events.reset_index()
+    events = events.drop(['index'], axis=1)
+    return events

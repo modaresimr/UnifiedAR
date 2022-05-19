@@ -106,15 +106,15 @@ def plotWardMetric(dataset,real_events,pred_events,onlyAct=None):
 
         # Visualisations:
         plot_events_with_segment_scores(segments_with_scores, ground_truth_test, detection_test)
-        plot_segment_counts(segment_counts)
+        # plot_segment_counts(segment_counts)
         plot_twoset_metrics(twoset_results,startangle=45)
 
-
+ 
         # Run event-based evaluation:
         gt_event_scores, det_event_scores, detailed_scores, standard_scores = eval_events(ground_truth_test, detection_test)
 
         # Print results:
-        print_standard_event_metrics(standard_scores)
+        # print_standard_event_metrics(standard_scores)
         print_detailed_event_metrics(detailed_scores)
 
         # Access results in other formats:
