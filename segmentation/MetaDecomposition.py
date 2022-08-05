@@ -35,6 +35,7 @@ class SWMeta(Segmentation):
         from constants import methods
         tmp_segments=methods.segmentation
         methods.segmentation=methods.meta_segmentation_sub_tasks
+        self.segmentor_dic={p['method']().shortname():p for p in methods.meta_segmentation_sub_tasks}
         if 1:
             import ml_strategy.Simple
             import logging
@@ -47,6 +48,7 @@ class SWMeta(Segmentation):
                     continue
 
                 result=fast_strategy.train(datasetdscr,data2,acts,update_model=True)
+                if result is None:continue
                 logger.debug(fast_strategy.get_info().functions)
                 # result=fast_strategy.pipeline(fast_strategy.functions,self.traindata,train=True)
                 aggr=data2.s_events.groupby('SID').count()
@@ -60,10 +62,11 @@ class SWMeta(Segmentation):
             logging.getLogger().setLevel(logging.DEBUG)
             d={'meta_features':meta_features, 'meta_targets':meta_targets }
             import general.utils
-            general.utils.saveState(d,'temp')
+            from constants import methods
+            general.utils.saveState(d,f"meta_dataset {methods.run_names['out']} {methods.run_names['fold']}")
         else:
             import general.utils
-            d=general.utils.loadState('temp')
+            d=general.utils.loadState("meta_dataset 220602_23-52-11-A4H-Namespace(classifier=0, comment='0', dataset=3, evaluation=0, feature_extraction=0, mlstrategy=0, output='logs', segmentation=0) 0")
 
         feat_df=pd.DataFrame(d['meta_features'])
         target_df=pd.DataFrame(d['meta_targets'])
@@ -74,7 +77,7 @@ class SWMeta(Segmentation):
         self.targetTransformer.fit(ntarget)
         self.featTransformer=self.create_feat_transformer(feat_df)
         self.featTransformer.fit(feat_df)
-        
+        print(f"metainfo=============== \nfeat={feat_df}\n target={target_df}")
         X=self.featTransformer.transform(feat_df)
         y=self.targetTransformer.transform(ntarget)
         if self.meta_mode=='keras':
@@ -195,12 +198,23 @@ class SWMeta(Segmentation):
         while 1:
             prd=self.meta_predict.iloc[self.last_meta_index]
             if self.last_segmentor is None:
-            # if prd['method']==''
-                from segmentation.FixedSlidingWindow import FixedSlidingWindow 
-                self.last_segmentor=FixedSlidingWindow()
+            
+                # from segmentation.FixedSlidingWindow import FixedSlidingWindow 
+                seg_info=self.segmentor_dic[prd['method']]
+                self.last_segmentor=seg_info['method']()
+
                 prd2=prd.drop(['start','end']).to_dict()
                 print(prd2)
-                self.last_segmentor.applyParams(prd2)
+                if not self.last_segmentor.applyParams(prd2):
+                    # self.last_segmentor.applyParams(seg_info[]
+                    if prd['method']=='FixedSlidingWindow':
+                        prd2['size']=30
+                        prd2['shift']=15
+                    else:
+                        prd2['size']=10
+                        prd2['shift']=10
+                    print(f'predicted segment is not valid.. choose default{prd2}')
+                    self.last_segmentor.applyParams(prd2)
             if prd['start']<=lastStart and prd['end']>lastStart:
                 break
                 

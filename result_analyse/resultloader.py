@@ -53,7 +53,7 @@ def load_run_table(file):
         res=utils.loadState(file)
         if(len(res)!=3):
             #raise Error
-            logger.warn('File %s can not import'%file)
+            logger.warn('File %s can not import!'%file)
             return
         [run_info,datasetdscr,evalres]=res
         runtable=getRunTable(run_info,datasetdscr,evalres)
@@ -72,8 +72,8 @@ def load_run_info(file):
         try:
             res=utils.loadState(file)
             if(len(res)!=3):
-                #raise Error
-                logger.warn('File %s can not import'%file)
+                # raise Error
+                logger.warn('File %s can not import!'%file)
                 return
             [run_info,datasetdscr,evalres]=res
             runinfo=getRunInfo(run_info,datasetdscr,evalres)
@@ -81,6 +81,7 @@ def load_run_info(file):
             return runinfo
         except:
             logger.warn('File %s can not import'%file)
+            raise
             return
     return runinfo[0]
 
@@ -92,6 +93,8 @@ def get_all_runs_table():
 	
     for item in list:
         # if not ('A4H' in item):continue
+        if not os.path.exists(f'save_data/{item}/data.pkl.lz4'):
+            continue
         try:
             runtable=load_run_table(item)
             if(runtable is None):continue
@@ -133,7 +136,8 @@ def get_runs_summary(dataset=''):
     def loader(file):
         if dataset not in file:
                return
-        
+        if not os.path.exists(f'save_data/{file}/data.pkl.lz4'):
+            return
         res=load_run_info(file)
         if res is None:return
         
@@ -150,6 +154,8 @@ def get_runs_summary(dataset=''):
         if(item is None):continue
         result.append(item)    
     # result.sort(key=lambda x: (x[0].split('_')[2],x[0].split('=')[1]))    
+    # result.sort(key=lambda x: (x[0].split('_')[0],x[0].split('=')[1]),reverse=True)    
+    result.sort(key=lambda x: (x[0]),reverse=True)    
     return result
 
 
@@ -204,6 +210,8 @@ def get_runs_summary2(dataset=''):
     for item in list:
         if dataset not in item:
                	continue
+        if not os.path.exist(f'save_data/{item}/data.pkl.lz4'):
+            continue
         try:
             res=utils.loadState(item,'info')
             # if(len(res)!=3):

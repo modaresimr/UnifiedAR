@@ -40,6 +40,8 @@ class NormalStrategy(ml_strategy.abstract.MLStrategy):
     
     def learning(self,func):
         result=self.pipeline(func,self.traindata,train=True,update_model=self.update_model)
+        if result is None:
+            return 100000, None
         return result.quality['f1'], result
         
 
@@ -66,6 +68,8 @@ class NormalStrategy(ml_strategy.abstract.MLStrategy):
         logger.debug('Segmentation Finished %d segment created %s' % (len(Sdata.set_window), func.segmentor.shortname()))
         Sdata.set=featureExtraction(func.featureExtractor,self.datasetdscr,Sdata,True)
         logger.debug('FeatureExtraction Finished shape %s , %s' % (str(Sdata.set.shape), func.featureExtractor.shortname()))
+        if len(Sdata.set)==0:
+            return None
         if(train): 
             func.classifier.createmodel(Sdata.set[0].shape,len(self.acts),update_model=update_model)
             func.classifier.setWeight(self.weight)

@@ -23,7 +23,8 @@ class KFoldEval(Evaluation):
             dataset.sensor_events, dataset.activity_events, self.fold)
         models = {}
         for f, d in enumerate(ttmaker):
-            
+            from constants import methods
+            methods.run_names['fold']=f
             models[f] = self.process(dataset,strategy,f,d)
 
         return models

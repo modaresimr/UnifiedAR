@@ -86,6 +86,7 @@ class EmptyCombiner(Combiner):
             
             start   = times[i]['begin']
             end     = times[i]['end']
+        
             #pclass = np.argmax(predicted[i])
             pclass  = predicted[i]
             if(pclass==0):
@@ -129,12 +130,15 @@ class EmptyCombiner2(Combiner):
                 continue
 
             if len(events)>0:
-                # events[-1]['EndTime']      =   min(events[-1]['EndTime'],start)
+                events[-1]['EndTime']      =   min(events[-1]['EndTime'],start)
                 start=max(events[-1]['EndTime'],start)
                 if start >= end:
                     continue
             newe={'Activity': pclass, 'StartTime': start, 'EndTime': end}
-            if(len(events)>0 and events[-1]['Activity']==newe['Activity'] and events[-1]['EndTime']<newe['StartTime']):
+            if(len(events)>0 
+                and events[-1]['Activity']==newe['Activity'] 
+                and events[-1]['EndTime']<newe['StartTime']
+                and events[-1]['EndTime'].day==newe['StartTime'].day):
                 events.append({'Activity': pclass, 'StartTime': events[-1]['EndTime'], 'EndTime': newe['StartTime']})
             events.append(newe)
             

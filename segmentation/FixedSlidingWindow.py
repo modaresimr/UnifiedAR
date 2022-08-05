@@ -4,10 +4,14 @@ class FixedSlidingWindow(Segmentation):
 
     def applyParams(self,params):
         res=super().applyParams(params);
+        if(params['size'] <= 1) or params['shift']<=1:
+            return False
+        
         self.shift=pd.Timedelta(params['shift'],unit='s')
         self.size=pd.Timedelta(params['size'],unit='s')
         if(self.shift>self.size):
             return False;
+          
         return res
 
     def segment(self,w_history,buffer):
@@ -59,7 +63,7 @@ class FixedSlidingWindow(Segmentation):
         etime=stime+size
         eindex=buffer.searchTime(stime+size,+1)
         #etime=buffer.times[eindex]
-
+        if eindex==None:eindex=sindex
         idx=range(sindex,eindex + 1)
 #         window=buffer.data.iloc[sindex:eindex+1];
 #         buffer.removeTop(sindex)

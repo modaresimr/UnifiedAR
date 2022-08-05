@@ -41,10 +41,10 @@ methods = Data('methods')
 
 methods.meta_segmentation_sub_tasks = [
    
-#    {'method': lambda: segmentation.FixedEventWindow.FixedEventWindow(), 'params': [
-#        {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 10, 'range':list(range(10,26,5))},
-#        {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 10, 'range':list(range(10,16,5))}
-#           ], 'findopt': True},
+   {'method': lambda: segmentation.FixedEventWindow.FixedEventWindow(), 'params': [
+       {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 10, 'range':list(range(10,26,5))},
+       {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 10, 'range':list(range(10,16,5))}
+          ], 'findopt': True},
     {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
         {'var': 'size' , 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120/4, 'range':list(range(15,120,15))},
         {'var': 'shift', 'min': 10, 'max': 7*60 , 'type': 'float', 'init': 60/2, 'range':list(range(15,120,15))}
@@ -59,7 +59,7 @@ methods.meta_segmentation_sub_tasks = [
 
 methods.segmentation = [
    {'method': lambda: segmentation.MetaDecomposition.SWMeta(), 'params': [
-            {'meta_size':'8h'},
+            {'meta_size':'24h'},
             {'meta_overlap_rate':1},
             {'meta_mode':'keras'}
         ], 'findopt': False
@@ -137,20 +137,20 @@ methods.combiner = [
     # {'method':lambda: combiner.SimpleCombiner.EmptyCombiner()},
     ]
 methods.evaluation = [
-    {'method': lambda: evaluation.SplitEval.SplitEval()},
-     {'method': lambda: evaluation.KFoldEval.KFoldEval(5)},
-     {'method': lambda: evaluation.KFoldEval.PKFoldEval(5)},
+    {'method': lambda: evaluation.KFoldEval.KFoldEval(5)},
+#   {'method': lambda: evaluation.SplitEval.SplitEval()},
+    #  {'method': lambda: evaluation.KFoldEval.PKFoldEval(5)},
      
 ]
 
 
 methods.feature_extraction = [
+    {'method': lambda:feature_extraction.Simple.Simple(), 'params':[], 'findopt':False},
     {'method': lambda: feature_extraction.Cook.Cook1(), 'params': [],     'findopt':False},
     {'method': lambda: feature_extraction.Context.Diff(), 'params': [],     'findopt':False},
     {'method': lambda:feature_extraction.KHistory.KHistory(), 'params':[{'k':2},{'method':feature_extraction.Simple.Simple()}],'findopt':False},
     {'method': lambda:feature_extraction.KHistory.KHistory(), 'params':[{'k':1},{'method':feature_extraction.Cook.Cook1()}],'findopt':False},
     {'method': lambda:feature_extraction.KHistory.KHistory(), 'params':[{'k':1},{'method':feature_extraction.Simple.Simple()}],'findopt':False},
-    {'method': lambda:feature_extraction.Simple.Simple(), 'params':[], 'findopt':False},
      {'method': lambda:feature_extraction.DeepLearningFeatureExtraction.DeepLearningFeatureExtraction(), 'params':[
                 {'var':'size','min':10, 'max': 20, 'type':'int','init':50},
                 {'var':'layers','min':1, 'max': 3, 'type':'int','init':pd.Timedelta(20, unit='s').total_seconds()}

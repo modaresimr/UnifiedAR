@@ -10,11 +10,13 @@ class SplitEval(Evaluation):
 
     def evaluate(self, dataset, strategy):
         self.dataset=dataset
+        from constants import methods
+        methods.run_names['fold']=0
+        
         Train, Test = self.makeTrainTest(dataset.sensor_events, dataset.activity_events)
         acts = [a for a in dataset.activities_map]
         trainres = strategy.train(dataset, Train, acts)
         testres = strategy.test(Test)
-
         return {0: {'test': testres, 'train': trainres}}
 
     def makeTrainTest(self, sensor_events, activity_events):

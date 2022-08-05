@@ -33,7 +33,9 @@ def run(args):
     if(args.evaluation < 0):
         logger.error('Invalid evaluation argument')
         return
+    
     datasetdscr = methods.dataset[args.dataset]['method']().load()
+    logger.info(f'dataset={datasetdscr}')
     strategy = methods.mlstrategy[args.mlstrategy]['method']()
     evaluation = methods.evaluation[args.evaluation]['method']()
 
@@ -44,13 +46,15 @@ def run(args):
     if(args.classifier >= 0):
         methods.classifier = [methods.classifier[args.classifier]]
 
+    run_date = datetime.now().strftime('%y%m%d_%H-%M-%S')
+    filename = f'{run_date}-{datasetdscr.shortname()}-s={args.segmentation}'
+    methods.run_names={'out':filename}
+ 
     evalres = evaluation.evaluate(datasetdscr, strategy)
 
-    run_date = datetime.now().strftime('%y%m%d_%H-%M-%S')
     run_info = {'dataset': datasetdscr.shortname(), 'run_date': run_date, 'dataset_path': datasetdscr.data_path, 'strategy': strategy.shortname(), 'evalution': evaluation.shortname()}
     compressdata = {'run_info': run_info, 'folds': {k: {'quality': evalres[k]['test'].quality, 'runname': evalres[k]['test'].shortrunname} for k in evalres}}
 
-    filename = '%s-%s/' % (run_date, datasetdscr.shortname())
     utils.saveState([compressdata], filename, 'info')
     utils.saveState([run_info, datasetdscr, evalres], filename)
     utils.convert2SED(filename)

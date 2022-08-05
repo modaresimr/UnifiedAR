@@ -381,7 +381,7 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None, ax=None):
     if(onlyAct):
         fig, ax = plt.subplots(figsize=(10, 0.5))
     else:
-        fig, ax = plt.subplots(figsize=(10, len(acts)/5))
+        fig, ax = plt.subplots(figsize=(50, len(acts)))
   ax.set_title(label)
   if(len(real_acts)==0):
     print('no r activity of this type',label)
@@ -401,7 +401,7 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None, ax=None):
 #   ax.xaxis.set_major_locator(loc)
 #   ax.xaxis.set_major_formatter(mdates.AutoDateFormatter(loc))
   ax.set_xticks([])
-  ax.set_xlim(min(pstart+rstart),max(pend+rend))
+  ax.set_xlim(min(pstart + rstart),max(pend + rend))
   ax.set_yticks([i for i in dataset.activities_map])
   ax.yaxis.grid(True)
 
@@ -411,7 +411,7 @@ def plotJoinAct(dataset, real_acts, pred_acts,label=None,onlyAct=None, ax=None):
   else:
     ax.set_ylim(0+size,len(dataset.activities)-size)
   plt.margins(0.1)
-#   plt.show()
+  plt.show()
 
 def plotJoinAct2(real_acts, pred_acts, acts, labels, ax=None,duration=None):
   from pandas.plotting import register_matplotlib_converters
@@ -602,6 +602,17 @@ def plotJoinTree(real_acts, pred_acts):
 #   plt.show()
 
 
+def fold_avg(dataset,evalres):
+    sumcm=evalres[0]['test'].quality
+    for i in range(1,len(evalres)):
+        cm=evalres[i]['test'].quality
+        for x in cm:
+            sumcm[x]+=cm[x]
+    #plot_confusion_matrix(sumcm,evalres[0].Sdata.acts,figsize=[25,12])
+    for x in sumcm:
+        sumcm[x]/=len(evalres)
+    return sumcm
+
 
 
 def plot_CM(dataset,evalres):
@@ -638,8 +649,7 @@ def tmp2(cm,acts):
 		norm_conf.append(tmp_arr)
 
 	fig = plt.figure(figsize=(8,8))
-	plt.clf()
-	ax = fig.add_subplot(111)
+	ax = plt.axes()
 	ax.set_aspect(1)
 	res = ax.imshow(np.array(norm_conf), cmap=plt.cm.jet, 
 					interpolation='nearest')
@@ -659,7 +669,7 @@ def tmp2(cm,acts):
 	# alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 	plt.xticks(range(width), acts,rotation=-90)
 	plt.yticks(range(height), acts)
-	# plt.show()
+	plt.show()
 
 def plot_per_act(dataset,myevalres):
     # myevalres=sorted(myevalres)
@@ -667,6 +677,7 @@ def plot_per_act(dataset,myevalres):
     summycm={}
     sumcm={}
     
+    print(myevalres)
     for p in myevalres:
         evalres=myevalres[p]
     # for p in ['test','train']:

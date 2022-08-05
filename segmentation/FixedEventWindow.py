@@ -8,14 +8,15 @@ class FixedEventWindow(Segmentation):
         size = params['size']
         if(shift > size):
             return False
-        if(shift <= 1):
+        if(shift <= 1) or size<=1:
             return False
+        
         return super().applyParams(params)
 
     def segment(self, w_history, buffer):
         params = self.params
-        shift = params['shift']
-        size = params['size']
+        shift = int(params['shift'])
+        size = int(params['size'])
 
         if len(w_history) == 0:
             lastStart = pd.to_datetime(0)
@@ -41,14 +42,14 @@ class FixedEventWindow(Segmentation):
         return {'window': window, 'start': stime, 'end': etime}
 
     def segment2(self, w_history, buffer):
-        shift = self.shift
-        size = self.size
+        shift = int(self.shift)
+        size = int(self.size)
 
         if len(w_history) == 0:
             sindex=0
         else:
             # lastStart = buffer.times[w_history[len(w_history)-1][0]]
-            sindex = w_history[len(w_history)-1][0]
+            sindex = w_history[-1][0]
 
         sindex = sindex+shift
         if(len(buffer.times) <= sindex):
@@ -57,9 +58,16 @@ class FixedEventWindow(Segmentation):
         eindex = min(len(buffer.times)-1, sindex+size)
         if(eindex-sindex < size):
             return None
+        try:
         # etime = buffer.times[eindex]
         # stime = buffer.times[sindex]
-        idx = range(sindex, eindex + 1)
+            idx = range(sindex, eindex + 1)
         # buffer.removeTop(sindex)
+
+        except:
+            print('eindex',eindex)
+            print('sindex',sindex)
+            print('size',size)
+            print('len',len(buffer.times))
 
         return idx
