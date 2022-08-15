@@ -1,15 +1,18 @@
+import logging
+import numpy as np
+from tqdm.keras import TqdmCallback
+from sklearn.utils.class_weight import compute_class_weight
 from classifier.classifier_abstract import Classifier
 import tensorflow as tf
 # import tensorflow_addons as tfa
-from sklearn.utils.class_weight import compute_class_weight
 
+# tf.config.set_visible_devices([], 'GPU')
 
-import numpy as np
-import logging
 logger = logging.getLogger(__file__)
 
+
 class KerasClassifier(Classifier):
-    
+
     @staticmethod
     def tf_f1_score(y_true, y_pred):
         """Computes 3 different f1 scores, micro macro
@@ -51,7 +54,7 @@ class KerasClassifier(Classifier):
         f1s[2] = tf.reduce_sum(f1 * weights)
 
         micro, macro, weighted = f1s
-        return micro
+        return macro
 
     # @staticmethod
     # def f1(y_true, y_pred):
@@ -69,12 +72,13 @@ class KerasClassifier(Classifier):
     #     f1 = 2*p*r / (p+r+K.epsilon())
     #     f1 = tf.where(tf.math.is_nan(f1), tf.zeros_like(f1), f1)
     #     return K.mean(f1)
-    def _createmodel(self, inputsize, outputsize,update_model=False):
-        if update_model:
-            try:return self.model
-            except:pass
+    def _createmodel(self, inputsize, outputsize, update_model=False):
+        if update_model and hasattr(self, 'model'):
+            self.tqdmcallback = TqdmCallback(verbose=1)
+            return self.model
+
         self.outputsize = outputsize
-        
+
         # a=tfa.metrics.F1Score(num_classes=outputsize,average='micro')
         # a.average ='macro'
         METRICS = [
@@ -91,98 +95,214 @@ class KerasClassifier(Classifier):
             # tf.keras.metrics.Recall(name='recall'),
             # tf.keras.metrics.AUC(name='auc'),
         ]
-        
+
         # loss=tfa.losses.sparsemax_loss
         # loss=tfa.losses.sigmoid_focal_crossentropy
-        loss='sparse_categorical_crossentropy'
+        loss = 'sparse_categorical_crossentropy'
+
         model = self.getmodel(inputsize, outputsize)
         model.summary()
-        model.compile(optimizer='adam',loss=loss, metrics=METRICS)
+        # model.compile(optimizer='adam', loss=loss, metrics=METRICS)
+        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics='accuracy')
         self.model = model
+        self.tqdmcallback = TqdmCallback(verbose=1)
         return model
 
     def getmodel(self, inputsize, outputsize):
         raise NotImplementedError
-    
+
     def _train(self, trainset, trainlabel):
-        classes=np.unique(trainlabel);
+        classes = np.unique(trainlabel)
         try:
-            cw = compute_class_weight("balanced", classes, trainlabel)
+            cw = compute_class_weight("balanced", classes=classes, y=trainlabel)
         except:
             cw = np.ones(self.outputsize)
-        if not(self.weight is None):
-            cw*=self.weight
-        cw={c:cw[i] for i,c in enumerate(classes)}
-        for i in range(self.outputsize): 
-            if not (i in cw): cw[i]=0
-        return self.model.fit(trainset, trainlabel, epochs=self.epochs, 
-        # validation_split=0.2,
-        class_weight=cw
-        )
-        self.trained=True
+        if not (self.weight is None):
+            cw *= self.weight
+        cw = {c: cw[i] for i, c in enumerate(classes)}
+
+        for i in range(self.outputsize):
+            if not (i in cw):
+                cw[i] = 0
+
+        trainlabel = tf.keras.utils.to_categorical(trainlabel, num_classes=self.outputsize)
+        # from tf.keras.callbacks import EarlyStopping
+
+        es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
+        # mc = ModelCheckpoint(f'save_data/tmp/model', monitor='val_accuracy', mode='max', verbose=1, save_best_only=True)
+        return self.model.fit(
+            trainset,
+            trainlabel,
+            batch_size=1024,
+            epochs=self.epochs,
+            validation_split=0.2,
+            class_weight=cw,
+            callbacks=[self.tqdmcallback, es],
+            verbose=0)
+        self.trained = True
 
     def _evaluate(self, testset, testlabel):
         # if(self.trained):
-            self.model.evaluate(testset, testlabel)
-        # else:
-        #     print("model not trained")
+        testlabel = tf.keras.utils.to_categorical(testlabel)
+        self.model.evaluate(testset, testlabel, callbacks=[self.tqdmcallback], verbose=0)
+
+    # else:
+    #     print("model not trained")
 
     def _predict(self, testset):
         # if(self.trained):
-            return self.model.predict(testset)
-        # else:
-        #     return self.model.predict(testset)*0
-        
+        return self.model.predict(testset, callbacks=[self.tqdmcallback], verbose=0)
+
+    # else:
+    #     return self.model.predict(testset)*0
 
     def _predict_classes(self, testset):
         # if(self.trained):
-            return np.argmax(self._predict(testset), axis=-1)
-            # return self.model.predict_classes(testset)
-        # else:
-        #     return self.model.predict_classes(testset)*0
+        return np.argmax(self._predict(testset), axis=-1)
+        # return self.model.predict_classes(testset)
+
+    # else:
+    #     return self.model.predict_classes(testset)*0
 
     def save(self, file):
         logger.debug('saving model to %s', file)
-        self.model.save(file+'.h5')
+        self.model.save(file + '.h5')
 
     def load(self, file):
         logger.debug('loading model from %s', file)
-        if not('.h5' in file):
-            file = file+'.h5'
+        if not ('.h5' in file):
+            file = file + '.h5'
         self.model = tf.keras.models.load_model(file)
 
 
 class SequenceNN(KerasClassifier):
+
     def _reshape(self, data):
-        if(len(data.shape) == 2):
-            return np.reshape(
-                data, (data.shape[0], 1, data.shape[1]))
+        if (len(data.shape) == 2):
+            return np.reshape(data, (data.shape[0], data.shape[1], 1))
         return data
 
-    
 
 class LSTMTest(SequenceNN):
 
     def getmodel(self, inputsize, outputsize):
 
-        return tf.keras.models.Sequential([
-			# tf.keras.layers.Dense(128, input_shape=inputsize),
-            # tf.keras.layers.Embedding(input_dim=inputsize,output_dim=100),
-            tf.keras.layers.LSTM(128, activation=tf.nn .relu,input_shape=inputsize),
-            #tf.keras.layers.Dense(512, activation=tf.nn.relu),
-            tf.keras.layers.Dropout(0.2),
-            tf.keras.layers.Dense(outputsize, activation=tf.nn.softmax)
-        ], name=self.shortname())
+        return tf.keras.models.Sequential(
+            [
+                # tf.keras.layers.Dense(128, input_shape=inputsize),
+                # tf.keras.layers.Embedding(input_dim=inputsize,output_dim=100),
+                tf.keras.layers.LSTM(128, activation=tf.nn.relu, input_shape=inputsize),
+                #tf.keras.layers.Dense(512, activation=tf.nn.relu),
+                tf.keras.layers.Dropout(0.2),
+                tf.keras.layers.Dense(outputsize, activation=tf.nn.softmax)
+            ],
+            name=self.shortname())
+
+
+class LSTMAE(SequenceNN):
+
+    def getmodel(self, inputsize, outputsize):
+
+        return tf.keras.models.Sequential(
+            [
+                tf.keras.layers.LSTM(inputsize, activation=tf.nn.relu, input_shape=inputsize),
+                tf.keras.layers.LSTM(inputsize // 2, activation=tf.nn.relu),
+                tf.keras.layers.LSTM(inputsize, activation=tf.nn.relu),
+                #tf.keras.layers.Dense(512, activation=tf.nn.relu),
+                tf.keras.layers.Dropout(0.2),
+                tf.keras.layers.Dense(outputsize, activation=tf.nn.softmax)
+            ],
+            name=self.shortname())
+
+
+class FCN(SequenceNN):
+
+    def getmodel(self, inputsize, outputsize):
+
+        import tensorflow as tf
+        from tensorflow.keras.layers import Input, Masking, Conv1D, BatchNormalization, Activation, GlobalAveragePooling1D, Dense
+        from tensorflow.keras.models import Model
+        # from tensorflow.keras.activations import *
+
+        nb_classes = outputsize
+        print(f'inputsize {inputsize}')
+        s1 = inputsize[0]
+        s2 = inputsize[1]
+
+        input_layer = Input(shape=((s1, s2)))
+
+        mask = Masking(mask_value=0.0)(input_layer)
+
+        conv1 = Conv1D(filters=128, kernel_size=8, padding='same')(mask)
+        conv1 = BatchNormalization()(conv1)
+        conv1 = Activation(activation='relu')(conv1)
+
+        conv2 = Conv1D(filters=256, kernel_size=5, padding='same')(conv1)
+        conv2 = BatchNormalization()(conv2)
+        conv2 = Activation('relu')(conv2)
+
+        conv3 = Conv1D(128, kernel_size=3, padding='same')(conv2)
+        conv3 = BatchNormalization()(conv3)
+        conv3 = Activation('relu')(conv3)
+
+        gap_layer = GlobalAveragePooling1D()(conv3)
+
+        output_layer = Dense(nb_classes, activation='softmax')(gap_layer)
+
+        model = Model(inputs=input_layer, outputs=output_layer, name="FCN")
+
+        return model
+
+
+class FCNEmbedded(SequenceNN):
+
+    def getmodel(self, inputsize, outputsize):
+
+        import tensorflow as tf
+        from tensorflow.keras.layers import Embedding, Input, Conv1D, BatchNormalization, Activation, GlobalAveragePooling1D, Dense, Dropout
+        from tensorflow.keras.models import Model
+        # from tensorflow.keras.activations import *
+        nb_classes = outputsize
+
+        n_timesteps = inputsize.shape[1]
+
+        input_layer = Input(shape=((n_timesteps,)))
+
+        embedding = Embedding(input_dim=vocab_size+1, output_dim=64, input_length=n_timesteps, mask_zero=True)(input_layer)
+
+        conv1 = Conv1D(filters=128, kernel_size=8, padding='same')(embedding)
+        conv1 = BatchNormalization()(conv1)
+        conv1 = Activation(activation='relu')(conv1)
+
+        conv2 = Conv1D(filters=256, kernel_size=5, padding='same')(conv1)
+        conv2 = BatchNormalization()(conv2)
+        conv2 = Activation('relu')(conv2)
+
+        conv3 = Conv1D(128, kernel_size=3, padding='same')(conv2)
+        conv3 = BatchNormalization()(conv3)
+        conv3 = Activation('relu')(conv3)
+
+        gap_layer = GlobalAveragePooling1D()(conv3)
+
+        x = Dropout(0.5)(gap_layer)
+
+        output_layer = Dense(nb_classes, activation='softmax')(x)
+
+        model = Model(inputs=input_layer, outputs=output_layer, name="FCN_Embedded")
+
+        return model
 
 
 class SimpleKeras(KerasClassifier):
+
     def getmodel(self, inputsize, outputsize):
         return tf.keras.models.Sequential([
             tf.keras.layers.Dense(128, input_shape=inputsize),
             tf.keras.layers.Dense(512, activation=tf.nn.relu),
             tf.keras.layers.Dropout(0.2),
             tf.keras.layers.Dense(outputsize, activation=tf.nn.softmax)
-        ], name=self.shortname())
+        ],
+            name=self.shortname())
 
 
 class WangMLP(KerasClassifier):
@@ -195,15 +315,13 @@ class WangMLP(KerasClassifier):
 class CategoricalTruePositives(tf.keras.metrics.Metric):
     import tensorflow.keras.backend as K
 
-    def __init__(self, num_classes, batch_size,
-                 name="categorical_true_positives", **kwargs):
+    def __init__(self, num_classes, batch_size, name="categorical_true_positives", **kwargs):
         super(CategoricalTruePositives, self).__init__(name=name, **kwargs)
 
         self.batch_size = batch_size
         self.num_classes = num_classes
 
-        self.cat_true_positives = self.add_weight(
-            name="ctp", initializer="zeros")
+        self.cat_true_positives = self.add_weight(name="ctp", initializer="zeros")
 
     def update_state(self, y_true, y_pred, sample_weight=None):
 

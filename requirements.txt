@@ -3,7 +3,7 @@ numpy
 pandas
 wget
 intervaltree
-tensorflow
+tensorflow==2.4.0
 tensorflow-plot
 scikit-optimize
 matplotlib
@@ -13,3 +13,4 @@ compress_pickle[lz4]
 auto_profiler
 tensorflow_addons
 libsvm
+

@@ -41,6 +41,7 @@ class SWMeta(Segmentation):
             import logging
             logging.getLogger().setLevel(logging.INFO)
             fast_strategy=ml_strategy.Simple.NormalStrategy()
+            
             for s,e in zip(starts,ends):
                 data2=self.customSplit(s_events,a_events,s,e)
                 print(f's={s} : {e}============= #sevent={len(data2.s_events)} #aevents={len(data2.a_events)}')
@@ -63,7 +64,7 @@ class SWMeta(Segmentation):
             d={'meta_features':meta_features, 'meta_targets':meta_targets }
             import general.utils
             from constants import methods
-            general.utils.saveState(d,f"meta_dataset {methods.run_names['out']} {methods.run_names['fold']}")
+            general.utils.saveState(d,f"meta_dataset/{methods.run_names['out']} {methods.run_names['fold']}")
         else:
             import general.utils
             d=general.utils.loadState("meta_dataset 220602_23-52-11-A4H-Namespace(classifier=0, comment='0', dataset=3, evaluation=0, feature_extraction=0, mlstrategy=0, output='logs', segmentation=0) 0")

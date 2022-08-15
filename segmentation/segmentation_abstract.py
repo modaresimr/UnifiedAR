@@ -1,14 +1,17 @@
 from general.utils import Data, MyTask
 import numpy as np
 from general.utils import Buffer
-import logging 
+import logging
+from tqdm.auto import tqdm
 # Define segmentation
-def segment(dtype,datasetdscr, segment_method):
+
+
+def segment(dtype, datasetdscr, segment_method):
     buffer = Buffer(dtype.s_events, 0, 0)
     w_history = []
     segment_method.reset()
-    segment_method.precompute(datasetdscr,dtype.s_events,dtype.a_events,dtype.acts)
-    while(1):
+    segment_method.precompute(datasetdscr, dtype.s_events, dtype.a_events, dtype.acts)
+    while (1):
         window = segment_method.segment(w_history, buffer)
         if window is None:
             return
@@ -17,32 +20,31 @@ def segment(dtype,datasetdscr, segment_method):
 
 
 class Segmentation(MyTask):
-    def precompute(self,datasetdscr, s_events, a_events, acts):
+    def precompute(self, datasetdscr, s_events, a_events, acts):
         pass
 
     def segment(self, w_history, buffer):
         pass
 
 
-def prepare_segment(func,dtype,datasetdscr):
+def prepare_segment(func, dtype, datasetdscr):
     segmentor = func.segmentor
-    
-    
+
     func.activityFetcher.precompute(dtype)
 
     procdata = Data(segmentor.__str__())
-    procdata.generator = segment(dtype,datasetdscr, segmentor)
+    procdata.generator = segment(dtype, datasetdscr, segmentor)
     procdata.set = []
     procdata.label = []
     procdata.set_window = []
     procdata.acts = func.acts
     procdata.s_events = dtype.s_events
     procdata.a_events = dtype.a_events
-    
+
     i = 0
-    for x in procdata.generator:
-        if i % 10000 == 0:
-            logger.debug(segmentor.shortname(), i)
+    for x in tqdm(procdata.generator):
+        # if i % 10000 == 0:
+        #     logger.debug(segmentor.shortname(), i)
         i += 1
         procdata.set_window.append(x)
         procdata.label.append(
@@ -53,26 +55,25 @@ def prepare_segment(func,dtype,datasetdscr):
     return procdata
 
 
-def prepare_segment2(func,dtype,datasetdscr,train):
+def prepare_segment2(func, dtype, datasetdscr, train):
     segmentor = func.segmentor
-    
-    
+
     func.activityFetcher.precompute(dtype)
 
     procdata = Data(segmentor.__str__())
-    procdata.generator  = segment2(dtype,datasetdscr, segmentor,train)
-    procdata.set        = []
-    procdata.label      = []
+    procdata.generator = segment2(dtype, datasetdscr, segmentor, train)
+    procdata.set = []
+    procdata.label = []
     procdata.set_window = []
-    procdata.acts       = func.acts
-    procdata.s_events   = dtype.s_events
-    procdata.s_event_list= dtype.s_event_list
-    procdata.a_events   = dtype.a_events
-    
+    procdata.acts = func.acts
+    procdata.s_events = dtype.s_events
+    procdata.s_event_list = dtype.s_event_list
+    procdata.a_events = dtype.a_events
+
     i = 0
-    for x in procdata.generator:
-        if i % 10000 == 0:
-            print(segmentor.shortname(), i)
+    for x in tqdm(procdata.generator, desc=f'{segmentor.shortname()} {segmentor.params}', bar_format='{l_bar}{bar}count={n_fmt} time={elapsed} speed={rate_fmt}{postfix}'):
+        # if i % 10000 == 0:
+        #     print(segmentor.shortname(), i)
         i += 1
         procdata.set_window.append(x)
         procdata.label.append(func.activityFetcher.getActivity2(dtype.s_event_list, x))
@@ -82,13 +83,15 @@ def prepare_segment2(func,dtype,datasetdscr,train):
     return procdata
 
 # Define segmentation
-def segment2(dtype,datasetdscr, segment_method, train):
+
+
+def segment2(dtype, datasetdscr, segment_method, train):
     buffer = Buffer(dtype.s_events, 0, 0)
     w_history = []
     segment_method.reset()
     if train:
-        segment_method.precompute(datasetdscr,dtype.s_events,dtype.a_events,dtype.acts)
-    while(1):
+        segment_method.precompute(datasetdscr, dtype.s_events, dtype.a_events, dtype.acts)
+    while (1):
         window = segment_method.segment2(w_history, buffer)
         if window is None:
             return

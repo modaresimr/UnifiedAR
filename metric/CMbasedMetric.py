@@ -4,6 +4,7 @@ from general.utils import Data
 
 epsilon=np.finfo(float).eps
 def CMbasedMetric(cm, average=None,weight=None):
+    
     TP, FP, FN, TN = get_tp_fp_fn_tn(cm)
 
     accuracy = TP.sum()/cm.sum()
@@ -22,7 +23,7 @@ def CMbasedMetric(cm, average=None,weight=None):
 
     
     s=TP+FN
-    weight=np.array(np.ones(len(s)) if weight is None else weight)
+    weight=np.ones(len(s)) if weight is None else np.array(weight)
     weight[0]=0
     for i in range(len(s)):
         if(s[i]==0):weight[i]=0

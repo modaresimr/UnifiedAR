@@ -1,5 +1,5 @@
 ItemId,ItemName,Cumulative,Nominal,OnChange,ItemRange,Location,Object,SensorName
-257,global_lighting_current,0,0,0,"{""max"":0.64,""min"":0.21,""avg"":0.29218691588785045,""stdDev"":0.06213478428055468}",global,lighting,current
+257,.global_lighting_current,0,0,0,"{""max"":0.64,""min"":0.21,""avg"":0.29218691588785045,""stdDev"":0.06213478428055468}",global,lighting,current
 258,bathroom_heater_command,0,0,0,"{""max"":53.0,""min"":0.0,""avg"":0.9720372836218375,""stdDev"":4.499802153211925}",bathroom,heater,command
 265,kitchen_fridge_current,0,0,0,"{""max"":5.55,""min"":0.0,""avg"":0.08799099099099099,""stdDev"":0.30285506287336017}",kitchen,fridge,current
 268,livingroom_CO2,0,0,0,"{""max"":630.72,""min"":509.76,""avg"":562.3094585529468,""stdDev"":20.334995373529818}",livingroom,-,CO2

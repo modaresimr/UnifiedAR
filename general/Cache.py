@@ -1,7 +1,7 @@
 import hashlib
 import logging
 logger = logging.getLogger(__file__)
-GlobalDisable=False
+GlobalDisable=True
 def hashkey(key):
    hash_object = hashlib.sha1(key.encode('utf-8'))
    return  hash_object.hexdigest()

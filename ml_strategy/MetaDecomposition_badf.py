@@ -61,15 +61,15 @@ class SimpleMeta(ml_strategy.abstract.MLStrategy):
             # self.strategy=fast_strategy
 
         d={'meta_features':meta_features, 'meta_target':meta_targets }
-        print(d)
+        # print(d)
         import general.utils
         general.utils.saveState(d,'temp')
 
         finalFeatureDf=pd.DataFrame(meta_features)
-        print('resssssssssssssssssssssssssssssss===========')
-        print(finalFeatureDf)
+        # print('resssssssssssssssssssssssssssssss===========')
+        # print(finalFeatureDf)
         finaltargetDf=pd.DataFrame(meta_targets)
-        print(finaltargetDf)
+        # print(finaltargetDf)
 
         return result
     

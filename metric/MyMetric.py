@@ -63,6 +63,7 @@ def eval_my_metric(real,pred,alpha=2,debug=0,calcne=1):
                 minp=min(minp,p[0])                
                 maxp=max(maxp,p[1])                
                 info['fragment']+=1
+            
             info['overfill_start']  +=max(0,r[0]-minp) if info['exist'] else 0
             info['overfill_end']    +=max(0,maxp-r[1]) if info['exist'] else 0
             info['underfill_start'] +=max(0,minp-r[0]) if info['exist'] else calcne*info['length']/2

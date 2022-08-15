@@ -58,7 +58,7 @@ class NormalStrategy(ml_strategy.abstract.MLStrategy):
 
     def pipeline(self,func,data,train,update_model=False):
         import os
-        os.system("taskset -p 0xff %d" % os.getpid())
+        os.system("taskset -a -pc 0-1000 %d >>/dev/null" % os.getpid())
         
         func.acts=self.acts
         logger.debug('Starting .... %s' % (func.shortrunname))
@@ -77,7 +77,7 @@ class NormalStrategy(ml_strategy.abstract.MLStrategy):
             func.classifier.train(Sdata.set, Sdata.label) 
             logger.debug('Classifier model trained  %s' % (func.classifier.shortname()))
 
-        logger.info("Evaluating....")
+        # logger.info("Evaluating....")
         result=Data('Result')
         result.shortrunname=func.shortrunname
         result.Sdata=Sdata
@@ -96,7 +96,8 @@ class NormalStrategy(ml_strategy.abstract.MLStrategy):
         
         result.pred_events  =pred_events
         result.real_events  =data.a_events
-
+        import sklearn
+        result.cm     =     sklearn.metrics.confusion_matrix(result.Sdata.label, result.predicted_classes, labels=self.acts)
         result.event_cm     =event_confusion_matrix(data.a_events,pred_events,self.acts)
         result.quality      =CMbasedMetric(result.event_cm,'macro',self.weight)
         #eventeval=EventBasedMetric(Sdata.a_events,pred_events,self.acts)
