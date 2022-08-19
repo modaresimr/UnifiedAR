@@ -3,10 +3,16 @@ import pandas as pd
 class FixedSlidingWindow(Segmentation):
 
     def applyParams(self,params):
+        
         res=super().applyParams(params);
         if(params['size'] <= 1) or params['shift']<=1:
             return False
-        
+        try:
+            shift = int(params['shift'])
+            size = int(params['size'])
+        except:
+            return False
+
         self.shift=pd.Timedelta(params['shift'],unit='s')
         self.size=pd.Timedelta(params['size'],unit='s')
         if(self.shift>self.size):
@@ -14,33 +20,33 @@ class FixedSlidingWindow(Segmentation):
           
         return res
 
-    def segment(self,w_history,buffer):
-        params=self.params
-        shift=pd.Timedelta(params['shift'],unit='s')
-        size=pd.Timedelta(params['size'],unit='s')
+#     def segment(self,w_history,buffer):
+#         params=self.params
+#         shift=self.shift
+#         size=pd.Timedelta(params['size'],unit='s')
 
-        if len(w_history)==0 :
-          lastStart=pd.to_datetime(0) 
-        else :
-          lastStart=w_history[len(w_history)-1]['start']
+#         if len(w_history)==0 :
+#           lastStart=pd.to_datetime(0) 
+#         else :
+#           lastStart=w_history[len(w_history)-1]['start']
 
-        lastStartshift=lastStart+shift;
-        sindex=buffer.searchTime(lastStartshift,-1)
+#         lastStartshift=lastStart+shift;
+#         sindex=buffer.searchTime(lastStartshift,-1)
 
-        if(sindex is None):
-            return None
-        #try:
-        stime=buffer.times[sindex]
+#         if(sindex is None):
+#             return None
+#         #try:
+#         stime=buffer.times[sindex]
 
-        etime=stime+size
-        eindex=buffer.searchTime(stime+size,+1)
-        #etime=buffer.times[eindex]
+#         etime=stime+size
+#         eindex=buffer.searchTime(stime+size,+1)
+#         #etime=buffer.times[eindex]
 
-        window=buffer.data.iloc[sindex:eindex+1];
-        buffer.removeTop(sindex)
-#        print(window.iat[0,1])
-        window.iat[0,1].value
-        return {'window':window,'start':stime, 'end':etime}
+#         window=buffer.data.iloc[sindex:eindex+1];
+#         buffer.removeTop(sindex)
+# #        print(window.iat[0,1])
+#         window.iat[0,1].value
+#         return {'window':window,'start':stime, 'end':etime}
     
 
     def segment2(self,w_history,buffer):
@@ -69,5 +75,5 @@ class FixedSlidingWindow(Segmentation):
 #         buffer.removeTop(sindex)
 # #        print(window.iat[0,1])
 #         window.iat[0,1].value
-        return idx
+        return (idx,None)
     

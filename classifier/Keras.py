@@ -28,7 +28,7 @@ class KerasClassifier(Classifier):
             y_pred (Tensor): model's predictions, same shape as y_true
 
         Returns:
-            tuple(Tensor): (micro, macro, weighted)
+d            tuple(Tensor): (micro, macro, weighted)
                         tuple of the computed f1 scores
         """
 
@@ -75,6 +75,12 @@ class KerasClassifier(Classifier):
     def _createmodel(self, inputsize, outputsize, update_model=False):
         if update_model and hasattr(self, 'model'):
             self.tqdmcallback = TqdmCallback(verbose=1)
+            from constants import methods
+            meta_path = methods.run_names.get('meta_base', '')
+            if meta_path:
+                logger.debug(f'loading meta train model {meta_path}')
+                self.model = tf.keras.models.load_model(f'save_data/{meta_path}/keras')
+
             return self.model
 
         self.outputsize = outputsize
@@ -124,22 +130,36 @@ class KerasClassifier(Classifier):
         for i in range(self.outputsize):
             if not (i in cw):
                 cw[i] = 0
+        from constants import methods
 
         trainlabel = tf.keras.utils.to_categorical(trainlabel, num_classes=self.outputsize)
         # from tf.keras.callbacks import EarlyStopping
+        # mc = tf.keras.callbacks.ModelCheckpoint(path, monitor='val_accuracy', mode='max', verbose=1, save_best_only=True)
+        tf.keras.backend.set_value(self.model.optimizer.lr, .01)
+        es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50, restore_best_weights=True)
 
-        es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
-        # mc = ModelCheckpoint(f'save_data/tmp/model', monitor='val_accuracy', mode='max', verbose=1, save_best_only=True)
-        return self.model.fit(
+        logpath = logging.getLogger().handlers[0].baseFilename[:-3]+f'/{methods.run_names["out"]}.csv'
+
+        from pathlib import Path
+        Path(logpath).parent.mkdir(parents=True, exist_ok=True)
+        csv_logger = tf.keras.callbacks.CSVLogger(logpath, append=True, separator=';')
+
+        self.model.fit(
             trainset,
             trainlabel,
             batch_size=1024,
             epochs=self.epochs,
-            validation_split=0.2,
-            class_weight=cw,
-            callbacks=[self.tqdmcallback, es],
+            validation_split=0.3,
+            # class_weight=cw,
+            callbacks=[self.tqdmcallback, es, csv_logger],
             verbose=0)
         self.trained = True
+
+        path = f'save_data/{methods.run_names["out"]}/keras'
+
+        logger.debug(f'save model to {path}')
+        tf.keras.models.save_model(model=self.model, filepath=path)
+        # self.model = tf.keras.models.load_model(path)
 
     def _evaluate(self, testset, testlabel):
         # if(self.trained):

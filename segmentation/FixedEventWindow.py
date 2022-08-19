@@ -7,11 +7,17 @@ class FixedEventWindow(Segmentation):
     def applyParams(self, params):
         shift = params['shift']
         size = params['size']
+        if not (shift > 0):
+            return False
+        if not (size > 0):
+            return False
         if (shift > size):
             return False
-        if (shift < 1) or size <= 1:
+        try:
+            shift = int(shift)
+            size = int(size)
+        except:
             return False
-
         return super().applyParams(params)
 
     def segment(self, w_history, buffer):
@@ -59,9 +65,10 @@ class FixedEventWindow(Segmentation):
 
         eindex = min(len(buffer.times) - 1, sindex + size)
 
-        filteridx = buffer.searchTime(stime + pd.Timedelta('12h'), +1)
-
-        eindex = min(eindex, filteridx)
+        etime = buffer.times[eindex]
+        if etime-stime>pd.Timedelta('12h'):
+            filteridx = buffer.searchTime(stime + pd.Timedelta('12h'), +1)
+            eindex = min(eindex, filteridx)
         # if (eindex - sindex < size):
         #     return None
         try:
@@ -76,4 +83,4 @@ class FixedEventWindow(Segmentation):
             print('size', size)
             print('len', len(buffer.times))
 
-        return idx
+        return (idx,None)

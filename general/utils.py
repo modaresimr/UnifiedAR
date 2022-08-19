@@ -252,27 +252,27 @@ def loadall(file):
 def configurelogger(file, dir, logparam=''):
     from datetime import datetime
     # Default parameters
-    log_filename = os.path.basename(__file__).split('.')[0] + \
-        '-%s-%s.log' % (datetime.now().strftime('%y%m%d_%H-%M-%S'), logparam)
+    log_filename = os.path.basename(file).split('.')[0] + \
+        '-%s-%s.log' % (datetime.now().strftime('%H-%M-%S'), logparam)
     # Setup output directory
-    output_dir = dir
-    if output_dir is not None:
-        output_dir = os.path.abspath(os.path.expanduser(output_dir))
-        if os.path.exists(output_dir):
-            # Found output_dir, check if it is a directory
-            if not os.path.isdir(output_dir):
-                exit('Output directory %s is found, but not a directory. Abort.' % output_dir)
-        else:
-            # Create directory
-            os.makedirs(output_dir)
+    output_dir = (dir if dir else 'logs')+datetime.now().strftime('/%Y-%m-%d/')
+
+    output_dir = os.path.abspath(os.path.expanduser(output_dir))
+    if os.path.exists(output_dir):
+        # Found output_dir, check if it is a directory
+        if not os.path.isdir(output_dir):
+            exit('Output directory %s is found, but not a directory. Abort.' % output_dir)
     else:
-        output_dir = '.'
+        # Create directory
+        os.makedirs(output_dir)
+
     log_filename = os.path.join(output_dir, log_filename)
     # Setup Logging as early as possible
     import sys
     logging.basicConfig(level=logging.DEBUG,
                         format='[%(asctime)s] %(filename)-10s %(funcName)-10s %(levelname)-8s %(message)s',
-                        handlers=[logging.FileHandler(log_filename), logging.StreamHandler(sys.stdout)])
+                        handlers=[logging.FileHandler(log_filename), logging.StreamHandler(sys.stdout)],
+                        datefmt='%H:%M:%S')
     logging.getLogger().setLevel(logging.DEBUG)
 
 
@@ -497,7 +497,7 @@ def parallelRunner(parallel, runner, items):
     pbar = tqdm(total=len(items))
     if parallel:
         import os
-        cpus=len(os.sched_getaffinity(0))
+        cpus = len(os.sched_getaffinity(0))
         pool = multiprocessing.Pool(cpus, maxtasksperchild=4)
         result = pool.imap(runner, items)
         try:

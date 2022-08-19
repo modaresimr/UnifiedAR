@@ -2,6 +2,7 @@ from general.utils import MyTask
 import numpy as np
 from general.sparray import sparray
 import tempfile
+from tqdm.auto import tqdm
 
 
 def featureExtraction(feat, datasetdscr, Sdata, istrain):
@@ -21,7 +22,7 @@ def featureExtraction(feat, datasetdscr, Sdata, istrain):
         # result= np.zeros((len(windows),shape[0],shape[1]), dtype=np.float)
         # result=np.zeros((len(windows),fw.shape[0],fw.shape[1]))
     feat.prepareData(Sdata.s_event_list)
-    for i in range(len(Sdata.set_window)):
+    for i in tqdm(range(len(Sdata.set_window)), desc=f'{feat.shortname()} {feat.params}', bar_format='{l_bar}{bar}count={n_fmt} time={elapsed} speed={rate_fmt}{postfix}'):
         result[i] = feat.featureExtract2(Sdata.s_event_list, Sdata.set_window[i])
         # return result[i]
 

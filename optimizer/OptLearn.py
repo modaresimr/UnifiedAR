@@ -59,7 +59,7 @@ class OptLearn(MyTask):
             optq = mytestopt(qfunc, bounds, ranges)
             # optq=skopt.forest_minimize(qfunc,bounds,n_jobs=8,n_calls=30)
             #
-            logger.info("running again+++++++++++++ to fix parameter of classifers on %s last quality was %f" % (str(optq['x']), optq['q']))
+            logger.info("%s last q %f +fix classifier parameters of classifers" % (str(optq['x']), optq['q']))
             if (Cache.GlobalDisable):
                 optq = {'x': optq['x'], 'q': optq['q']}
             else:

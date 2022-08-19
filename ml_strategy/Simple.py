@@ -12,7 +12,7 @@ from metric.event_confusion_matrix import event_confusion_matrix
 import ml_strategy.abstract
 from optimizer.BruteForce import method_param_selector
 from optimizer.OptLearn import OptLearn, ParamMaker
-from segmentation.segmentation_abstract import prepare_segment,prepare_segment2
+from segmentation.segmentation_abstract import prepare_segment2
 
 logger = logging.getLogger(__file__)
 
@@ -64,6 +64,8 @@ class NormalStrategy(ml_strategy.abstract.MLStrategy):
         logger.debug('Starting .... %s' % (func.shortrunname))
         Tdata=func.preprocessor.process(self.datasetdscr, data)
         logger.debug('Preprocessing Finished %s' % (func.preprocessor.shortname()))
+        if hasattr(self,'ui_debug'):
+            func.ui_debug=self.ui_debug
         Sdata=prepare_segment2(func,Tdata,self.datasetdscr,train)
         logger.debug('Segmentation Finished %d segment created %s' % (len(Sdata.set_window), func.segmentor.shortname()))
         Sdata.set=featureExtraction(func.featureExtractor,self.datasetdscr,Sdata,True)
@@ -77,7 +79,7 @@ class NormalStrategy(ml_strategy.abstract.MLStrategy):
             func.classifier.train(Sdata.set, Sdata.label) 
             logger.debug('Classifier model trained  %s' % (func.classifier.shortname()))
 
-        # logger.info("Evaluating....")
+        # logger.debug("Evaluating....")
         result=Data('Result')
         result.shortrunname=func.shortrunname
         result.Sdata=Sdata

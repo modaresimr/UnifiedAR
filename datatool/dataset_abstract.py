@@ -1,4 +1,7 @@
+import compress_pickle
+import os
 from general.utils import MyTask
+import general.utils as utils
 import numpy as np
 from intervaltree.intervaltree import IntervalTree
 
@@ -8,24 +11,44 @@ logger = logging.getLogger(__file__)
 
 
 class Dataset(MyTask):
-    def __init__(self,data_path,data_dscr):
+    def __init__(self, data_path, data_dscr):
         self.data_path = data_path
         self.data_dscr = data_dscr
+        self.cache_path = f'{data_path}/cache.pkl.lz4'
 
     def shortname(self):
         return self.data_dscr
 
     def _load(self):
         pass
-    
+
+    def _load_from_cache(self):
+        try:
+            if not os.path.exists(self.cache_path):
+                return False
+            attrs = compress_pickle.load(self.cache_path)
+            for k in attrs:
+                setattr(self, k, attrs[k])
+        except Exception as e:
+            logger.debug(f'cache file is broken {e}')
+            return False
+
+        return True
+
+    def _save_to_cache(self):
+        attrs = self.__dict__
+        compress_pickle.dump(attrs, self.cache_path)
 
     def load(self):
+        if self._load_from_cache():
+            return self
         self.activity_events, self.activities, self.sensor_events, self.sensor_desc = self._load()
         logger.debug('database file loaded... now convert it ')
         self._calculate_activity()
         logger.debug('activities converted...')
         self._caclculate_sensor()
         logger.debug('sensors converted...')
+        self._save_to_cache()
         return self
 
     def _calculate_activity(self):
@@ -41,10 +64,12 @@ class Dataset(MyTask):
             self.activity_events.StartTime
         self.activity_events_tree = IntervalTree()
         for i, act in self.activity_events.iterrows():
-            if(act.StartTime.value == act.EndTime.value):
-                self.activity_events_tree[act.StartTime.value:act.StartTime.value+1] = {'StartTime':act.StartTime,'EndTime':act.EndTime,'Activity':act.Activity}
+            if (act.StartTime.value == act.EndTime.value):
+                self.activity_events_tree[act.StartTime.value:act.StartTime.value +
+                                          1] = {'StartTime': act.StartTime, 'EndTime': act.EndTime, 'Activity': act.Activity}
             else:
-                self.activity_events_tree[act.StartTime.value:act.EndTime.value] = {'StartTime':act.StartTime,'EndTime':act.EndTime,'Activity':act.Activity}
+                self.activity_events_tree[act.StartTime.value:act.EndTime.value] = {
+                    'StartTime': act.StartTime, 'EndTime': act.EndTime, 'Activity': act.Activity}
 
     def _caclculate_sensor(self):
         self.sensor_events = self.sensor_events.sort_values(['time'])
@@ -55,41 +80,41 @@ class Dataset(MyTask):
         self.sensor_desc_map = {}
 
         for i, sd in self.sensor_desc[self.sensor_desc.Nominal == 1].iterrows():
-            self.sensor_desc_map_inverse[i] = {k: v for v,k in enumerate(sd.ItemRange['range'])}
-            self.sensor_desc_map[i] = {v: k for v,k in enumerate(sd.ItemRange['range'])}
+            self.sensor_desc_map_inverse[i] = {k: v for v, k in enumerate(sd.ItemRange['range'])}
+            self.sensor_desc_map[i] = {v: k for v, k in enumerate(sd.ItemRange['range'])}
+
         def _convertVal3(x):
-            return _convertVal(x.SID,x.Value)
-                    
-        def _convertVal2(sid,val):
+            return _convertVal(x.SID, x.Value)
+
+        def _convertVal2(sid, val):
             try:
-                valf=float(val)
+                valf = float(val)
                 return valf
             except:
-                return self.sensor_desc_map_inverse[sid][val]            
+                return self.sensor_desc_map_inverse[sid][val]
 
-        def _convertVal(sid,val):
-            
+        def _convertVal(sid, val):
+
             if sid in self.sensor_desc_map_inverse:
                 # if type(x.value) is float :
-                #         return self.sensor_desc_map_inverse[x.SID][str(int(x.value))]           
-                return self.sensor_desc_map_inverse[sid][val]            
-            else :
+                #         return self.sensor_desc_map_inverse[x.SID][str(int(x.value))]
+                return self.sensor_desc_map_inverse[sid][val]
+            else:
                 return float(val)
         # for i,x in self.sensor_events.iterrows() :
-            
 
-        import time 
-        s=time.time()
+        import time
+        s = time.time()
         # for i in range(0,len(self.sensor_events)):
         #     self.sensor_events.iat[i,2] = _convertVal(self.sensor_events.iat[i,0],self.sensor_events.iat[i,2])
         for p in self.sensor_desc_map_inverse:
             for v in self.sensor_desc_map_inverse[p]:
-                self.sensor_events=self.sensor_events.replace({'SID':p,'value':v},{'value':self.sensor_desc_map_inverse[p][v]})
-        self.sensor_events.value=pd.to_numeric(self.sensor_events.value)
+                self.sensor_events = self.sensor_events.replace({'SID': p, 'value': v}, {'value': self.sensor_desc_map_inverse[p][v]})
+        self.sensor_events.value = pd.to_numeric(self.sensor_events.value)
         # print(time.time()-s)
         # print(self.sensor_events)
-        self.sensor_id_map = {v: k for v,k in enumerate(self.sensor_desc.index)}
-        self.sensor_id_map_inverse = {k: v for v,k in enumerate(self.sensor_desc.index)}
+        self.sensor_id_map = {v: k for v, k in enumerate(self.sensor_desc.index)}
+        self.sensor_id_map_inverse = {k: v for v, k in enumerate(self.sensor_desc.index)}
 
     # region PublicActivityRoutines
 

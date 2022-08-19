@@ -12,7 +12,7 @@ from metric.event_confusion_matrix import event_confusion_matrix
 import ml_strategy.abstract
 from optimizer.BruteForce import method_param_selector
 from optimizer.OptLearn import OptLearn, ParamMaker
-from segmentation.segmentation_abstract import prepare_segment,prepare_segment2
+from segmentation.segmentation_abstract import prepare_segment2
 
 logger = logging.getLogger(__file__)
 

@@ -5,7 +5,8 @@ import numpy as np
 class SensorWord(FeatureExtraction):
 
     def precompute(self, datasetdscr, windows):
-        self.max_win = 100  # max([len(w) for w in windows])
+        self.max_win = 50  # max([len(w) for w in windows])
+        # self.max_win = max([len(w) for w in windows])
         from tensorflow.keras.preprocessing.text import Tokenizer
         self.tokenizer = Tokenizer(filters='!"#$%&()*+,-/:;<=>?@[\\]^_`{|}~\t\n', num_words=1000)  # , oov_token='other')
         items = datasetdscr.sensor_events['SID'].astype(str)+datasetdscr.sensor_events['value'].astype(str).values
@@ -22,8 +23,12 @@ class SensorWord(FeatureExtraction):
     def featureExtract2(self, s_event_list, idx):
         window = s_event_list
         f = np.zeros(self.shape)
-        t = 0
-        for i in range(len(idx)-1, max(-1, len(idx)-self.max_win-1), -1):
+
+        # for i in range(len(idx)-1, max(-1, len(idx)-self.max_win-1), -1):
+        sindx = max(0, len(idx)-self.max_win)
+        eindx = len(idx)
+        t = max(0, self.max_win-eindx-sindx)
+        for i in range(sindx, eindx):
             sname = window[idx[i], 0]
             # svalue = int(window[idx[i], 2])
             svalue = window[idx[i], 2]
@@ -38,8 +43,8 @@ class SensorWord(FeatureExtraction):
             f[t] = self.tokenizer.word_index.get(f'{sname}{svalue}'.lower(), 0)
             if f[t] > 1000:
                 f[t] = 0
-            if f[t] > 0:
-                t += 1
+            # if f[t] > 0:
+            t += 1
 
             # f[self.datasetdscr.sensor_id_map_inverse[window[idx[i], 0]]] = 1  #f[sensor_id_map_inverse[x.SID]]=1
         return f

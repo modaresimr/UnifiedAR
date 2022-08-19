@@ -30,6 +30,7 @@ import segmentation.FixedEventWindow
 import segmentation.FixedSlidingWindow
 import segmentation.FixedTimeWindow
 import segmentation.MetaDecomposition
+import segmentation.ActivityWindow
 import classifier.MySKLearn
 no_memory_limit = True
 
@@ -41,12 +42,12 @@ no_memory_limit = True
 # from general.libimport import *
 
 methods = Data('methods')
-
+methods.run_names = {'out': 'temp'}
 methods.meta_segmentation_sub_tasks = [
 
     {'method': lambda: segmentation.FixedEventWindow.FixedEventWindow(), 'params': [
-        {'var': 'size', 'min': 10, 'max': 30, 'type': 'int', 'init': 10, 'range': list(range(10, 26, 5))},
-        {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 10, 'range': list(range(10, 16, 5))}
+        {'var': 'size', 'min': 2, 'max': 30, 'type': 'int', 'init': 5, 'range': [2, 5, 8, 11, 15, 20, 30]},
+        {'var': 'shift', 'min': 2, 'max': 20, 'type': 'int', 'init': 2, 'range': [2, 5, 8, 11, 15, 20]}
     ], 'findopt': True},
     {'method': lambda: segmentation.FixedSlidingWindow.FixedSlidingWindow(), 'params': [
         {'var': 'size', 'min': 60, 'max': 15*60, 'type': 'float', 'init': 120/4, 'range': list(range(15, 120, 15))},
@@ -61,10 +62,16 @@ methods.meta_segmentation_sub_tasks = [
 
 
 methods.segmentation = [
-    {'method': lambda: segmentation.FixedEventWindow.FixedEventWindow(), 'params': [
+    # {'method': lambda: segmentation.FixedEventWindow.FixedEventWindow(), 'params': [
+    #     {'size': 25},
+    #     {'shift': 1}
+    # ], 'findopt': False},
+
+    {'method': lambda: segmentation.ActivityWindow.SlidingEventActivityWindow(), 'params': [
         {'size': 25},
         {'shift': 1}
     ], 'findopt': False},
+
     {'method': lambda: segmentation.MetaDecomposition.SWMeta(), 'params': [
         {'meta_size': '24h'},
         {'meta_overlap_rate': 1},
@@ -91,7 +98,7 @@ methods.preprocessing = [
 ]
 methods.classifier = [
     {'method': lambda: classifier.Keras.FCN(), 'params': [
-        {'epochs': 100}
+        {'epochs': 400}
     ]},
 
     {'method': lambda: classifier.MySKLearn.UAR_RandomForest(), 'params': [
@@ -153,8 +160,8 @@ methods.combiner = [
     # {'method':lambda: combiner.SimpleCombiner.EmptyCombiner()},
 ]
 methods.evaluation = [
-    {'method': lambda: evaluation.KFoldEval.KFoldEval(5)},
-    #   {'method': lambda: evaluation.SplitEval.SplitEval()},
+    {'method': lambda: evaluation.SplitEval.SplitEval()},
+    # {'method': lambda: evaluation.KFoldEval.KFoldEval(5)},
     #  {'method': lambda: evaluation.KFoldEval.PKFoldEval(5)},
 
 ]
@@ -190,7 +197,7 @@ methods.dataset = [
     {'method': lambda: datatool.casas_handeler.CASAS('datasetfiles/CASAS/Aruba/', 'Aruba')},
     {'method': lambda: datatool.casas_handeler.CASAS('datasetfiles/CASAS/KaryoAdlNormal/', 'KaryoAdlNormal')},
     {'method': lambda: datatool.a4h_handeler.A4H('datasetfiles/A4H/', 'A4H')},
-    {'method': lambda: datatool.vankasteren_handeler.VanKasteren('datasetfiles/VanKasteren/oldformat', 'VanKasteren')},
+    {'method': lambda: datatool.vankasteren_handeler.VanKasteren('datasetfiles/VanKasteren/oldformat/', 'VanKasteren')},
     {'method': lambda: datatool.casas_handeler.CASAS('datasetfiles/VanKasteren/A/', 'Kasteren_A')},
     {'method': lambda: datatool.casas_handeler.CASAS('datasetfiles/VanKasteren/B/', 'Kasteren_B')},
     {'method': lambda: datatool.casas_handeler.CASAS('datasetfiles/VanKasteren/C/', 'Kasteren_C')},
